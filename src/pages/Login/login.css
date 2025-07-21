@@ -1,0 +1,313 @@
+@import url('../../style.css');
+
+.main-box {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.content-box1 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary-color);
+    width: 100%;
+    flex-direction: column;
+}
+
+.content-box2 {
+    background-color: white;
+    width: 50%;
+    max-height: 90vh;
+    /* Ajusta para que nunca sobrepase la altura de la ventana */
+    border-radius: 12px;
+    padding: 1.5rem 4rem;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    /* Para que se pueda hacer scroll vertical si es necesario */
+}
+
+
+.title {
+    color: var(--darkgreen-color);
+    font-weight: 700 !important;
+    font-size: 1.5rem !important;
+}
+
+.form-container {
+    padding-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+}
+
+.no-account-section {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.divider-flex {
+    flex: 1;
+}
+
+.no-wrap-text {
+    white-space: nowrap;
+    font-size: 0.95rem;
+}
+
+.no-wrap-text.noaccount {
+    color: black;
+    font-weight: 600;
+    opacity: 50%;
+}
+
+.button-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 5px;
+}
+
+.custom-button {
+    background: var(--secondary-color) !important;
+    color: white !important;
+    border-radius: 8px;
+    font-weight: 600 !important;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    transition: background 0.3s ease;
+}
+
+.custom-button:hover {
+    background: var(--darkgreen-color);
+}
+
+.custom-button.wide {
+    padding-left: 5rem;
+    padding-right: 5rem;
+}
+
+
+.title-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1rem 0;
+}
+
+
+.login-form {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.login-label {
+    color: var(--blackinput-color);
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700 !important;
+}
+
+.login-inner-box {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.forgot-password {
+    text-decoration: underline;
+    color: var(--darkgreen-color);
+    margin-top: 5px;
+    cursor: pointer;
+}
+
+.login-button-box {
+    display: flex;
+    width: 100%;
+    max-width: 300px;
+    /* ejemplo */
+    margin: 0 auto;
+    /* centrar caja */
+    align-items: center;
+    justify-content: center;
+    padding-top: 2rem;
+}
+
+.button-box {
+    width: 40%;
+}
+
+.button-box.register {
+    width: 60%;
+}
+
+/* === CHANGE PASSWORD / RECOVERY FORM === */
+
+.recover-form-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.label-email {
+    color: var(--blackinput-color);
+    font-weight: 700 !important;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.email-description {
+    color: #121212;
+    padding-bottom: 1rem;
+}
+
+.recover-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+
+
+.verification-title-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.verification-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.code-description {
+    color: #121212;
+    padding-bottom: 1rem;
+}
+
+.code-inputs {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.resend-code {
+    text-decoration: underline;
+    color: var(--darkgreen-color);
+    margin-top: 5px;
+    cursor: pointer;
+}
+
+.resend-code:hover {
+    color: var(--hoverdarkgreen-color);
+}
+
+.update-password-form {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.password-label-tooltip {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+    /* Espacio entre label y tooltip */
+}
+
+.password-label {
+    color: var(--blackinput-color);
+    font-weight: 700 !important;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.tooltip-content {
+    font-size: 0.9rem;
+}
+
+.tooltip-content ul {
+    padding-left: 1.2rem;
+    margin: 0;
+}
+
+.info-icon-button {
+    padding-top: 0 !important;
+    /* para evitar padding superior extra */
+}
+
+.info-icon {
+    color: gray;
+}
+
+.buttons-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 0;
+    gap: 1rem;
+}
+
+
+@media (max-width: 600px) {
+    .button-section {
+        flex-direction: column;
+        gap: 10px
+    }
+
+    .custom-button {
+        padding-left: 4rem !important;
+        padding-right: 4rem !important;
+    }
+
+    .custom-button.wide {
+        padding-left: 4.5rem;
+        padding-right: 4.5rem;
+    }
+
+    .no-wrap-text.or-option {
+        display: none;
+    }
+
+    .buttons-container {
+        flex-direction: column;
+    }
+
+    .button-box {
+        width: 100%;
+    }
+
+    .content-box2 {
+        background-color: white;
+        width: 90%;
+        max-width: 500px;
+        height: fit-content;
+        overflow-y: auto;
+        border-radius: 12px;
+        padding: 1.5rem 1rem;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+    }
+
+}

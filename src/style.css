@@ -1,0 +1,19 @@
+:root {
+  --primary-color: #E7F2DC;
+  --secondary-color: #8FBBAC;
+  --darkgreen-color: #36848E;
+  --disabled-color: #E4E4E4;
+  --dark-gray-color: #adadad;
+  --dark-gray-hover-color: #969696;
+  --gray-color: #c6c6c6;
+  --hoverdarkgreen-color: #285D64;
+  --blackinput-color: #121212;
+  --font-main: 'Inter', sans-serif;
+  --border-radius: 12px;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
