@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
-export function DataInput({ label, placeholder, setData, formLabel, isOnlyNumber = false, value, errorMessage}) {
+export function DataInput({ label, placeholder, setData, formLabel, isOnlyNumber = false, value, errorMessage }) {
     return (
         <Box>
             <Typography
@@ -70,7 +70,7 @@ export function DataInput({ label, placeholder, setData, formLabel, isOnlyNumber
     )
 }
 
-export function DataSelect({ label, value, setData, formLabel }) {
+export function DataSelect({ label, value, setData, formLabel, errorMessage }) {
     return (
         <Box>
             <Typography
@@ -83,30 +83,52 @@ export function DataSelect({ label, value, setData, formLabel }) {
             >
                 {label}
             </Typography>
-            <Select
-                fullWidth
-                value={value || ''}
-                size="small"
-                onChange={(e) => {
-                    setData((prev) => ({
-                        ...prev,
-                        [formLabel]: e.target.value
-                    }));
-                }}
-                displayEmpty
-                sx={{
-                    '& .MuiInputBase-root': {
-                        padding: '4px 8px',
-                        fontSize: '0.875rem',
-                    },
-                }}
-            >
-                <MenuItem value="" disabled>Selecciona una opción</MenuItem>
-                <MenuItem value="Guayaquil">Guayaquil</MenuItem>
-                <MenuItem value="Samborondón">Samborondón</MenuItem>
-                <MenuItem value="Durán">Durán</MenuItem>
-                <MenuItem value="Chongón">Chongón</MenuItem>
-            </Select>
+            <Box sx={{ position: 'relative', width: '100%' }}>
+                {errorMessage && (
+                    <Box
+                        sx={{
+                            position: 'absolute',
+                            top: '-1.5rem',
+                            right: 0,
+                            backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                            color: '#d32f2f',
+                            padding: '0.3rem 0.6rem',
+                            borderRadius: '4px',
+                            fontSize: '0.75rem',
+                            fontWeight: 500,
+                            border: '1px solid rgba(211, 47, 47, 0.4)',
+                            zIndex: 10,
+                        }}
+                    >
+                        {errorMessage}
+                    </Box>
+
+                )}
+                <Select
+                    fullWidth
+                    value={value || ''}
+                    size="small"
+                    onChange={(e) => {
+                        setData((prev) => ({
+                            ...prev,
+                            [formLabel]: e.target.value
+                        }));
+                    }}
+                    displayEmpty
+                    sx={{
+                        '& .MuiInputBase-root': {
+                            padding: '4px 8px',
+                            fontSize: '0.875rem',
+                        },
+                    }}
+                >
+                    <MenuItem value="" disabled>Selecciona una opción</MenuItem>
+                    <MenuItem value="Guayaquil">Guayaquil</MenuItem>
+                    <MenuItem value="Samborondón">Samborondón</MenuItem>
+                    <MenuItem value="Durán">Durán</MenuItem>
+                    <MenuItem value="Chongón">Chongón</MenuItem>
+                </Select>
+            </Box>
         </Box>
     );
 }

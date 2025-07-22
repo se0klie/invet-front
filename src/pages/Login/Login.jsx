@@ -67,7 +67,7 @@ export default function InitialState() {
                     </Box>
                 }
 
-                {currentStep === 5 && (!isMobile || disableRegister)
+                {currentStep === 5 && (disableRegister)
                     &&
                     <Box className="buttons-container">
                         <PreviousButton isBrighter={true} action={() => { setCurrentStep(1) }} />
@@ -79,7 +79,7 @@ export default function InitialState() {
                             if (registerFieldStatus.validated) {
                                 navigate('/welcomePage')
                             }
-                        }} disabled={disableRegister} />
+                        }} disabled={!registerFieldStatus.validated} />
                     </Box>
                 }
             </Box>
@@ -395,7 +395,7 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
     ]
 
     useEffect(() => {
-        if (!isMobile) {
+        if (isMobile) {
             setDisabled(false)
         }
     }, [])
@@ -408,17 +408,26 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
     useEffect(() => {
         if (!isMobile && validateFields) {
             changeStatus(prev => ({ ...prev, toValidate: false }));
-            const isValid = verifyFields(); // llama la función
+            const isValid = verifyFields();
 
             if (isValid) {
                 changeStatus(prev => ({ ...prev, validated: true }));
             }
+        } else if(isMobile && formStep === groupedFields.length - 1) {
+            setDisabled(true)
+            const isValid = verifyFieldsPhone(formStep);
+            if (isValid) {
+                changeStatus(prev => ({ ...prev, validated: true }));
+            } else {
+                changeStatus(prev => ({ ...prev, validated: false }));
+            }
+            
         }
-    }, [formData, validateFields]);
+    }, [formData, validateFields, formStep]);
 
     function verifyFields() {
         let hasErrors = false;
-        const newErrors = {}; // acumulador local
+        const newErrors = {};
 
         Object.entries(formData).forEach(([key, value]) => {
             if (!value) {
@@ -458,8 +467,8 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
             }
         });
 
-        setErrors(newErrors); // un solo update
-        return !hasErrors; // true si todo está validado
+        setErrors(newErrors);
+        return !hasErrors;
     }
 
     function verifyFieldsPhone(groupIndex) {
@@ -528,10 +537,16 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
                     [item]: 'Las contraseñas no son iguales.',
                 }));
                 hasErrors = true;
+            } else if (item === 'city' && !value) {
+                setErrors(prev => ({
+                    ...prev,
+                    [item]: 'Este campo es necesario.',
+                }));
+                hasErrors = true;
             }
         }
 
-        return !hasErrors; // true si todo está validado
+        return !hasErrors;
     }
 
 
@@ -568,7 +583,7 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
                             field.formData === 'city' ? (
                                 <>
                                     <YellowAlert message={'Recuerda que nuestros servcios son exclusivos para: Guayaquil, Chongón, Durán y Samborondón.'} />
-                                    <DataSelect key={i} label="Ciudad" setData={setFormData} formLabel="city" value={formData.city} />
+                                    <DataSelect key={i} label="Ciudad" setData={setFormData} formLabel="city" value={formData.city} errorMessage={errors.city} />
                                 </>
                             ) : field.formData === 'password' ? (
                                 <PasswordLabelWithTooltip key={i} label={field.label} placeholder={field.placeholder} setData={setFormData} formLabel={field.formData} value={formData[field.formData]} errorMessage={errors.password} />
@@ -589,39 +604,47 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
                         ))
                     : registerFields.map((field, i) => (
                         field.formData === 'city' ? (
-                            <DataSelect key={i} label="Ciudad" setData={setFormData} formLabel="city" value={formData.city} />
+                            <DataSelect key={i} label="Ciudad" setData={setFormData} formLabel="city" value={formData.city} errorMessage={errors.city} />
                         ) : field.formData === 'password' ? (
                             <PasswordLabelWithTooltip key={i} label={field.label} placeholder={field.placeholder} setData={setFormData} formLabel={field.formData} value={formData[field.formData]} errorMessage={errors.password} />
-                        ) :
-                            field.formData === 'repeatedpassword' ? (
-                                <PasswordLabelWithTooltip key={i} label={field.label} placeholder={field.placeholder} setData={setFormData} formLabel={field.formData} errorMessage={errors.repeatedPassword} />
-                            ) : (
-                                <DataInput
-                                    key={i}
-                                    label={field.label}
-                                    placeholder={field.placeholder}
-                                    setData={setFormData}
-                                    formLabel={field.formData}
-                                    isOnlyNumber={field.type === 'number'}
-                                    errorMessage={errors[field.formData]}
-                                    value={formData[field.formData]}
-                                />
-                            )
+                        ) : field.formData === 'repeatedpassword' ? (
+                            <PasswordLabelWithTooltip key={i} label={field.label} placeholder={field.placeholder} setData={setFormData} formLabel={field.formData} errorMessage={errors.repeatedpassword} />
+                        ) : (
+                            <DataInput
+                                key={i}
+                                label={field.label}
+                                placeholder={field.placeholder}
+                                setData={setFormData}
+                                formLabel={field.formData}
+                                isOnlyNumber={field.type === 'number'}
+                                errorMessage={errors[field.formData]}
+                                value={formData[field.formData]}
+                            />
+                        )
                     ))}
             </Box>
 
-            {isMobile && (
+            {isMobile && formStep < groupedFields.length - 1 && (
                 <Box mt={2} display="flex" justifyContent="space-between" gap="3rem">
                     <PreviousButton
-                        disabled={formStep === 0}
-                        action={() => setFormStep(formStep - 1)} />
+                        action={() => {
+                            if (formStep === 0) {
+                                setStep(1)
+                            } else {
+                                setFormStep(formStep - 1)
+                            }
+                        }} />
                     <NextButton
                         text={'Siguiente'}
                         action={() => {
-                            if (verifyFieldsPhone(formStep))
-                                setFormStep(formStep + 1)
+                            if (verifyFieldsPhone(formStep)) {
+                                if (formStep === groupedFields.length - 1) {
+                                    navigate('/welcomePage')
+                                } else {
+                                    setFormStep(formStep + 1)
+                                }
+                            }
                         }}
-                        disabled={formStep >= groupedFields.length - 1}
                     />
                 </Box>
             )}
