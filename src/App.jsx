@@ -5,6 +5,7 @@ import { useAuth } from "./context/AuthContext";
 import InitialState from './pages/Login/Login'
 import Dashboard from "./pages/Dashboard";
 import WelcomePage from "./pages/WelcomePage";
+import Layout from "./pages/shared components/Layout";
 
 function App() {
   const { user } = useAuth();
@@ -17,10 +18,9 @@ function App() {
           element={!user ? <InitialState /> : <Navigate to="/dashboard" />}
         />
 
-        <Route
-          path="/dashboard"
-          element={user ? <Dashboard /> : <Navigate to="/login" />}
-        />
+        <Route element={<Layout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Route>
         <Route
           path="/welcomePage"
           element={<WelcomePage />}

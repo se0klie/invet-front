@@ -95,7 +95,7 @@ function Login({ setStep }) {
     })
     const [showPassword, setShowPassword] = useState()
     const handleTogglePassword = () => setShowPassword((prev) => !prev);
-
+    const { login } = useAuth()
     return (
         <>
             <Box className="title-box">
@@ -145,7 +145,7 @@ function Login({ setStep }) {
                     </Typography>
 
                     <Box className="login-button-box">
-                        <DarkGreenButton text={'Iniciar sesión'} />
+                        <DarkGreenButton text={'Iniciar sesión'} action={()=> login({ name: 'yop',email: 'asdasd'})} />
                     </Box>
                 </Box>
             </Box>
@@ -413,7 +413,7 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
             if (isValid) {
                 changeStatus(prev => ({ ...prev, validated: true }));
             }
-        } else if(isMobile && formStep === groupedFields.length - 1) {
+        } else if (isMobile && formStep === groupedFields.length - 1) {
             setDisabled(true)
             const isValid = verifyFieldsPhone(formStep);
             if (isValid) {
@@ -421,7 +421,7 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
             } else {
                 changeStatus(prev => ({ ...prev, validated: false }));
             }
-            
+
         }
     }, [formData, validateFields, formStep]);
 
@@ -616,7 +616,7 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
                                 placeholder={field.placeholder}
                                 setData={setFormData}
                                 formLabel={field.formData}
-                                isOnlyNumber={field.type === 'number'}
+                                type={field.type}
                                 errorMessage={errors[field.formData]}
                                 value={formData[field.formData]}
                             />

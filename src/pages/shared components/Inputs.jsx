@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
-export function DataInput({ label, placeholder, setData, formLabel, isOnlyNumber = false, value, errorMessage }) {
+export function DataInput({ label, placeholder, setData, formLabel, type, value, errorMessage }) {
     return (
         <Box>
             <Typography
@@ -42,11 +42,9 @@ export function DataInput({ label, placeholder, setData, formLabel, isOnlyNumber
                     fullWidth
                     placeholder={placeholder}
                     size="small"
-                    type={isOnlyNumber ? "number" : "text"}
-                    inputProps={isOnlyNumber ? { inputMode: 'numeric', pattern: '[0-9]*' } : {}}
+                    type={type}
                     onChange={(e) => {
                         const value = e.target.value;
-                        if (isOnlyNumber && value && !/^\d*$/.test(value)) return; // ignore non-numeric
                         setData((prev) => ({
                             ...prev,
                             [formLabel]: value
@@ -69,6 +67,7 @@ export function DataInput({ label, placeholder, setData, formLabel, isOnlyNumber
         </Box>
     )
 }
+
 
 export function DataSelect({ label, value, setData, formLabel, errorMessage }) {
     return (
