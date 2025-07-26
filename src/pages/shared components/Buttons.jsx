@@ -1,4 +1,4 @@
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
@@ -130,4 +130,56 @@ export function PreviousButton({ action, isBrighter = false, disabled = false })
             Anterior
         </Button>
     )
+}
+
+export function AddPet({ action }) {
+    return (
+        <Button sx={{
+            borderColor: 'var(--secondary-color)', borderWidth: '2px', borderRadius: '2rem', borderStyle: 'solid', padding: '10px 20px', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer',
+            color: 'var(--secondary-color)',
+            fontWeight: 600,
+            '&:hover': {
+                borderColor: 'transparent',
+                backgroundColor: 'var(--secondary-color)',
+                color: 'white',
+                fontWeight: 600
+            },
+        }}
+            onClick={action}>
+            Agregar mascota
+        </Button >
+    )
+}
+
+export function CancelButton({ action, disabled = false, fill = false }) {
+    return (
+        <Button
+            sx={{
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                opacity: disabled ? 0.4 : 1,
+                color: 'var(--error-color)',
+                borderRadius: '8px',
+                fontWeight: 600,
+                paddingX: '0.5rem',
+                backgroundColor: 'transparent',
+                border: '0.15rem solid var(--error-color)',
+                width: '80%',
+                transition: 'all 0.2s ease-in-out',
+                fontSize: '0.675rem',
+                '&:hover': {
+                    backgroundColor: 'var(--error-color)',
+                    color: 'white',
+                    borderColor: 'var(--error-color)',
+                },
+                '&:disabled': {
+                    cursor: 'not-allowed',
+                }
+            }}
+            disabled={disabled}
+            onClick={action}
+        >
+            Cancelar plan
+        </Button>
+    );
 }

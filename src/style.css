@@ -4,12 +4,18 @@
   --darkgreen-color: #36848E;
   --disabled-color: #E4E4E4;
   --dark-gray-color: #adadad;
+  --extra-light-gray-color: #f4f4f4;
   --dark-gray-hover-color: #969696;
-  --gray-color: #c6c6c6;
+  --gray-color: #b8b3b3;
   --hoverdarkgreen-color: #285D64;
   --blackinput-color: #121212;
+  --soft-black-color: rgb(108, 108, 108);
   --font-main: 'Inter', sans-serif;
   --border-radius: 12px;
+  --error-color: #d32f2f; 
+  --error-fill-color: #CC7E7E; 
+  --error-fill-hover-color: #a85959; 
+  
 }
 
 html, body {
