@@ -1,6 +1,7 @@
 import { Button, Typography } from "@mui/material";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import { useMediaQuery, useTheme } from '@mui/material'
 
 export function NextButton({ action, isSend = false, disabled = false }) {
     return (
@@ -17,7 +18,8 @@ export function NextButton({ action, isSend = false, disabled = false }) {
                     backgroundColor: 'var(--hoverdarkgreen-color)',
                     color: '#eee',
                 },
-                width: '100%'
+                width: '100%',
+                minWidth: 'min-content'
             }}
             onClick={action}
         >
@@ -41,7 +43,7 @@ export function DarkGreenButton({ text, action, disabled = false }) {
                 '&:hover': {
                     backgroundColor: 'var(--hoverdarkgreen-color)',
                     color: '#eee',
-                },
+                },minWidth: 'min-content'
             }}
             onClick={action}
         >
@@ -66,7 +68,8 @@ export function GrayButton({ action, text, disabled = false }) {
                     border: ' 0.2rem solid var(--dark-gray-color)',
                     color: 'var(--dark-gray-color)'
                 },
-                width: '100%'
+                width: '100%',
+                minWidth: 'min-content'
             }}
             onClick={action}
         >
@@ -95,6 +98,7 @@ export function LightGreenButton({ action, text, disabled = false }) {
                     minWidth: 'auto',
                     whiteSpace: 'wrap',
                 },
+                minWidth: 'min-content'
 
             }}
             onClick={action}
@@ -133,6 +137,7 @@ export function PreviousButton({ action, isBrighter = false, disabled = false })
 }
 
 export function AddPet({ action }) {
+    const isMobile = useMediaQuery(useTheme().breakpoints.down('sm'));
     return (
         <Button sx={{
             borderColor: 'var(--secondary-color)', borderWidth: '2px', borderRadius: '2rem', borderStyle: 'solid', padding: '10px 20px', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer',
@@ -146,12 +151,12 @@ export function AddPet({ action }) {
             },
         }}
             onClick={action}>
-            Agregar mascota
+            {isMobile ? 'Agregar' : 'Agregar mascota'}
         </Button >
     )
 }
 
-export function CancelButton({ action, disabled = false, fill = false }) {
+export function CancelButton({ text, action, disabled = false, fill = false }) {
     return (
         <Button
             sx={{
@@ -161,7 +166,7 @@ export function CancelButton({ action, disabled = false, fill = false }) {
                 color: 'var(--error-color)',
                 borderRadius: '8px',
                 fontWeight: 600,
-                paddingX: '0.5rem',
+                paddingX: '1rem',
                 backgroundColor: 'transparent',
                 border: '0.15rem solid var(--error-color)',
                 width: '80%',
@@ -179,7 +184,7 @@ export function CancelButton({ action, disabled = false, fill = false }) {
             disabled={disabled}
             onClick={action}
         >
-            Cancelar plan
+            {text}
         </Button>
     );
 }

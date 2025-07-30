@@ -5,7 +5,9 @@ import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import './style.css'
 import { SnackbarProvider } from 'notistack';
+import { WhatsAppButton } from './pages/shared components/WhatsappButton.jsx'
 
+const isMobile = window.innerWidth <= 600;
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <SnackbarProvider
@@ -16,6 +18,7 @@ createRoot(document.getElementById('root')).render(
       }}
     >
       <AuthProvider>
+        {isMobile && <WhatsAppButton />}
         <App />
       </AuthProvider>
     </SnackbarProvider>
