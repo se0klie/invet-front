@@ -5,7 +5,7 @@ import { AddPet, LightGreenButton } from '../../pages/shared components/Buttons'
 import PetBox from "../../pages/shared components/PetBox"
 import { DataInput } from "../../pages/shared components/Inputs";
 import { RxCross1 } from "react-icons/rx";
-
+import { useMediaQuery, useTheme } from '@mui/material'
 export default function MisMascotas() {
     const [pets, setPets] = useState([
         {
@@ -14,20 +14,20 @@ export default function MisMascotas() {
             plan: 'Básico',
         },
         {
-            name: 'Firulais',
+            name: 'Tuco',
             status: 'Activo',
             plan: 'Básico',
         },
         {
-            name: 'Firulais',
+            name: 'Otto',
         }
     ]);
     const [addPetModal, setAddPetModal] = useState(false);
     const [newPetData, setNewPetData] = useState({ image: undefined });
-
+    const isMobile = useMediaQuery(useTheme().breakpoints.down('sm'));
     const handleFileChange = (e) => {
         const file = e.target.files[0];
-        if (!file) return; // user canceled
+        if (!file) return;
 
         if (!file.type.startsWith('image/')) {
             alert('Solo se permiten imágenes.');
@@ -47,11 +47,6 @@ export default function MisMascotas() {
         reader.readAsDataURL(file);
     };
 
-
-
-    useEffect(() => {
-        console.log(newPetData);
-    }, [newPetData]);
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '72vh', margin: '1.5rem', overflowY: 'hidden' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
@@ -100,6 +95,7 @@ export default function MisMascotas() {
                                 petName={pet.name}
                                 status={pet.status}
                                 plan={pet.plan}
+                                pets={pets}
                             />
                         ))}
                     </Box>
@@ -121,20 +117,25 @@ export default function MisMascotas() {
                         boxShadow: 24,
                         p: 4,
                         borderRadius: 2,
-                        width: { xs: '90%', sm: 400, md: 600 },
+                        width: { xs: '70%', md: 500, lg: 600 },
                     }}
                 >
-                    <Box sx={{display: 'flex'}}>
-                        <Box sx={{
-                            display: 'flex',
-                            flexDirection: 'column',}}>
-                            <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'var(--darkgreen-color)' }}>
+                    <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                            <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'var(--darkgreen-color)' }}>
                                 Añadir mascota
                             </Typography>
-                            <Typography variant='p' sx={{ color: 'gray' }}>Ingresa los datos necesarios para registrar a tu mascota</Typography>
+                            <Typography variant="body2" sx={{ color: 'gray' }}>
+                                Ingresa los datos necesarios para registrar a tu mascota
+                            </Typography>
                         </Box>
-                        <RxCross1 />
+
+                        <RxCross1
+                            style={{ color: 'black', cursor: 'pointer' }}
+                            onClick={() => setAddPetModal(false)}
+                        />
                     </Box>
+
                     <Box
                         sx={{
                             display: 'flex',
@@ -142,6 +143,7 @@ export default function MisMascotas() {
                             marginTop: '1rem',
                             maxHeight: '60vh',
                             overflowY: 'auto',
+                            flexDirection: isMobile ? 'column' : 'row',
                         }}
                     >
                         <Box
@@ -194,53 +196,55 @@ export default function MisMascotas() {
                             <Typography variant="p" sx={{ fontWeight: 'bold', color: 'var(--blackinput-color)' }}>
                                 Subir foto (opcional)
                             </Typography>
-                            <Box>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleFileChange}
-                                    style={{ display: 'none' }}
-                                    id="pet-image-upload"
-                                />
-                                <label htmlFor="pet-image-upload">
-                                    <Box
-                                        component="div"
-                                        sx={{
-                                            width: '120px',
-                                            height: '120px',
-                                            borderRadius: '50%',
-                                            backgroundColor: 'var(--disabled-color)',
-                                            overflow: 'hidden',
-                                            cursor: 'pointer',
-                                            border: '2px dashed #ccc',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            '&:hover': {
-                                                borderColor: 'var(--secondary-color)',
-                                            },
-                                        }}
-                                    >
-                                        {newPetData.image ? (
-                                            <img
-                                                src={newPetData.image}
-                                                alt="Vista previa"
-                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                            />
-                                        ) : (
-                                            <span style={{ color: '#777', fontSize: '0.8rem', textAlign: 'center' }}>
-                                                Subir Foto
-                                            </span>
-                                        )}
-                                    </Box>
-                                </label>
+                            <Box
+                                sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '1rem' }}>
+                                <Box>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                        style={{ display: 'none' }}
+                                        id="pet-image-upload"
+                                    />
+                                    <label htmlFor="pet-image-upload">
+                                        <Box
+                                            component="div"
+                                            sx={{
+                                                width: isMobile ? '70px' : '120px',
+                                                height: isMobile ? '70px' : '120px',
+                                                borderRadius: '50%',
+                                                backgroundColor: 'var(--disabled-color)',
+                                                overflow: 'hidden',
+                                                cursor: 'pointer',
+                                                border: '2px dashed #ccc',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                '&:hover': {
+                                                    borderColor: 'var(--secondary-color)',
+                                                },
+                                            }}
+                                        >
+                                            {newPetData.image ? (
+                                                <img
+                                                    src={newPetData.image}
+                                                    alt="Vista previa"
+                                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                />
+                                            ) : (
+                                                <span style={{ color: '#777', fontSize: '0.8rem', textAlign: 'center' }}>
+                                                    Subir Foto
+                                                </span>
+                                            )}
+                                        </Box>
+                                    </label>
+                                </Box>
+                                <LightGreenButton text='Añadir' />
                             </Box>
                         </Box>
                     </Box>
 
-                    <Box sx={{ width: '30%', marginLeft: 'auto', marginRight: '1.5rem' }}>
-                        <LightGreenButton text='Añadir mascota' />
-                    </Box>
+                    
                 </Box>
             </Modal>
         </Box >

@@ -45,6 +45,7 @@ export default function InitialState() {
                     {currentStep === 3 && <VerifyCode setStep={setCurrentStep} currentStep={currentStep} />}
                     {currentStep === 4 && <UpdatePasswordForm setStep={setCurrentStep} currentStep={currentStep} />}
                     {currentStep === 5 && <Register setStep={setCurrentStep} currentStep={currentStep} setDisabled={setDisableRegister} validateFields={registerFieldStatus.toValidate} changeStatus={setRegisterFieldStatus} />}
+                    {currentStep === 6 && <SuccessPasswordPage setStep={setCurrentStep} />}
 
                 </Box>
                 {currentStep === 1 &&
@@ -79,7 +80,9 @@ export default function InitialState() {
                             if (registerFieldStatus.validated) {
                                 navigate('/welcomePage')
                             }
-                        }} disabled={!registerFieldStatus.validated} />
+                        }}
+                            disabled={!registerFieldStatus.validated} 
+                            isSend={true}/>
                     </Box>
                 }
             </Box>
@@ -145,7 +148,7 @@ function Login({ setStep }) {
                     </Typography>
 
                     <Box className="login-button-box">
-                        <DarkGreenButton text={'Iniciar sesión'} action={()=> login({ name: 'yop',email: 'asdasd'})} />
+                        <DarkGreenButton text={'Iniciar sesión'} action={() => login({ name: 'yop', email: 'asdasd' })} />
                     </Box>
                 </Box>
             </Box>
@@ -258,10 +261,7 @@ function VerifyCode({ setStep, currentStep }) {
 }
 
 function UpdatePasswordForm({ setStep, currentStep }) {
-    const [passwords, setPasswords] = useState({
-        password: '',
-        repeatedPassword: ''
-    })
+    const [passwords, setPasswords] = useState({})
 
     return (
         <>
@@ -300,9 +300,9 @@ function UpdatePasswordForm({ setStep, currentStep }) {
 
                     <TextField
                         fullWidth
-                        placeholder="Ingresa tu correo electrónico"
+                        placeholder="Ingresa tu nueva contraseña"
                         onChange={(e) => {
-                            setPasswords((prev) => ({ ...prev, email: e.target.value }));
+                            setPasswords((prev) => ({ ...prev, password: e.target.value }));
                         }}
                     />
                 </Box>
@@ -315,13 +315,13 @@ function UpdatePasswordForm({ setStep, currentStep }) {
                         fullWidth
                         placeholder="Ingresa tu contraseña"
                         onChange={(e) => {
-                            setPasswords((prev) => ({ ...prev, password: e.target.value }));
+                            setPasswords((prev) => ({ ...prev, repeatedPassword: e.target.value }));
                         }}
                     />
 
                     <Box className="buttons-container">
                         <PreviousButton action={() => setStep(currentStep - 1)} />
-                        <NextButton isSend={false} text={"Cambiar"} action={() => setStep(1)} />
+                        <NextButton isSend={false} text={"Cambiar"} action={() => setStep(6)} />
                     </Box>
                 </Box>
             </Box>
@@ -330,9 +330,38 @@ function UpdatePasswordForm({ setStep, currentStep }) {
     )
 }
 
+
+function SuccessPasswordPage({ setStep, currentStep }) {
+    return (
+        <>
+            <Box className="title-box">
+                <Typography className="title">
+                    ¡Todo listo!
+                </Typography>
+            </Box>
+
+            <Box className="update-password-form">
+                <Box>
+                    <Box className="password-label-tooltip">
+                        <Typography className='success-message'>
+                            ¡Tu contraseña ha sido cambiada con éxito! Serás redirigido al inicio de sesión para ingresar con tus nuevas credenciales.
+                        </Typography>
+                    </Box>
+                </Box>
+                <Box className="buttons-container">
+                    <NextButton isSend={false} text={"Cambiar"} action={() => setStep(1)} />
+                </Box>
+            </Box>
+
+        </>
+    )
+}
+
+
 function Register({ setStep, currentStep, setDisabled, validateFields, changeStatus }) {
     const [formData, setFormData] = useState({
-        fullName: '',
+        firstNames: '',
+        secondNames: '',
         idnumber: '',
         email: '',
         phone: '',
@@ -346,16 +375,21 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
     const [errors, setErrors] = useState({})
     const [hasErrors, setHasErrors] = useState(false)
     const groupedFields = [
-        ['fullName', 'idnumber', 'phone'],
-        ['city'],
+        ['firstNames', 'secondNames', 'idnumber', 'phone'],
+        ['city', 'address'],
         ['password', 'repeatedpassword'],
     ]
 
     const registerFields = [
         {
-            label: 'Nombres completos',
-            placeholder: 'Maria Alejandra Cortéz López',
-            formData: 'fullName',
+            label: 'Nombres',
+            placeholder: 'Maria Alejandra ',
+            formData: 'firstNames',
+            type: 'text'
+        }, {
+            label: 'Apellidos',
+            placeholder: 'Lopez Hernandez',
+            formData: 'secondNames',
             type: 'text'
         },
         {
@@ -383,6 +417,11 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
             formData: 'city'
         },
         {
+            label: 'Dirección',
+            placeholder: 'Ej. Ceibos Norte Mz. 5 Villa 2',
+            formData: 'address'
+        },
+        {
             label: 'Contraseña',
             placeholder: 'Ingrese su contraseña',
             formData: 'password'
@@ -392,6 +431,7 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
             placeholder: 'Ingrese nuevamente su contraseña',
             formData: 'repeatedpassword'
         },
+
     ]
 
     useEffect(() => {
@@ -413,7 +453,7 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
             if (isValid) {
                 changeStatus(prev => ({ ...prev, validated: true }));
             }
-        } else if (isMobile && formStep === groupedFields.length - 1) {
+        } else if (isMobile && formStep === groupedFields.length - 1 && formData.password) {
             setDisabled(true)
             const isValid = verifyFieldsPhone(formStep);
             if (isValid) {
@@ -545,7 +585,6 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
                 hasErrors = true;
             }
         }
-
         return !hasErrors;
     }
 
@@ -572,7 +611,7 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
                         xs: '1fr',
                         sm: '1fr 1fr',
                     },
-                    gap: 2,
+                    gap: 1.5,
                 }}
             >
 
@@ -586,7 +625,7 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
                                     <DataSelect key={i} label="Ciudad" setData={setFormData} formLabel="city" value={formData.city} errorMessage={errors.city} />
                                 </>
                             ) : field.formData === 'password' ? (
-                                <PasswordLabelWithTooltip key={i} label={field.label} placeholder={field.placeholder} setData={setFormData} formLabel={field.formData} value={formData[field.formData]} errorMessage={errors.password} />
+                                <PasswordLabelWithTooltip key={i} label={field.label} placeholder={field.placeholder} setData={setFormData} formLabel={field.formData} value={formData[field.formData]} errorMessage={errors.password} showTooltip={true} />
                             ) : field.formData === 'repeatedpassword' ? (
                                 <PasswordLabelWithTooltip key={i} label={field.label} placeholder={field.placeholder} setData={setFormData} formLabel={field.formData} value={formData[field.formData]} errorMessage={errors.repeatedpassword} />
                             ) : (
@@ -604,9 +643,9 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
                         ))
                     : registerFields.map((field, i) => (
                         field.formData === 'city' ? (
-                            <DataSelect key={i} label="Ciudad" setData={setFormData} formLabel="city" value={formData.city} errorMessage={errors.city} />
+                            <DataSelect key={i} label={field.label} setData={setFormData} formLabel="city" value={formData.city} errorMessage={errors.city} />
                         ) : field.formData === 'password' ? (
-                            <PasswordLabelWithTooltip key={i} label={field.label} placeholder={field.placeholder} setData={setFormData} formLabel={field.formData} value={formData[field.formData]} errorMessage={errors.password} />
+                            <PasswordLabelWithTooltip key={i} label={field.label} placeholder={field.placeholder} setData={setFormData} formLabel={field.formData} value={formData[field.formData]} errorMessage={errors.password} showTooltip={true} />
                         ) : field.formData === 'repeatedpassword' ? (
                             <PasswordLabelWithTooltip key={i} label={field.label} placeholder={field.placeholder} setData={setFormData} formLabel={field.formData} errorMessage={errors.repeatedpassword} />
                         ) : (
@@ -624,7 +663,7 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
                     ))}
             </Box>
 
-            {isMobile && formStep < groupedFields.length - 1 && (
+            {isMobile && (
                 <Box mt={2} display="flex" justifyContent="space-between" gap="3rem">
                     <PreviousButton
                         action={() => {
@@ -633,9 +672,11 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
                             } else {
                                 setFormStep(formStep - 1)
                             }
-                        }} />
+                        }}
+                        disabled={formStep === 0} />
                     <NextButton
                         text={'Siguiente'}
+                        disabled={formStep === groupedFields.length - 1}
                         action={() => {
                             if (verifyFieldsPhone(formStep)) {
                                 if (formStep === groupedFields.length - 1) {

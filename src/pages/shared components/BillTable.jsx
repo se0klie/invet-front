@@ -5,9 +5,9 @@ import {
 } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
 
-const FacturasTable = ({ rows }) => {
+export const FacturasTable = ({ rows }) => {
     return (
-        <TableContainer component={Paper} sx={{ borderRadius: '12px', boxShadow: 'none', width: '100%' }}>
+        <TableContainer component={Paper} sx={{ borderRadius: '12px', boxShadow: 'none', width: '100%', height: '100%' }}>
             <Table>
                 <TableHead>
                     <TableRow>
@@ -68,4 +68,44 @@ const FacturasTable = ({ rows }) => {
     );
 };
 
-export default FacturasTable;
+
+export const FacturasList = ({ rows }) => {
+    return (
+        <Box sx={{ width: '100%' }}>
+            {rows.map((row, i) => (
+                <Box>
+                    <Box key={i} sx={{ display: 'flex', flexDirection: 'column', padding: '1rem', backgroundColor: 'white', marginY: '1rem', padding: '1rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+                            <   Typography variant="body1" sx={{ fontWeight: 'bold', color: 'var(--darkgreen-color)' }}>
+                                {row.fecha}
+                            </Typography>
+                            <Typography variant="body1" sx={{ color: 'black', fontWeight: 600 }}>
+                                ${row.monto}
+                            </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', marginTop: '0.5rem', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Typography variant="body2" sx={{ color: 'gray' }}>
+                                {row.plan} - {row.mascota}
+                            </Typography>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem', gap: '1rem' }}>
+                                <DownloadIcon style={{color: 'mediumseagreen'}}/>
+                                <Box sx={{
+                                    display: 'flex',
+                                    alignItems: 'center'
+                                }}>
+                                    <Typography
+                                        component="span"
+                                        sx={{ color: 'mediumseagreen', fontWeight: 'bold', fontSize: '0.875rem', cursor: 'pointer' }}
+                                    >
+                                        Ver
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        </Box>
+                    </Box>
+
+                </Box>
+            ))}
+        </Box>
+    )
+}

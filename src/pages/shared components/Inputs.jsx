@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
-export function DataInput({ label, placeholder, setData, formLabel, type, value, errorMessage }) {
+export function DataInput({ label, placeholder, setData, formLabel, type, value, errorMessage, disabled}) {
     return (
         <Box>
             <Typography
@@ -59,6 +59,7 @@ export function DataInput({ label, placeholder, setData, formLabel, type, value,
                             padding: '6px 8px',
                         },
                     }}
+                    disabled={disabled}
                 />
 
             </Box>
@@ -69,7 +70,7 @@ export function DataInput({ label, placeholder, setData, formLabel, type, value,
 }
 
 
-export function DataSelect({ label, value, setData, formLabel, errorMessage }) {
+export function DataSelect({ label, value, setData, formLabel, errorMessage, isDisabled = false }) {
     return (
         <Box>
             <Typography
@@ -77,7 +78,6 @@ export function DataSelect({ label, value, setData, formLabel, errorMessage }) {
                     color: 'var(--blackinput-color)',
                     fontWeight: 600,
                     fontSize: '1rem',
-                    mb: 1.5
                 }}
             >
                 {label}
@@ -114,6 +114,7 @@ export function DataSelect({ label, value, setData, formLabel, errorMessage }) {
                         }));
                     }}
                     displayEmpty
+                    disabled={isDisabled}
                     sx={{
                         '& .MuiInputBase-root': {
                             padding: '4px 8px',
@@ -133,7 +134,7 @@ export function DataSelect({ label, value, setData, formLabel, errorMessage }) {
 }
 
 
-export function PasswordLabelWithTooltip({ setData, label, placeholder, formLabel, errorMessage, value }) {
+export function PasswordLabelWithTooltip({ setData, label, placeholder, formLabel, errorMessage, value, showTooltip = false }) {
     const [showPassword, setShowPassword] = useState()
     const handleTogglePassword = () => setShowPassword((prev) => !prev);
 
@@ -141,15 +142,13 @@ export function PasswordLabelWithTooltip({ setData, label, placeholder, formLabe
         <Box
             sx={{
                 display: 'flex',
-                alignItems: 'flex-start', // ← CAMBIO AQUÍ
-                gap: '0.5rem',
                 flexDirection: 'column',
-                mb: 1,
+                justifyContent: 'center'
             }}
         >
 
             <Box
-                sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start' }}>
+                sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
                 <Typography
                     sx={{
                         fontWeight: 600,
@@ -160,39 +159,39 @@ export function PasswordLabelWithTooltip({ setData, label, placeholder, formLabe
                     {label}
                 </Typography>
 
-                {formLabel !== 'repeatedpassword' &&
-                    <Tooltip
-                        title={
-                            <Box
-                                sx={{
-                                    fontSize: '0.875rem',
-                                    lineHeight: 1.4,
-                                    color: '#fff',
-                                }}
-                            >
-                                La contraseña debe tener al menos:
-                                <ul style={{ margin: '0.25rem 0 0', paddingLeft: '1rem' }}>
-                                    <li>8 caracteres</li>
-                                    <li>1 mayúscula</li>
-                                    <li>1 minúscula</li>
-                                    <li>1 número</li>
-                                </ul>
-                            </Box>
-                        }
-                        arrow
-                        placement="right"
-                    >
-                        <IconButton
-                            size="small"
+                <Tooltip
+                    title={
+                        <Box
                             sx={{
-                                padding: '0.25rem',
-                                color: 'var(--darkgreen-color)',
+                                fontSize: '0.875rem',
+                                lineHeight: 1.4,
+                                color: '#fff',
+                                opacity: showTooltip ? '100' : '0'
                             }}
                         >
-                            <InfoOutlinedIcon fontSize="small" />
-                        </IconButton>
-                    </Tooltip>
-                }
+                            La contraseña debe tener al menos:
+                            <ul style={{ margin: '0.25rem 0 0', paddingLeft: '1rem' }}>
+                                <li>8 caracteres</li>
+                                <li>1 mayúscula</li>
+                                <li>1 minúscula</li>
+                                <li>1 número</li>
+                            </ul>
+                        </Box>
+                    }
+                    arrow
+                    placement="right"
+                >
+                    <IconButton
+                        size="small"
+                        sx={{
+                            padding: '0.15rem',
+                            color: 'var(--darkgreen-color)',
+                            opacity: showTooltip ? '100' : '0'
+                        }}
+                    >
+                        <InfoOutlinedIcon fontSize="small" />
+                    </IconButton>
+                </Tooltip>
             </Box>
 
             <Box sx={{ position: 'relative', width: '100%' }}>

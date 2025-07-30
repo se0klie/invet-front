@@ -21,13 +21,11 @@
     background-color: white;
     width: 50%;
     max-height: 90vh;
-    /* Ajusta para que nunca sobrepase la altura de la ventana */
     border-radius: 12px;
-    padding: 1.5rem 4rem;
+    padding: 2rem 4rem;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    /* Para que se pueda hacer scroll vertical si es necesario */
 }
 
 
@@ -96,7 +94,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 1rem 0;
+    margin-bottom: 1rem;
 }
 
 
@@ -268,7 +266,11 @@
     gap: 1rem;
 }
 
-
+.success-message {
+    color: var(--blackinput-color);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
 @media (max-width: 600px) {
     .button-section {
         flex-direction: column;
