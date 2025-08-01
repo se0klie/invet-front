@@ -13,7 +13,6 @@ import { useMediaQuery, useTheme } from '@mui/material'
 import { YellowAlert } from '../shared components/Alerts';
 
 export default function InitialState() {
-
     const [currentStep, setCurrentStep] = useState(1) //1: login, 2: reset psswd, 3: confirm code, 4: changepassword, 5: register
     const [disableRegister, setDisableRegister] = useState(true)
     const [registerFieldStatus, setRegisterFieldStatus] = useState({
@@ -60,10 +59,6 @@ export default function InitialState() {
                             <Box className='button-box'>
                                 <LightGreenButton text={'Regístrate'} action={() => setCurrentStep(5)} />
                             </Box>
-                            <Typography className="no-wrap-text or-option">ó</Typography>
-                            <Box className='button-box'>
-                                <LightGreenButton text={'Ingresa con tu cédula/RUC'} />
-                            </Box>
                         </Box>
                     </Box>
                 }
@@ -81,8 +76,8 @@ export default function InitialState() {
                                 navigate('/welcomePage')
                             }
                         }}
-                            disabled={!registerFieldStatus.validated} 
-                            isSend={true}/>
+                            disabled={!registerFieldStatus.validated}
+                            isSend={true} />
                     </Box>
                 }
             </Box>
@@ -99,6 +94,7 @@ function Login({ setStep }) {
     const [showPassword, setShowPassword] = useState()
     const handleTogglePassword = () => setShowPassword((prev) => !prev);
     const { login } = useAuth()
+    const navigate = useNavigate()
     return (
         <>
             <Box className="title-box">
@@ -148,7 +144,11 @@ function Login({ setStep }) {
                     </Typography>
 
                     <Box className="login-button-box">
-                        <DarkGreenButton text={'Iniciar sesión'} action={() => login({ name: 'yop', email: 'asdasd' })} />
+                        <DarkGreenButton text={'Iniciar sesión'} action={
+                            () => {
+                                login({ name: 'yop', email: 'asdasd' })
+                                navigate('/')
+                            }} />
                     </Box>
                 </Box>
             </Box>
@@ -389,7 +389,7 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
         }, {
             label: 'Apellidos',
             placeholder: 'Lopez Hernandez',
-            formData: 'secondNames',
+            formData: 'lastNames',
             type: 'text'
         },
         {

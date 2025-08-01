@@ -14,7 +14,7 @@ export function WhatsAppButton({ phone = '593999495379' }) {
       sx={{
         position: 'fixed',
         bottom: 16,
-        right: 16,
+        left: 16,
         zIndex: 9999,
         width: 56,
         height: 56,

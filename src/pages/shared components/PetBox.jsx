@@ -5,12 +5,28 @@ import { useState } from "react";
 import { RxCross1 } from "react-icons/rx";
 import { FaArrowDown, FaArrowRight } from "react-icons/fa";
 import { CancelButton, LightGreenButton } from "./Buttons";
+import { CancelPlanModal, LoadingModal } from "./Modals";
+import { TfiExchangeVertical } from "react-icons/tfi";
+import { LiaExchangeAltSolid } from "react-icons/lia";
 
 export default function PetBox({ petName, status, plan, pets }) {
     const isMobile = useMediaQuery(useTheme().breakpoints.down('sm'));
     const [transferPlan, setTransferPlan] = useState(false)
     const [cancelPlan, setCancelPlan] = useState(false)
     const [selectedPet, setSelectedPet] = useState('')
+    const [loadingModal, setLoadingModal] = useState(false)
+    const [loadingModalStep, setLoadingModalStep] = useState(0)
+
+    function onCancelPlan() {
+        setCancelPlan(false)
+        setLoadingModal(true)
+        setTimeout(() => {
+            setLoadingModalStep(1)
+            setTimeout(() => {
+                setLoadingModal(false)
+            }, 2000);
+        }, 3000);
+    }
     return (
         <Box
             sx={{
@@ -111,7 +127,7 @@ export default function PetBox({ petName, status, plan, pets }) {
                                 }}
                                 onClick={() => setTransferPlan(true)}
                             >
-                                {isMobile ? 'Transferir plan' : 'Transferir plan a otra mascota'}
+                                {isMobile ? 'Intercambiar plan' : 'Intercambiar plan con otra mascota'}
                             </Button>
 
                             <Button
@@ -177,10 +193,10 @@ export default function PetBox({ petName, status, plan, pets }) {
                     <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between' }}>
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                             <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'var(--darkgreen-color)' }}>
-                                Transferir plan
+                                Intercambiar plan
                             </Typography>
                             <Typography variant="body2" sx={{ color: 'gray' }}>
-                                Esta acción transferirá el plan actual de {petName} a {selectedPet ? selectedPet.name : 'la mascota que desees'} manteniendo el monto y día de cobro mensual.
+                                Esta acción intercambiará el plan actual de {petName} a {selectedPet ? selectedPet.name : 'la mascota que desees'} manteniendo el monto y día de cobro mensual {selectedPet.plan && 'para cada plan'}.
                             </Typography>
                         </Box>
 
@@ -195,7 +211,8 @@ export default function PetBox({ petName, status, plan, pets }) {
                             gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr 2fr',
                             alignItems: 'center',
                             justifyItems: 'center',
-                            marginY: '1.5rem'
+                            marginY: '1.5rem',
+                            gap: '0.8rem'
                         }}>
                         <Box
                             sx={{
@@ -221,9 +238,9 @@ export default function PetBox({ petName, status, plan, pets }) {
                             </Box>
                         </Box>
                         {isMobile ? (
-                            <FaArrowDown size={16} style={{ color: 'var(--dark-gray-hover-color)' }} />
+                            <TfiExchangeVertical size={16} style={{ color: 'var(--dark-gray-hover-color)' }} />
                         ) : (
-                            <FaArrowRight size={60} style={{ color: 'var(--dark-gray-hover-color)' }} />
+                            <LiaExchangeAltSolid size={60} style={{ color: 'var(--dark-gray-hover-color)' }} />
                         )}
                         <Box
                             sx={{
@@ -283,8 +300,15 @@ export default function PetBox({ petName, status, plan, pets }) {
                                                 {pets
                                                     .filter(pet => pet.name !== petName)
                                                     .map((pet, index) => (
-                                                        <MenuItem onClick={(e) => { setSelectedPet(pets[index]) }} key={index} value={pet}>{pet.name}</MenuItem>
+                                                        <MenuItem
+                                                            key={index}
+                                                            value={pet}
+                                                            onClick={() => setSelectedPet(pet)}   // ✅ use pet directly
+                                                        >
+                                                            {pet.name}
+                                                        </MenuItem>
                                                     ))}
+
                                             </Select>
                                         </Box>
                                     </Box>
@@ -294,84 +318,33 @@ export default function PetBox({ petName, status, plan, pets }) {
                     </Box>
                     <Box
                         sx={{
-                            display: 'grid',
-                            gridTemplateColumns: isMobile ? '1fr' : '2fr 1fr',
+                            display: 'flex',
                             gap: '1rem',
-                            alignItems: 'center'
-                        }}>
-                        <YellowAlert message={`${petName} no tendrá un plan asociado luego de esta acción.`} showIcon={false} />
+                            flexDirection: isMobile ? 'column' : 'row',
+                            justifyContent: 'flex-end',
+                            alignItems: 'center',
+                            width: '100%'
+                        }}
+                    >
+                        {selectedPet && !selectedPet.plan && (
+                            <YellowAlert
+                                message={`${petName} no tendrá un plan asociado luego de esta acción.`}
+                                showIcon={false}
+                            />
+                        )}
+
                         <Box
-                            sx={{ height: 'max-content' }}>
-                            <LightGreenButton text='Transferir' />
-                        </Box>
-                    </Box>
-                </Box>
-            </Modal>
-
-            <Modal
-                open={cancelPlan}
-                onClose={() => setCancelPlan(false)}
-            >
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        bgcolor: 'background.paper',
-                        boxShadow: 24,
-                        p: 4,
-                        borderRadius: 2,
-                        width: { xs: '70%', md: 650, lg: 700 },
-                    }}
-                >
-                    <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                            <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'var(--error-color)' }}>
-                                Cancelar plan
-                            </Typography>
-                            <Typography variant="body1" sx={{ color: 'black' }}>
-                                Se eliminará el plan asociado a <strong>{petName}</strong>, ¿deseas continuar?
-                            </Typography>
-                        </Box>
-
-                        <RxCross1
-                            style={{ color: 'black', cursor: 'pointer' }}
-                            onClick={() => setCancelPlan(false)}
-                        />
-                    </Box>
-                    <Box sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'flex-end',
-                        gap: '1rem',
-                        marginTop: '1rem'
-                    }}>
-                        <Button
                             sx={{
-                                border: '0.15rem solid var(--dark-gray-color)',
-                                color: 'var(--dark-gray-color)',
-                                fontWeight: 600,
-                                borderRadius: '0.5rem'
+                                width: isMobile ? '100%' :'40%',              // take full height of grid area
                             }}
-                            onClick={()=> setCancelPlan(false)}
                         >
-                            Cancelar
-                        </Button>
-                        <Button
-                            sx={{
-                                backgroundColor: 'var(--error-fill-color)',
-                                color: 'white',
-                                fontWeight: 600,
-                                paddingX: '2rem',
-                                paddingY: '0.5rem',
-                                borderRadius: '0.5rem'
-                            }}>
-                            Aceptar
-                        </Button>
+                            <LightGreenButton text="Transferir" />
+                        </Box>
                     </Box>
                 </Box>
             </Modal>
+            <CancelPlanModal open={cancelPlan} setOpen={setCancelPlan} petName={petName} onCancel={onCancelPlan} />
+            <LoadingModal open={loadingModal} setOpen={setLoadingModal} text="Generando cambios..." modalStep={loadingModalStep} />
         </Box>
 
     )

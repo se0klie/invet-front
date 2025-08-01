@@ -66,7 +66,7 @@
 .button-section {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     padding-top: 5px;
 }
 
@@ -140,7 +140,8 @@
 }
 
 .button-box {
-    width: 40%;
+    width: 60%;
+    max-width: 350px;
 }
 
 .button-box.register {

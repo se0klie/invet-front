@@ -1,11 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Paper, Button, IconButton, Typography, Box
 } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
-
+import { LoadingModal } from './Modals';
 export const FacturasTable = ({ rows }) => {
+    const [showLoadingModal, setShowLoadingModal] = useState(false)
+    const [loadingModalStep, setLoadingModalStep] = useState(0)
+
+    useEffect(() => {
+        setTimeout(() => {
+            setLoadingModalStep(1)
+            setTimeout(() => {
+                setShowLoadingModal(false)
+                setLoadingModalStep(0)
+            }, 2000);
+        }, 3000);
+    }, [showLoadingModal])
+
     return (
         <TableContainer component={Paper} sx={{ borderRadius: '12px', boxShadow: 'none', width: '100%', height: '100%' }}>
             <Table>
@@ -28,6 +41,7 @@ export const FacturasTable = ({ rows }) => {
                                     paddingX: 2,
                                     '&:hover': { backgroundColor: '#256a71' }
                                 }}
+                                onClick={() => setShowLoadingModal(true)}
                             >
                                 Descargar todo
                             </Button>
@@ -57,21 +71,52 @@ export const FacturasTable = ({ rows }) => {
                                     </Typography>
                                 </Box>
                                 <IconButton size="small">
-                                    <DownloadIcon />
+                                    <DownloadIcon
+                                        onClick={() => setShowLoadingModal(true)}
+                                    />
                                 </IconButton>
                             </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
+            <LoadingModal text="Descargando..." open={showLoadingModal} setOpen={setShowLoadingModal} modalStep={loadingModalStep} />
         </TableContainer>
     );
 };
 
 
 export const FacturasList = ({ rows }) => {
+    const [showLoadingModal, setShowLoadingModal] = useState(false)
+    const [loadingModalStep, setLoadingModalStep] = useState(0)
+
+    useEffect(() => {
+        setTimeout(() => {
+            setLoadingModalStep(1)
+            setTimeout(() => {
+                setShowLoadingModal(false)
+                setLoadingModalStep(0)
+            }, 2000);
+        }, 3000);
+    }, [showLoadingModal])
+
     return (
         <Box sx={{ width: '100%' }}>
+            <Button
+                variant="contained"
+                sx={{
+                    textTransform: 'none',
+                    backgroundColor: '#2B7C85',
+                    borderRadius: '6px',
+                    fontWeight: 'bold',
+                    fontSize: '0.8rem',
+                    paddingX: 2,
+                    '&:hover': { backgroundColor: '#256a71' }
+                }}
+                onClick={() => setShowLoadingModal(true)}
+            >
+                Descargar todo
+            </Button>
             {rows.map((row, i) => (
                 <Box>
                     <Box key={i} sx={{ display: 'flex', flexDirection: 'column', padding: '1rem', backgroundColor: 'white', marginY: '1rem', padding: '1rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>
@@ -88,7 +133,7 @@ export const FacturasList = ({ rows }) => {
                                 {row.plan} - {row.mascota}
                             </Typography>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem', gap: '1rem' }}>
-                                <DownloadIcon style={{color: 'mediumseagreen'}}/>
+                                <DownloadIcon style={{ color: 'mediumseagreen' }} onClick={() => setShowLoadingModal(true)}/>
                                 <Box sx={{
                                     display: 'flex',
                                     alignItems: 'center'
@@ -106,6 +151,7 @@ export const FacturasList = ({ rows }) => {
 
                 </Box>
             ))}
+            <LoadingModal text="Descargando..." open={showLoadingModal} setOpen={setShowLoadingModal} modalStep={loadingModalStep} />
         </Box>
     )
 }
