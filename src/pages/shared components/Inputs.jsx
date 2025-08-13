@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
-export function DataInput({ label, placeholder, setData, formLabel, type, value, errorMessage, disabled}) {
+export function DataInput({ label, placeholder, setData, formLabel, type, value, errorMessage, disabled, isMandatory = true }) {
     return (
         <Box>
             <Typography
@@ -13,6 +13,7 @@ export function DataInput({ label, placeholder, setData, formLabel, type, value,
                     fontSize: '1rem',
                 }}
             >
+                {isMandatory && <span style={{color: 'red', paddingRight: 5}}>*</span>}
                 {label}
             </Typography>
             <Box sx={{ position: 'relative', width: '100%' }}>
@@ -70,7 +71,7 @@ export function DataInput({ label, placeholder, setData, formLabel, type, value,
 }
 
 
-export function DataSelect({ label, value, setData, formLabel, errorMessage, isDisabled = false}) {
+export function DataSelect({ label, value, setData, formLabel, errorMessage, isDisabled = false }) {
     return (
         <Box>
             <Typography

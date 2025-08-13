@@ -61,7 +61,7 @@ export default function GoodEnd() {
                     }}
                 />
 
-                <Box sx={{ display: 'flex', gap: 1, flexDirection: 'column', width: isMobile ? '80%' : '60%' }}>
+                <Box sx={{ display: 'flex', gap: 1, flexDirection: 'column', width: isMobile ? '90%' : '40%' }}>
                     <Typography variant="h6" sx={{ color: 'black' }}>
                         Podrás acceder a información de
                         tu suscripción <span style={{ fontWeight: 600, textDecoration: 'underline', cursor: 'pointer' }} onClick={() => navigate('/login')}>iniciando sesión</span>

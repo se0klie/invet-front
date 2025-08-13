@@ -2,6 +2,7 @@ import { Box, Typography, Checkbox, FormControlLabel, Divider, Button } from "@m
 import { YellowAlert } from "./shared components/Alerts";
 import { useState, useEffect } from "react";
 import { useRef } from "react";
+import { useNavigate } from "react-router-dom";
 export default function TermsAndConds() {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     useEffect(() => {
@@ -15,7 +16,7 @@ export default function TermsAndConds() {
     const [canAccept, setCanAccept] = useState(false);
     const [accepted, setAccepted] = useState(false);
     const termsRef = useRef(null);
-
+    const navigate = useNavigate()
     useEffect(() => {
         const handleScroll = () => {
             const el = termsRef.current;
@@ -242,6 +243,7 @@ export default function TermsAndConds() {
                         variant="contained"
                         disabled={!accepted}
                         sx={{ minWidth: 120, background: 'var(--darkgreen-color)', fontWeight: 600 }}
+                        onClick={()=> {navigate('/good-end')}}
                     >
                         Continuar
                     </Button>

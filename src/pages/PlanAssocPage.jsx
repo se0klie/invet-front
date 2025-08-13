@@ -11,11 +11,13 @@ export default function PetPlanAssociation() {
     const navigate = useNavigate();
     const [step, setStep] = useState(0)
     const [open, setOpen] = useState(false);
+    const [showModal, setShowModal] = useState(false)
+    const [loadingModalStep, setLoadingModalStep] = useState(0)
     const [plans, setPlans] = useState({
         basic: {
             plan: 'basic',
             label: 'Básico',
-            quantity: 2,
+            quantity: 1,
         },
         premium: {
             plan: 'premium',
@@ -28,7 +30,6 @@ export default function PetPlanAssociation() {
             quantity: 0
         }
     })
-
     const [pets, setPets] = useState([
         {
             name: 'Tuco',
@@ -36,13 +37,14 @@ export default function PetPlanAssociation() {
             birthdate: '01/10/2010'
         },
         {
-            name: 'Tuco',
+            name: 'Otto',
             breed: 'Bull Terrier',
             birthdate: '01/10/2010'
         }
     ])
     const totalQuantity = Object.values(plans)
         .reduce((sum, plan) => sum + plan.quantity, 0);
+    const [allowContinue, setAllowContinue] = useState(pets.length > totalQuantity)
 
     useEffect(() => {
         if (step === 0 && pets.length < totalQuantity) {
@@ -70,7 +72,7 @@ export default function PetPlanAssociation() {
             {step === 0 &&
                 <Box sx={{ gap: 2, width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
                     <Typography variant="h5" sx={{ color: 'var(--darkgreen-color)', fontWeight: 600 }}>Asignar planes a mascota</Typography>
-                    <AsignPlanToPet pets={pets} plans={plans} setStep={setStep} />
+                    <AsignPlanToPet pets={pets} plans={plans} setStep={setStep} setAllow={setAllowContinue} />
                 </Box>
             }
             {step === 1 &&
@@ -102,9 +104,28 @@ export default function PetPlanAssociation() {
                     Regresar
                 </Button>
                 <Button
-                    variant="contained"
-                    disabled={ pets.length < totalQuantity}
-                    sx={{ minWidth: 120, background: 'var(--darkgreen-color)', fontWeight: 600 }}
+                    onMouseEnter={() => {
+                        if (pets.length < totalQuantity) {
+                            setOpen(true)
+                        }
+                    }}
+                    onClick={() => {
+                        if (pets.length >= totalQuantity && allowContinue) {
+                            setShowModal(true)
+                            setTimeout(() => {
+                                setLoadingModalStep(1)
+                                setTimeout(() => {
+                                    setShowModal(false)
+                                    setLoadingModalStep(0)
+                                    navigate('/terms-conds')
+                                }, 2500);
+                            }, 3000);
+
+                        } else {
+                            setOpen(true)
+                        }
+                    }}
+                    sx={{ color: 'white', minWidth: 120, background: (pets.length < totalQuantity || !allowContinue) ? 'var(--disabled-color)' : 'var(--darkgreen-color)', fontWeight: 600, boxShadow: 0, cursor: pets.length < totalQuantity ? 'not-allowed' : 'pointer' }}
                 >
                     Continuar
                 </Button>
@@ -112,13 +133,13 @@ export default function PetPlanAssociation() {
             <Snackbar open={open} onClose={() => setOpen(false)} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
                 <Alert
                     onClose={() => setOpen(false)}
-                    severity="error" 
+                    severity="error"
                     sx={{ width: '100%' }}
                 >
                     Necesitas registrar nuevas mascotas antes de continuar.
                 </Alert>
             </Snackbar>
-
+            <LoadingModal text={'Cargando...'} open={showModal} setOpen={setShowModal} modalStep={loadingModalStep} />
 
         </Box>
     )
@@ -132,11 +153,13 @@ function AddPet({ pets, plans, setStep }) {
     const [petData, setPetData] = useState({
         name: '',
         breed: '',
+        birthdate: '',
         image: undefined
     })
     const [newPets, setNewPets] = useState([])
     const [showModal, setShowModal] = useState(false)
     const [loadingModalStep, setLoadingModalStep] = useState(0)
+    const [errors, setErrors] = useState({})
 
     useEffect(() => {
         setTimeout(() => {
@@ -155,6 +178,20 @@ function AddPet({ pets, plans, setStep }) {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    function checkErrors() {
+        let hasErrors = false;
+        const newErrors = {};
+
+        Object.entries(petData).forEach(([key, value]) => {
+            if (!value && key !== 'image') {
+                newErrors[key] = 'Este campo es necesario.';
+                hasErrors = true;
+            }
+        })
+        setErrors(newErrors);
+        return hasErrors;
+    }
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -183,9 +220,9 @@ function AddPet({ pets, plans, setStep }) {
             <YellowAlert message={`Necesitas agregar ${numMascotas} mascota(s) antes de continuar`} />
             <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', mt: 2, alignItems: 'center', gap: 5 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, width: '80%' }}>
-                    <DataInput label="Nombre" placeholder='Ej. Pelusa' setData={setPetData} formLabel={'name'} value={petData.name} />
-                    <DataInput label="Raza" placeholder='Ej. Mestiza' setData={setPetData} formLabel={'breed'} value={petData.breed} />
-                    <DataInput label="Fecha estimada de nacimiento" type="date" setData={setPetData} formLabel={'birthdate'} value={petData.birthdate} />
+                    <DataInput label="Nombre" placeholder='Ej. Pelusa' setData={setPetData} formLabel={'name'} value={petData.name} errorMessage={errors['name']} />
+                    <DataInput label="Raza" placeholder='Ej. Mestiza' setData={setPetData} formLabel={'breed'} value={petData.breed} errorMessage={errors['breed']} />
+                    <DataInput label="Fecha estimada de nacimiento" type="date" setData={setPetData} formLabel={'birthdate'} value={petData.birthdate || ''} errorMessage={errors['birthdate']} />
                 </Box>
                 <Box sx={{ mx: 1 }}>
                     <input
@@ -214,6 +251,7 @@ function AddPet({ pets, plans, setStep }) {
                                 },
                             }}
                         >
+
                             {petData.image ? (
                                 <img
                                     src={petData.image}
@@ -230,18 +268,22 @@ function AddPet({ pets, plans, setStep }) {
                     <Box sx={{ mt: 3 }}>
                         <LightGreenButton text='Añadir' action={
                             () => {
-                                if (numMascotas=== 0) {
-                                    setNewPets(prev => [...prev, petData]);
-                                    setShowModal(true)
+                                const hasErrors = checkErrors()
+                                if (!hasErrors) {
+                                    if (numMascotas === 0) {
+                                        setNewPets(prev => [...prev, petData]);
+                                        setShowModal(true)
 
-                                } else {
-                                    setNewPets(prev => [...prev, petData]);
-                                    setPetData({
-                                        name: '',
-                                        breed: '',
-                                        image: undefined
-                                    })
-                                    setNumMascotas(numMascotas - 1)
+                                    } else {
+                                        setNewPets(prev => [...prev, petData]);
+                                        setPetData({
+                                            name: '',
+                                            breed: '',
+                                            birthdate: '',
+                                            image: undefined
+                                        })
+                                        setNumMascotas(numMascotas - 1)
+                                    }
                                 }
                             }
                         } />
@@ -252,10 +294,19 @@ function AddPet({ pets, plans, setStep }) {
         </Box>
     )
 }
-
-function AsignPlanToPet({ pets, plans, setStep }) {
+function AsignPlanToPet({ pets, plans, setStep, setAllow }) {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
-    const [data, setData] = useState({})
+    const [data, setData] = useState(
+        Object.values(plans)
+            .filter(plan => plan.quantity > 0)
+            .reduce((acc, plan) => {
+                for (let i = 0; i < plan.quantity; i++) {
+                    acc[`${plan.plan}-${i}`] = '';
+                }
+                return acc;
+            }, {})
+    );
+
 
     useEffect(() => {
         function handleResize() {
@@ -265,83 +316,144 @@ function AsignPlanToPet({ pets, plans, setStep }) {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    const handleSelectPet = (planKey, petName) => {
+        setData((prev) => {
+            const newData = { ...prev };
+
+            Object.keys(newData).forEach((key) => {
+                if (key !== planKey && newData[key] === petName) {
+                    newData[key] = "";
+                }
+            });
+
+            newData[planKey] = petName;
+            return newData;
+        });
+    };
+
+    const getAvailablePets = (currentPlanKey) => {
+        const chosenPets = Object.values(data).filter(Boolean);
+        return pets.filter(
+            (pet) =>
+                !chosenPets.includes(pet.name) || data[currentPlanKey] === pet.name
+        );
+    };
+
     return (
-        <Box sx={{ background: 'white', width: isMobile ? '60%' : '50%', borderRadius: 5, padding: 5 }}>
-            <Box sx={{ display: 'flex', gap: 3, alignItems: 'center', }}>
-                <Box sx={{ width: '100%' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+        <Box
+            sx={{
+                background: "white",
+                width: isMobile ? "60%" : "50%",
+                borderRadius: 5,
+                padding: 5,
+            }}
+        >
+            <Box sx={{ display: "flex", gap: 3, alignItems: "center" }}>
+                <Box sx={{ width: "100%" }}>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            mb: 3,
+                            gap: 1
+                        }}
+                    >
                         <Box
                             sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                backgroundColor: 'var(--extra-light-gray-color)',
-                                color: 'black',
+                                display: "flex",
+                                alignItems: "center",
+                                backgroundColor: "var(--extra-light-gray-color)",
+                                color: "black",
                                 fontWeight: 600,
-                                padding: '0.75rem 1rem',
-                                borderRadius: '8px',
-                                gap: '0.5rem',
-                                border: '0.5px solid gray',
+                                padding: "0.75rem 1rem",
+                                borderRadius: "8px",
+                                gap: "0.5rem",
+                                border: "0.5px solid gray",
                             }}
                         >
                             <Typography sx={{ fontWeight: 500 }}>
                                 Asigna el/los plan(es) a la(s) mascota(s) de tu preferencia
                             </Typography>
                         </Box>
-                        <Box sx={{ my: 'auto' }}>
+                        <Box sx={{ my: "auto" }}>
                             {isMobile ? (
-                                <LuCirclePlus size={32} onClick={() => setStep(1)} style={{ cursor: 'pointer' }} />
+                                <LuCirclePlus
+                                    size={32}
+                                    onClick={() => setStep(1)}
+                                    style={{ cursor: "pointer" }}
+                                />
                             ) : (
-                                <Button sx={{ background: 'var(--secondary-color)', color: 'white', fontWeight: 600, '&:hover': { backgroundColor: 'var(--darkgreen-color)' }, gap: 2, cursor: 'pointer' }} onClick={() => setStep(1)}>
+                                <Button
+                                    sx={{
+                                        background: "var(--secondary-color)",
+                                        color: "white",
+                                        fontWeight: 600,
+                                        "&:hover": { backgroundColor: "var(--darkgreen-color)" },
+                                        gap: 2,
+                                        cursor: "pointer",
+                                    }}
+                                    onClick={() => setStep(1)}
+                                >
                                     <FiPlus /> Añadir mascota
                                 </Button>
                             )}
                         </Box>
                     </Box>
 
-                    <Box sx={{ display: 'flex', gap: 2, justifyContent: 'space-between', flexDirection: isMobile ? 'column' : 'row' }}>
-                        {Object.entries(plans).map(([planKey, planData], index) => (
-                            <Box sx={{ width: '100%' }}>
-                                <Typography
-                                    sx={{
-                                        color: 'var(--blackinput-color)',
-                                        fontWeight: 600,
-                                        fontSize: '1rem',
-                                    }}
-                                >
-                                    Plan #{index + 1}: {planData.label}
-                                </Typography>
-                                <Select
-                                    key={planKey}
-                                    fullWidth
-                                    value={data[planKey] || ''}
-                                    size="small"
-                                    onChange={(e) => {
-                                        setData((prev) => ({
-                                            ...prev,
-                                            [planData.plan]: e.target.value
-                                        }));
-                                    }}
-                                    displayEmpty
-                                    sx={{
-                                        '& .MuiInputBase-root': {
-                                            padding: '4px 8px',
-                                            fontSize: '0.875rem',
-                                        },
-                                    }}
-                                >
-                                    <MenuItem value="" disabled>Selecciona una opción</MenuItem>
-                                    {pets.map((pet) => (
-                                        <MenuItem key={pet.name} value={pet.name}>
-                                            {pet.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </Box>
-                        ))}
+                    <Box
+                        sx={{
+                            display: "grid",
+                            gap: 2,
+                            width: "100%",
+                            justifyContent: "space-between",
+                            gridTemplateColumns: isMobile ? "1fr" : "repeat(3, 1fr)",
+                        }}
+                    >
+                        {Object.entries(plans)
+                            .filter(([planKey, planData]) => planData.quantity > 0)
+                            .map(([planKey, planData]) =>
+                                Array.from({ length: planData.quantity }).map((_, i) => (
+                                    <Box key={`${planKey}-${i}`} sx={{ width: "100%" }}>
+                                        <Typography
+                                            sx={{
+                                                color: "var(--blackinput-color)",
+                                                fontWeight: 600,
+                                                fontSize: "1rem",
+                                            }}
+                                        >
+                                            Plan # {i + 1}: {planData.label}
+                                        </Typography>
+                                        <Select
+                                            fullWidth
+                                            value={data[`${planKey}-${i}`] || ""}
+                                            size="small"
+                                            onChange={(e) =>
+                                                handleSelectPet(`${planKey}-${i}`, e.target.value)
+                                            }
+                                            displayEmpty
+                                            sx={{
+                                                "& .MuiInputBase-root": {
+                                                    padding: "4px 8px",
+                                                    fontSize: "0.875rem",
+                                                },
+                                                mt: 1,
+                                            }}
+                                        >
+                                            <MenuItem value="">Ninguno</MenuItem>
+                                            {getAvailablePets(`${planKey}-${i}`).map((pet) => (
+                                                <MenuItem key={pet.name} value={pet.name}>
+                                                    {pet.name}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </Box>
+                                ))
+                            )}
                     </Box>
 
                 </Box>
             </Box>
         </Box>
-    )
+    );
 }
