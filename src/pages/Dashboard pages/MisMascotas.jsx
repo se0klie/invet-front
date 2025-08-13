@@ -1,4 +1,4 @@
-import { Box, Button, Typography, Modal } from "@mui/material"
+import { Box, Button, Typography, Modal, Snackbar, Alert } from "@mui/material"
 import { useState, useEffect } from "react";
 import EmptyPet from "./EmptyPet";
 import { AddPet, LightGreenButton } from '../../pages/shared components/Buttons'
@@ -6,7 +6,13 @@ import PetBox from "../../pages/shared components/PetBox"
 import { DataInput } from "../../pages/shared components/Inputs";
 import { RxCross1 } from "react-icons/rx";
 import { useMediaQuery, useTheme } from '@mui/material'
+import { LoadingModal } from "../shared components/Modals";
 export default function MisMascotas() {
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'success', // "success" | "error" | "warning" | "info"
+    });
     const [pets, setPets] = useState([
         {
             name: 'Firulais',
@@ -23,8 +29,29 @@ export default function MisMascotas() {
         }
     ]);
     const [addPetModal, setAddPetModal] = useState(false);
-    const [newPetData, setNewPetData] = useState({ image: undefined });
-    const isMobile = useMediaQuery(useTheme().breakpoints.down('sm'));
+    const [loadingModal, setLoadingModal] = useState(false)
+    const [loadingModalStep, setLoadingModalStep] = useState(0)
+    const [newPetData, setNewPetData] = useState({ image: undefined, name: '', breed: '', birthdate: '' });
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+
+    useEffect(() => {
+        function handleResize() {
+            setIsMobile(window.innerWidth <= 1024);
+        }
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    useEffect(() => {
+        setTimeout(() => {
+            setLoadingModalStep(1)
+            setTimeout(() => {
+                setLoadingModal(false)
+                setLoadingModalStep(0)
+            }, 2500);
+        }, 3000);
+    }, [loadingModal])
+
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -239,14 +266,46 @@ export default function MisMascotas() {
                                         </Box>
                                     </label>
                                 </Box>
-                                <LightGreenButton text='Añadir' />
+                                <LightGreenButton text='Añadir' action={
+                                    () => {
+                                        if (newPetData.birthdate && newPetData.name && newPetData.breed) {
+                                            setAddPetModal(false)
+                                            setLoadingModal(true)
+                                            setNewPetData({
+                                                name: '',
+                                                breed: '',
+                                                birthdate: '',
+                                                image: undefined
+                                            })
+                                        } else {
+                                            setSnackbar({
+                                                open: true,
+                                                message: 'Por favor, rellena los campos obligatorios antes de continuar.',
+                                                severity: 'error'
+                                            })
+                                        }
+                                    }
+                                } />
                             </Box>
                         </Box>
                     </Box>
-
-                    
                 </Box>
             </Modal>
+            <LoadingModal text="Agregando mascota...." modalStep={loadingModalStep} open={loadingModal} setOpen={setLoadingModal} />
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+                <Alert
+                    onClose={() => setSnackbar({ ...snackbar, open: false })}
+                    severity={snackbar.severity}
+                    sx={{ width: '100%' }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Box >
 
     )

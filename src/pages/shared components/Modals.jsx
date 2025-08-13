@@ -100,7 +100,7 @@ export function LoadingModal({ text, open, setOpen, modalStep }) {
                 }}
             >
                 {modalStep === 0 &&
-                    <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1.5rem' }}>
+                    <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1.5rem', textAlign: 'center'}}>
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                             <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'black' }}>
                                 {text}
@@ -116,7 +116,7 @@ export function LoadingModal({ text, open, setOpen, modalStep }) {
                 }
 
                 {modalStep === 1 &&
-                    <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1.5rem' }}>
+                    <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1.5rem', textAlign: 'center'}}>
                         <FaRegCircleCheck color="green" size={45} />
                         <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'black' }}>
                             Proceso terminado con éxito

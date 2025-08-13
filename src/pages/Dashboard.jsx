@@ -9,8 +9,15 @@ export default function Dashboard() {
     const { user, login } = useAuth();
     const [divisionSelected, setDivisionSelected] = useState('Mis mascotas');
     const url = `https://wa.me/593999495379`;
-    const theme = useTheme()
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+
+    useEffect(() => {
+        function handleResize() {
+            setIsMobile(window.innerWidth <= 1024);
+        }
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     return (
         <Box sx={{ backgroundColor: 'var(--primary-color)', minHeight: '100vh', padding: isMobile ? '1rem' : '2rem', boxSizing: 'border-box' }}>

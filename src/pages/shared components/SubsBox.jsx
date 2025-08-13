@@ -1,10 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { CancelButton } from "../../pages/shared components/Buttons";
 import { Box, Button, Typography } from "@mui/material";
-import { useState } from "react";
 import { CancelPlanModal, LoadingModal } from "./Modals";
 export default function SubsBox({ petName, date, plan }) {
-    const isMobile = window.innerWidth <= 600;
     const [price, setPrice] = useState('$11.00');
     useEffect(() => {
         if (plan === 'Básico') {
@@ -18,6 +16,15 @@ export default function SubsBox({ petName, date, plan }) {
     const [cancelPlan, setCancelPlan] = useState(false)
     const [loadingModal, setLoadingModal] = useState()
     const [loadingModalStep, setLoadingModalStep] = useState(0)
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+
+    useEffect(() => {
+        function handleResize() {
+            setIsMobile(window.innerWidth <= 1024);
+        }
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     function onCancelPlan() {
         setCancelPlan(false)
@@ -25,6 +32,7 @@ export default function SubsBox({ petName, date, plan }) {
         setTimeout(() => {
             setLoadingModalStep(1)
             setTimeout(() => {
+                setLoadingModalStep(0)
                 setLoadingModal(false)
             }, 2000);
         }, 3000);
@@ -32,8 +40,8 @@ export default function SubsBox({ petName, date, plan }) {
 
     return (
         <Box
-            sx={{ marginY: '1rem', display: 'flex', flexDirection: 'column', gap: '10px', backgroundColor: 'white', padding: '1rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)', }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: isMobile ? '1.5rem' : '1rem' }}>
+            sx={{ marginY: '1rem', display: 'flex', flexDirection: 'column', gap: '10px', backgroundColor: 'white', padding: '1rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
                 <Typography variant="h6" sx={{ color: 'black', fontWeight: 'bold' }}>
                     {petName}
                 </Typography>
@@ -46,9 +54,8 @@ export default function SubsBox({ petName, date, plan }) {
 
             </Box>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '1rem' }}>
-
-                <Box sx={{ width: '50%' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '0.3rem' }}>
+                <Box sx={{ width: isMobile ? '40%' : '50%' }}>
                     <CancelButton action={() => setCancelPlan(true)} text={`${isMobile ? 'Cancelar' : 'Cancelar plan'}`} />
                 </Box>
                 <Box sx={{ textAlign: 'left' }}>

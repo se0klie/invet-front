@@ -2,7 +2,7 @@ import { Button, Typography } from "@mui/material";
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import { useMediaQuery, useTheme } from '@mui/material'
-
+import { useState, useEffect } from "react";
 export function NextButton({ action, isSend = false, disabled = false }) {
     return (
         <Button
@@ -43,7 +43,7 @@ export function DarkGreenButton({ text, action, disabled = false }) {
                 '&:hover': {
                     backgroundColor: 'var(--hoverdarkgreen-color)',
                     color: '#eee',
-                },minWidth: 'min-content'
+                }, minWidth: 'min-content'
             }}
             onClick={action}
         >
@@ -108,7 +108,7 @@ export function LightGreenButton({ action, text, disabled = false }) {
         </Button>
     )
 }
-export function PreviousButton({ action, isBrighter = false, disabled = false }) {
+export function PreviousButton({ text = "Anterior", action, isBrighter = false, disabled = false }) {
     return (
         <Button
             disabled={disabled}
@@ -131,13 +131,22 @@ export function PreviousButton({ action, isBrighter = false, disabled = false })
             onClick={action}
         >
             <ArrowBackIosIcon sx={{ fontSize: '1rem', paddingRight: '1rem', }} />
-            Anterior
+            {text}
         </Button>
     )
 }
 
 export function AddPet({ action }) {
-    const isMobile = useMediaQuery(useTheme().breakpoints.down('sm'));
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+
+    useEffect(() => {
+        function handleResize() {
+            setIsMobile(window.innerWidth <= 1024);
+        }
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     return (
         <Button sx={{
             borderColor: 'var(--secondary-color)', borderWidth: '2px', borderRadius: '2rem', borderStyle: 'solid', padding: '10px 20px', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer',

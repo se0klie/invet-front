@@ -11,6 +11,8 @@ import { DataInput, DataSelect, PasswordLabelWithTooltip } from '../shared compo
 import { useNavigate } from 'react-router-dom';
 import { useMediaQuery, useTheme } from '@mui/material'
 import { YellowAlert } from '../shared components/Alerts';
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { useLocation } from 'react-router-dom';
 
 export default function InitialState() {
     const [currentStep, setCurrentStep] = useState(1) //1: login, 2: reset psswd, 3: confirm code, 4: changepassword, 5: register
@@ -22,7 +24,15 @@ export default function InitialState() {
     const navigate = useNavigate()
 
     const theme = useTheme()
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+
+    useEffect(() => {
+        function handleResize() {
+            setIsMobile(window.innerWidth <= 1024);
+        }
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
 
     return (
@@ -66,7 +76,7 @@ export default function InitialState() {
                 {currentStep === 5 && (disableRegister)
                     &&
                     <Box className="buttons-container">
-                        <PreviousButton isBrighter={true} action={() => { setCurrentStep(1) }} />
+                        <PreviousButton text="Regresar al inicio" isBrighter={true} action={() => { setCurrentStep(1) }} />
                         <NextButton action={() => {
                             setRegisterFieldStatus((prev) => ({
                                 ...prev,
@@ -95,6 +105,8 @@ function Login({ setStep }) {
     const handleTogglePassword = () => setShowPassword((prev) => !prev);
     const { login } = useAuth()
     const navigate = useNavigate()
+    const fromCheckout = useLocation().state?.from === 'checkout' || false
+
     return (
         <>
             <Box className="title-box">
@@ -147,7 +159,11 @@ function Login({ setStep }) {
                         <DarkGreenButton text={'Iniciar sesión'} action={
                             () => {
                                 login({ name: 'yop', email: 'asdasd' })
-                                navigate('/')
+                                if (fromCheckout) {
+                                    navigate('/identify-pet')
+                                } else {
+                                    navigate('/dashboard')
+                                }
                             }} />
                     </Box>
                 </Box>
@@ -367,15 +383,16 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
         phone: '',
         city: '',
         password: '',
-        repeatedpassword: ''
+        repeatedpassword: '',
+        address: ''
     })
     const theme = useTheme()
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+    const isMobile = window.innerWidth <= 1000
     const [formStep, setFormStep] = useState(0);
     const [errors, setErrors] = useState({})
     const [hasErrors, setHasErrors] = useState(false)
     const groupedFields = [
-        ['firstNames', 'secondNames', 'idnumber', 'phone'],
+        ['firstNames', 'lastNames', 'idnumber', 'phone'],
         ['city', 'address'],
         ['password', 'repeatedpassword'],
     ]
@@ -433,12 +450,6 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
         },
 
     ]
-
-    useEffect(() => {
-        if (isMobile) {
-            setDisabled(false)
-        }
-    }, [])
 
     useEffect(() => {
         const hasErrors = Object.values(errors).some(error => error);
@@ -664,20 +675,21 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
             </Box>
 
             {isMobile && (
-                <Box mt={2} display="flex" justifyContent="space-between" gap="3rem">
-                    <PreviousButton
-                        action={() => {
-                            if (formStep === 0) {
-                                setStep(1)
-                            } else {
+                <Box mt={2} display="flex" justifyContent="space-between" gap="2rem">
+                    <FaArrowLeft
+                        size={25}
+                        onClick={() => {
+                            if (formStep > 0) {
                                 setFormStep(formStep - 1)
                             }
                         }}
+
+                        color={formStep === 0 && '#ccc'}
                         disabled={formStep === 0} />
-                    <NextButton
-                        text={'Siguiente'}
+                    <FaArrowRight
+                        size={25}
                         disabled={formStep === groupedFields.length - 1}
-                        action={() => {
+                        onClick={() => {
                             if (verifyFieldsPhone(formStep)) {
                                 if (formStep === groupedFields.length - 1) {
                                     navigate('/welcomePage')

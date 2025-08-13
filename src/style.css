@@ -2,7 +2,7 @@
   --primary-color: #E7F2DC;
   --secondary-color: #8FBBAC;
   --darkgreen-color: #36848E;
-  --disabled-color: #E4E4E4;
+  --disabled-color: hsl(0, 0%, 89%);
   --dark-gray-color: #adadad;
   --extra-light-gray-color: #f4f4f4;
   --dark-gray-hover-color: #969696;

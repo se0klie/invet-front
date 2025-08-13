@@ -70,7 +70,7 @@ export function DataInput({ label, placeholder, setData, formLabel, type, value,
 }
 
 
-export function DataSelect({ label, value, setData, formLabel, errorMessage, isDisabled = false }) {
+export function DataSelect({ label, value, setData, formLabel, errorMessage, isDisabled = false}) {
     return (
         <Box>
             <Typography

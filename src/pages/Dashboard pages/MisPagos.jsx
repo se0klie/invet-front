@@ -1,10 +1,9 @@
 import { Box, Divider, Typography } from "@mui/material"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SubsBox from "../shared components/SubsBox";
-import {FacturasTable, FacturasList} from "../shared components/BillTable";
+import { FacturasTable, FacturasList } from "../shared components/BillTable";
 
 export default function MisPagos() {
-    const isMobile = window.innerWidth <= 600;
     const [suscriptions, setSubscriptions] = useState([
         {
             name: 'Otto Rocket',
@@ -32,6 +31,16 @@ export default function MisPagos() {
         { id: '#12345', fecha: '12 Jun, 2025', plan: 'Básico', mascota: 'Otto', monto: 11 },
         { id: '#12345', fecha: '13 Jun, 2025', plan: 'Básico', mascota: 'Mojito', monto: 11 },
     ]);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+
+    useEffect(() => {
+        function handleResize() {
+            setIsMobile(window.innerWidth <= 1024);
+        }
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'flex-start', height: '100%', padding: '1.5em' }}>
@@ -55,7 +64,12 @@ export default function MisPagos() {
                             overflowY: 'hidden',
                             width: '100%',
                             gap: 2,
-                            scrollSnapType: 'x mandatory', // ✅ Smooth snap effect
+                            scrollSnapType: 'x mandatory',
+                            '&::-webkit-scrollbar': {
+                                display: 'none',
+                            },
+                            msOverflowStyle: 'none',  // IE/Edge
+                            scrollbarWidth: 'none',   // Firefox
                         }}
                     >
                         {suscriptions.map((sub, index) => (
@@ -69,6 +83,7 @@ export default function MisPagos() {
                             </Box>
                         ))}
                     </Box>
+
                 )}
             </Box>
             <Divider

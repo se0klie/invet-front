@@ -6,10 +6,9 @@ import { CancelButton, GrayButton, LightGreenButton } from '../shared components
 import { RxCross1 } from "react-icons/rx";
 import { LoadingModal } from '../shared components/Modals'
 export default function Settings() {
-    const isMobile = window.innerWidth <= 600;
     const [formData, setFormData] = useState({})
     const [passwords, setPasswords] = useState({
-        newpassword:'',
+        newpassword: '',
         oldpassword: ''
     })
     const [errors, setErrors] = useState({})
@@ -19,6 +18,15 @@ export default function Settings() {
     const [loadingModal, setLoadingModal] = useState(false)
     const [loadingModalStep, setLoadingModalStep] = useState(0)
     const [passwordErrors, setPasswordErrors] = useState({})
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+
+    useEffect(() => {
+        function handleResize() {
+            setIsMobile(window.innerWidth <= 1024);
+        }
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         setTimeout(() => {
@@ -176,7 +184,7 @@ export default function Settings() {
                         width: '100%',
                     }}
                 >
-                    <h1 style={{ margin: 0 }}>Ajustes</h1>
+                   <Typography variant='h4' sx={{fontWeight: 600}}>Ajustes</Typography>
                 </Box>
 
                 <Box
@@ -286,8 +294,8 @@ export default function Settings() {
                             }}
                         >
 
-                            <PasswordLabelWithTooltip label={'Contraseña actual'} placeholder={'Ingrese su actual contraseña'} setData={setPasswords} formLabel={'oldpassword'} value={passwords['oldpassword']} errorMessage={passwordErrors.oldpassword}/>
-                            <PasswordLabelWithTooltip label={'Nueva contraseña'}  placeholder={'Ingrese su nueva contraseña'} showTooltip={true} errorMessage={passwordErrors.newpassword} formLabel={'newpassword'}  value={passwords['newpassword'] }setData={setPasswords} />
+                            <PasswordLabelWithTooltip label={'Contraseña actual'} placeholder={'Ingrese su actual contraseña'} setData={setPasswords} formLabel={'oldpassword'} value={passwords['oldpassword']} errorMessage={passwordErrors.oldpassword} />
+                            <PasswordLabelWithTooltip label={'Nueva contraseña'} placeholder={'Ingrese su nueva contraseña'} showTooltip={true} errorMessage={passwordErrors.newpassword} formLabel={'newpassword'} value={passwords['newpassword']} setData={setPasswords} />
                             <Button
                                 sx={{
                                     background: 'var(--error-fill-color)',

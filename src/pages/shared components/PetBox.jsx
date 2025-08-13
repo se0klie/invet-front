@@ -1,21 +1,35 @@
-import { Box, Button, Typography, Modal, Select, MenuItem } from "@mui/material";
+import { Box, Button, Typography, Modal, Select, MenuItem, Snackbar, Alert } from "@mui/material";
 import { YellowAlert } from "./Alerts";
 import { useMediaQuery, useTheme } from '@mui/material'
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import { RxCross1 } from "react-icons/rx";
-import { FaArrowDown, FaArrowRight } from "react-icons/fa";
-import { CancelButton, LightGreenButton } from "./Buttons";
+import { LightGreenButton } from "./Buttons";
 import { CancelPlanModal, LoadingModal } from "./Modals";
 import { TfiExchangeVertical } from "react-icons/tfi";
 import { LiaExchangeAltSolid } from "react-icons/lia";
 
 export default function PetBox({ petName, status, plan, pets }) {
-    const isMobile = useMediaQuery(useTheme().breakpoints.down('sm'));
     const [transferPlan, setTransferPlan] = useState(false)
     const [cancelPlan, setCancelPlan] = useState(false)
     const [selectedPet, setSelectedPet] = useState('')
     const [loadingModal, setLoadingModal] = useState(false)
     const [loadingModalStep, setLoadingModalStep] = useState(0)
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'success', // "success" | "error" | "warning" | "info"
+    });
+
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+
+    useEffect(() => {
+        function handleResize() {
+            setIsMobile(window.innerWidth <= 1024);
+        }
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
 
     function onCancelPlan() {
         setCancelPlan(false)
@@ -23,6 +37,19 @@ export default function PetBox({ petName, status, plan, pets }) {
         setTimeout(() => {
             setLoadingModalStep(1)
             setTimeout(() => {
+                setLoadingModalStep(0)
+                setLoadingModal(false)
+            }, 2000);
+        }, 3000);
+    }
+
+    function onExchangePlan() {
+        setTransferPlan(false)
+        setLoadingModal(true)
+        setTimeout(() => {
+            setLoadingModalStep(1)
+            setTimeout(() => {
+                setLoadingModalStep(0)
                 setLoadingModal(false)
             }, 2000);
         }, 3000);
@@ -39,7 +66,7 @@ export default function PetBox({ petName, status, plan, pets }) {
                 borderRadius: '12px',
                 boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
                 width: {
-                    xs: '85%',
+                    xs: '100%',
                     sm: '90%',
                     md: '40%',
                     lg: '30%',
@@ -62,6 +89,7 @@ export default function PetBox({ petName, status, plan, pets }) {
                 }}
             >
                 <img
+                    src="https://hips.hearstapps.com/hmg-prod/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=0.752xw:1.00xh;0.175xw,0&resize=1200:*"
                     alt={`Foto de ${petName}`}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
@@ -175,7 +203,10 @@ export default function PetBox({ petName, status, plan, pets }) {
             </Box>
             <Modal
                 open={transferPlan}
-                onClose={() => setTransferPlan(false)}
+                onClose={() => {
+                    setTransferPlan(false)
+                    setSelectedPet('')
+                }}
             >
                 <Box
                     sx={{
@@ -335,16 +366,40 @@ export default function PetBox({ petName, status, plan, pets }) {
 
                         <Box
                             sx={{
-                                width: isMobile ? '100%' :'40%',              // take full height of grid area
+                                width: isMobile ? '100%' : '40%',
                             }}
                         >
-                            <LightGreenButton text="Transferir" />
+                            <LightGreenButton text="Transferir" action={() => {
+                                if (selectedPet) {
+                                    onExchangePlan()
+                                } else {
+                                    setSnackbar({
+                                        open: true,
+                                        message: 'Por favor, escoge una mascota antes de continuar.',
+                                        severity: 'error'
+                                    })
+                                }
+                            }} />
                         </Box>
                     </Box>
                 </Box>
             </Modal>
             <CancelPlanModal open={cancelPlan} setOpen={setCancelPlan} petName={petName} onCancel={onCancelPlan} />
             <LoadingModal open={loadingModal} setOpen={setLoadingModal} text="Generando cambios..." modalStep={loadingModalStep} />
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+                <Alert
+                    onClose={() => setSnackbar({ ...snackbar, open: false })}
+                    severity={snackbar.severity}
+                    sx={{ width: '100%' }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Box>
 
     )
