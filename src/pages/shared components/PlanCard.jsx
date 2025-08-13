@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { Card, CardMedia, CardContent, Typography, Button, Box, List, ListItem, ListItemText } from '@mui/material';
-
+import { useNavigate } from 'react-router-dom';
 export function PlanCard({ name, value, text, img, alt }) {
-
+    const navigate = useNavigate()
     return (
         <Box sx={{ paddingTop: '4rem', display: 'flex', justifyContent: 'center' }}>
             <Box sx={{ position: 'relative' }}>
@@ -85,6 +85,7 @@ export function PlanCard({ name, value, text, img, alt }) {
                             <Button
                                 variant="contained"
                                 sx={{ borderRadius: 2, backgroundColor: 'var(--darkgreen-color)', color: 'white', fontWeight: 600 }}
+                                onClick={()=> {navigate('/ourService')}}
                             >
                                 Ver más
                             </Button>

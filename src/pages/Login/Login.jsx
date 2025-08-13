@@ -22,6 +22,7 @@ export default function InitialState() {
         validated: false
     })
     const navigate = useNavigate()
+    const fromCheckout = useLocation().state?.from === 'checkout' || false
 
     const theme = useTheme()
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
@@ -83,7 +84,11 @@ export default function InitialState() {
                                 toValidate: true
                             }))
                             if (registerFieldStatus.validated) {
-                                navigate('/welcomePage')
+                                if (fromCheckout) {
+                                    navigate('/identify-pet')
+                                } else {
+                                    navigate('/welcomePage')
+                                }
                             }
                         }}
                             disabled={!registerFieldStatus.validated}
@@ -391,6 +396,7 @@ function Register({ setStep, currentStep, setDisabled, validateFields, changeSta
     const [formStep, setFormStep] = useState(0);
     const [errors, setErrors] = useState({})
     const [hasErrors, setHasErrors] = useState(false)
+    const fromCheckout = useLocation().state?.from === 'checkout' || false
     const groupedFields = [
         ['firstNames', 'lastNames', 'idnumber', 'phone'],
         ['city', 'address'],

@@ -137,8 +137,8 @@ export default function ServicePage() {
                     gap: 2,
                     gridTemplateColumns: '1fr 1fr',
                     alignItems: "center",
-                    px: { xs: 2, md: 3 },
-                    py: { xs: 4, md: 6 },
+                    px: { xs: 3, md: 3 },
+                    py: { xs: 5, md: 6 },
                     background: "linear-gradient(to right, #d9efe4, #dac8b8)",
                 }}
             >
