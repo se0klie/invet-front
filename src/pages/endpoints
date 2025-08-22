@@ -1,0 +1,13 @@
+import urlJoin from "url-join";
+
+const API_ROOT = "";
+
+export const endpoints = {
+    create_user: urlJoin(API_ROOT, "create-account/"),
+    login: urlJoin(API_ROOT, "modify-account/"),
+    session_token: urlJoin(API_ROOT, "create-session-token/"),
+    create_sub: urlJoin(API_ROOT, "create-subscription/"),
+    remove_card: urlJoin(API_ROOT, "delete-card/"),
+    registered_cards: urlJoin(API_ROOT, "registered-cards/"),
+    update_data: urlJoin(API_ROOT, 'modify-account/')
+};

@@ -4,9 +4,14 @@ import { DataInput, PasswordLabelWithTooltip, DataSelect } from '../shared compo
 import { FaPencilAlt, FaRegSave } from "react-icons/fa";
 import { CancelButton, GrayButton, LightGreenButton } from '../shared components/Buttons';
 import { RxCross1 } from "react-icons/rx";
+import axios from 'axios';
 import { LoadingModal } from '../shared components/Modals'
+import Cookies from 'js-cookie';
+import axios_api from '../axios';
+import { endpoints } from '../endpoints'
 export default function Settings() {
     const [formData, setFormData] = useState({})
+    const [editableData, setEditableData] = useState(formData)
     const [passwords, setPasswords] = useState({
         newpassword: '',
         oldpassword: ''
@@ -86,7 +91,7 @@ export default function Settings() {
         let hasErrors = false;
         const newErrors = {};
         const cleanedData = {}
-        Object.entries(formData).forEach(([key, value]) => {
+        Object.entries(editableData).forEach(([key, value]) => {
             if (value === '') {
                 return
             }
@@ -122,9 +127,86 @@ export default function Settings() {
             cleanedData[key] = value;
         });
 
-        setFormData(cleanedData);
+        setEditableData(cleanedData);
         setErrors(newErrors);
         return !hasErrors;
+    }
+
+    async function fetchUserData() {
+        try {
+            const response = await axios.get(
+                `${import.meta.env.VITE_BACKEND_URL}db/clientes/?cedula=${localStorage.getItem('cedula')}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get('authToken')}`
+                    }
+                }
+            );
+
+            const userData = response.data[0];
+            if (userData) {
+                setFormData({
+                    firstNames: userData.nombres,
+                    lastNames: userData.apellidos,
+                    email: userData.email,
+                    phone: userData.celular,
+                    idnumber: userData.cedula,
+                    address: userData.direccion_facturacion,
+                })
+                return 200;
+            } else {
+                return 400
+            }
+
+        } catch (err) {
+            console.error("API call failed:", err);
+            return err.status || 500;
+        }
+    }
+
+    useEffect(() => {
+        if (editableData && Object.keys(editableData).length === 0) {
+            fetchUserData()
+        }
+    }, [formData, editableData]);
+
+
+    async function handleSaveFields() {
+        setSaveChanges(false);
+        setLoadingModal(true);
+        try {
+
+            const response = await axios_api.patch(
+                endpoints.update_data,
+                {
+                    cedula: editableData.idnumber,
+                    email: editableData.email,
+                    celular: editableData.phone,
+                    direccion_facturacion: editableData.address,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get('authToken')}`
+                    }
+                }
+            );
+            console.log(response)
+            if (response.status === 202) {
+                setTimeout(() => {
+                    setIsEditable(false);
+                    setLoadingModalStep(1);
+                }, 3000);
+            }
+        } catch (err) {
+            console.error("API call failed:", err);
+            setIsEditable(false);
+            setLoadingModalStep(-1);
+        } finally {
+            setTimeout(() => {
+                setLoadingModal(false);
+                setLoadingModalStep(0);
+            }, 2500);
+        }
     }
 
     function checkPasswords() {
@@ -184,7 +266,7 @@ export default function Settings() {
                         width: '100%',
                     }}
                 >
-                   <Typography variant='h4' sx={{fontWeight: 600}}>Ajustes</Typography>
+                    <Typography variant='h4' sx={{ fontWeight: 600 }}>Ajustes</Typography>
                 </Box>
 
                 <Box
@@ -209,9 +291,9 @@ export default function Settings() {
                                 <DataSelect
                                     key={i}
                                     label="Ciudad"
-                                    setData={setFormData}
+                                    setData={setEditableData}
                                     formLabel="city"
-                                    value={formData.city}
+                                    value={editableData.city}
                                     errorMessage={errors.city}
                                     isDisabled={!isEditable}
                                 />
@@ -220,17 +302,25 @@ export default function Settings() {
                                     key={i}
                                     label={field.label}
                                     placeholder={field.placeholder}
-                                    setData={setFormData}
+                                    setData={setEditableData}
                                     formLabel={field.formData}
                                     type={field.type}
                                     errorMessage={errors[field.formData]}
-                                    value={formData[field.formData]}
+                                    value={editableData[field.formData]}
                                     disabled={!isEditable}
                                 />
                             )
                         ))}
 
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: 'auto' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: 'auto', gap: 2 }}>
+                            {isEditable &&
+                                <Box sx={{ width: '40%' }}>
+                                    <GrayButton text='Cancelar' action={() => {
+                                        setEditableData(formData)
+                                        setIsEditable(false)
+                                    }} />
+                                </Box>
+                            }
                             <Button
                                 sx={{
                                     border: '0.1rem solid var(--secondary-color)',
@@ -376,17 +466,13 @@ export default function Settings() {
 
                         <Button
                             variant="contained"
-                            onClick={() => {
-                                setSaveChanges(false);
-                                setLoadingModal(true);
-
-                            }}
                             sx={{
                                 backgroundColor: 'var(--darkgreen-color)',
                                 color: 'white',
                                 fontWeight: 600,
                                 borderRadius: '0.5rem',
                             }}
+                            onClick={() => { handleSaveFields() }}
                         >
                             Guardar
                         </Button>
