@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { CancelButton } from "../../pages/shared components/Buttons";
+import { CancelButton, LightGreenButton } from "../../pages/shared components/Buttons";
 import { Box, Button, Typography } from "@mui/material";
 import { CancelPlanModal, LoadingModal } from "./Modals";
+import { IoCardSharp } from "react-icons/io5";
+
 export default function SubsBox({ petName, date, plan }) {
     const [price, setPrice] = useState('$11.00');
     useEffect(() => {
@@ -54,8 +56,8 @@ export default function SubsBox({ petName, date, plan }) {
 
             </Box>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '0.3rem' }}>
-                <Box sx={{ width: isMobile ? '40%' : '50%' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '0.4rem' }}>
+                <Box sx={{ width: isMobile ? '40%' : '50%', display: 'flex', gap: '0.3rem' }}>
                     <CancelButton action={() => setCancelPlan(true)} text={`${isMobile ? 'Cancelar' : 'Cancelar plan'}`} />
                 </Box>
                 <Box sx={{ textAlign: 'left' }}>
@@ -74,6 +76,10 @@ export default function SubsBox({ petName, date, plan }) {
                     <Typography variant="body2" sx={{ color: 'gray' }}>
                         {plan}
                     </Typography>
+                </Box>
+
+                <Box sx={{paddingX: '0.3rem'}}>
+                    <IoCardSharp size={30} style={{ color: 'var(--darkgreen-color)', cursor: 'pointer' }} />
                 </Box>
             </Box>
             <CancelPlanModal

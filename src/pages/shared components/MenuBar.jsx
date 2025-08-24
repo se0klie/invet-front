@@ -4,6 +4,7 @@ import { IoMdSettings } from "react-icons/io";
 import { MdLogout } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+
 export default function MenuBar() {
     const { user, login } = useAuth()
     const navigate = useNavigate()
@@ -29,10 +30,10 @@ export default function MenuBar() {
                             <img src="/images/user-avatar.png" alt="User Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
                         </Box>
                         }
-                        <Typography variant="span" sx={{ flexGrow: 1, color: 'white' }}>
-                            {!isMobile && ' Bienvenido/a, '}
+                        <Typography variant="span" sx={{ flexGrow: 1, color: 'white', display: 'flex' }}>
+                            {!isMobile && <Typography sx={{ mr: 1 }}>Bienvenido/a,</Typography>}
                             <Typography component="span" sx={{ fontWeight: 'bold', color: 'white' }}>
-                                {user ? user.name : "Invitado"}
+                                {user ? user.name : localStorage.getItem('nombre') || localStorage.getItem('email') || "Invitado"}
                             </Typography>
                         </Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

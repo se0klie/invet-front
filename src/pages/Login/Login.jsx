@@ -16,13 +16,12 @@ import { useLocation } from 'react-router-dom';
 import axios_api from '../axios';
 import { endpoints } from '../endpoints';
 import Cookies from 'js-cookie';
-
-Cookies.set('authToken', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiMDk1NDU1OTYxMyJ9.luImfOzxhv81mTEdho1gYRL8rPLW8AZHi-Gkklq2ClM', { expires: 1 });
+import { loginHelper } from '../../helpers/login-helper';
+import { ErrorModal } from '../shared components/Modals';
 
 export default function InitialState() {
     const [currentStep, setCurrentStep] = useState(1) //1: login, 2: reset psswd, 3: confirm code, 4: changepassword, 5: register
     const fromCheckout = useLocation().state?.from === 'checkout' || false
-
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
 
     useEffect(() => {
@@ -46,7 +45,7 @@ export default function InitialState() {
             {currentStep === 2 && <ChangePassword setStep={setCurrentStep} currentStep={currentStep} />}
             {currentStep === 3 && <VerifyCode setStep={setCurrentStep} currentStep={currentStep} />}
             {currentStep === 4 && <UpdatePasswordForm setStep={setCurrentStep} currentStep={currentStep} />}
-            {currentStep === 5 && <Register setStep={setCurrentStep} currentStep={currentStep}  />}
+            {currentStep === 5 && <Register setStep={setCurrentStep} currentStep={currentStep} />}
             {currentStep === 6 && <SuccessPasswordPage setStep={setCurrentStep} />}
 
         </Box>
@@ -60,24 +59,32 @@ function Login({ setStep }) {
     })
     const [showPassword, setShowPassword] = useState()
     const handleTogglePassword = () => setShowPassword((prev) => !prev);
-    const { login } = useAuth()
     const navigate = useNavigate()
     const fromCheckout = useLocation().state?.from === 'checkout' || false
-
+    const [openErrorModal, setOpenErrorModal] = useState(false)
+    const [loginErrorMessage, setLoginErrorMessage] = useState('')
+    const { login } = useAuth()
     async function handleLogin() {
         try {
-            const response = await axios_api.get(
-                endpoints.create_user,
-                {
-                    email: data.email,
-                    password: data.password
-                },
-            );
-
-            return response.status;
+            if (!data.email || !data.password) {
+                setLoginErrorMessage('Se requieren el correo y contraseña para continuar')
+                setOpenErrorModal(true)
+                return;
+            }
+            const request = await loginHelper(data.email, data.password);
+            if (request.response === true) {
+                login({
+                    name: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
+                    email: data.email
+                })
+                navigate(fromCheckout ? '/identify-pet' : '/dashboard');
+            } else {
+                setLoginErrorMessage(request.message)
+                setOpenErrorModal(true)
+            }
         } catch (err) {
             console.error("API call failed:", err);
-            return err.status || 500; 
+            return err.status || 500;
         }
     }
 
@@ -136,13 +143,8 @@ function Login({ setStep }) {
 
                         <Box className="login-button-box">
                             <DarkGreenButton text={'Iniciar sesión'} action={
-                                () => {
-                                    login({ name: 'yop', email: 'asdasd' })
-                                    if (fromCheckout) {
-                                        navigate('/identify-pet')
-                                    } else {
-                                        navigate('/dashboard')
-                                    }
+                                async () => {
+                                    await handleLogin()
                                 }} />
                         </Box>
                     </Box>
@@ -161,6 +163,7 @@ function Login({ setStep }) {
                     </Box>
                 </Box>
             </Box>
+            <ErrorModal open={openErrorModal} onClose={() => setOpenErrorModal(false)} message={loginErrorMessage} />
         </Box>
     )
 }

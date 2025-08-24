@@ -9,6 +9,7 @@ import { LoadingModal } from '../shared components/Modals'
 import Cookies from 'js-cookie';
 import axios_api from '../axios';
 import { endpoints } from '../endpoints'
+import { useAuth } from '../../context/AuthContext';
 export default function Settings() {
     const [formData, setFormData] = useState({})
     const [editableData, setEditableData] = useState(formData)
@@ -24,7 +25,8 @@ export default function Settings() {
     const [loadingModalStep, setLoadingModalStep] = useState(0)
     const [passwordErrors, setPasswordErrors] = useState({})
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
-
+    const [showErrorModal, setShowErrorModal] = useState(false)
+    const { login } = useAuth()
     useEffect(() => {
         function handleResize() {
             setIsMobile(window.innerWidth <= 1024);
@@ -32,16 +34,6 @@ export default function Settings() {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
-
-    useEffect(() => {
-        setTimeout(() => {
-            setLoadingModalStep(1)
-            setTimeout(() => {
-                setLoadingModal(false)
-                setLoadingModalStep(0)
-            }, 2500);
-        }, 3000);
-    }, [loadingModal])
 
     const settingsFields = [
         {
@@ -74,11 +66,6 @@ export default function Settings() {
             placeholder: '06394653748',
             formData: 'idnumber',
             type: 'number'
-        },
-        {
-            label: 'Ciudad',
-            placeholder: 'Guayaquil',
-            formData: 'city'
         },
         {
             label: 'Dirección',
@@ -135,17 +122,26 @@ export default function Settings() {
     async function fetchUserData() {
         try {
             const response = await axios.get(
-                `${import.meta.env.VITE_BACKEND_URL}db/clientes/?cedula=${localStorage.getItem('cedula')}`,
+                `${import.meta.env.VITE_BACKEND_URL}db/clientes/?email=${localStorage.getItem('email')}`,
                 {
                     headers: {
                         Authorization: `Bearer ${Cookies.get('authToken')}`
                     }
                 }
             );
-
             const userData = response.data[0];
+            console.log(userData)
             if (userData) {
                 setFormData({
+                    firstNames: userData.nombres,
+                    lastNames: userData.apellidos,
+                    email: userData.email,
+                    phone: userData.celular,
+                    idnumber: userData.cedula,
+                    address: userData.direccion_facturacion,
+                    password: userData.password
+                })
+                setEditableData({
                     firstNames: userData.nombres,
                     lastNames: userData.apellidos,
                     email: userData.email,
@@ -165,12 +161,54 @@ export default function Settings() {
     }
 
     useEffect(() => {
-        if (editableData && Object.keys(editableData).length === 0) {
+        if (formData && Object.keys(formData).length === 0) {
             fetchUserData()
         }
     }, [formData, editableData]);
 
 
+    async function handleEditPassword() {
+        try {
+            setSavePassword(false)
+            setLoadingModal(true)
+
+            const response = await axios_api.patch(
+                endpoints.update_data,
+                {
+                    cedula: formData.idnumber,
+                    email: formData.email,
+                    celular: formData.phone,
+                    direccion_facturacion: formData.address,
+                    password: passwords.newpassword
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get('authToken')}`
+                    }
+                }
+            );
+
+            if (response.status === 202) {
+                setTimeout(() => {
+                    setLoadingModalStep(1)
+                    setTimeout(() => {
+                        setLoadingModal(false);
+                        setLoadingModalStep(0);
+                    }, 2500);
+                }, 2000);
+            }
+        } catch (err) {
+            console.error('Error in POST API', err)
+            setTimeout(() => {
+                setLoadingModalStep(-1)
+                setTimeout(() => {
+                    setLoadingModal(false);
+                    setLoadingModalStep(0);
+                }, 2500);
+            }, 2000);
+            return
+        }
+    }
     async function handleSaveFields() {
         setSaveChanges(false);
         setLoadingModal(true);
@@ -183,6 +221,8 @@ export default function Settings() {
                     email: editableData.email,
                     celular: editableData.phone,
                     direccion_facturacion: editableData.address,
+                    nombres: editableData.firstNames,
+                    apellidos: editableData.lastNames
                 },
                 {
                     headers: {
@@ -190,7 +230,9 @@ export default function Settings() {
                     }
                 }
             );
-            console.log(response)
+
+            login({email: editableData.email, name:  editableData.firstNames.split(' ')[0] + ' ' + editableData.lastNames.split(' ')[0]})
+            localStorage.setItem('nombre', editableData.firstNames.split(' ')[0] + ' ' + editableData.lastNames.split(' ')[0])
             if (response.status === 202) {
                 setTimeout(() => {
                     setIsEditable(false);
@@ -237,8 +279,9 @@ export default function Settings() {
                     newErrors[key] = 'La contraseña debe tener al menos un número.';
                     hasErrors = true;
                 }
-            } else if (key === 'oldpassword') {
-
+            } else if (key === 'oldpassword' && passwords.oldpassword !== formData.password) {
+                newErrors[key] = 'La contraseña es incorrecta.';
+                hasErrors = true;
             }
         })
 
@@ -280,47 +323,57 @@ export default function Settings() {
                     }}>
                     <Box
                         sx={{
-                            display: 'grid',
-                            gridTemplateColumns: `repeat(${isMobile ? 1 : 2}, 1fr)`,
+                            display: 'flex',
+                            flexDirection: 'column',
                             gap: '1rem',
-                            marginBottom: '1.5rem'
+                            marginBottom: '1rem',
                         }}
                     >
-                        {settingsFields.map((field, i) => (
-                            field.formData === 'city' ? (
-                                <DataSelect
-                                    key={i}
-                                    label="Ciudad"
-                                    setData={setEditableData}
-                                    formLabel="city"
-                                    value={editableData.city}
-                                    errorMessage={errors.city}
-                                    isDisabled={!isEditable}
-                                />
-                            ) : (
-                                <DataInput
-                                    key={i}
-                                    label={field.label}
-                                    placeholder={field.placeholder}
-                                    setData={setEditableData}
-                                    formLabel={field.formData}
-                                    type={field.type}
-                                    errorMessage={errors[field.formData]}
-                                    value={editableData[field.formData]}
-                                    disabled={!isEditable}
-                                />
-                            )
-                        ))}
+                        <Box
+                            sx={{
+                                display: 'grid',
+                                gridTemplateColumns: `repeat(${isMobile ? 1 : 2}, 1fr)`,
+                                gap: '1rem',
+                            }}
+                        >
+                            {settingsFields.map((field, i) => (
+                                field.formData === 'city' ? (
+                                    <DataSelect
+                                        key={i}
+                                        label="Ciudad"
+                                        setData={setEditableData}
+                                        formLabel="city"
+                                        value={editableData.city}
+                                        errorMessage={errors.city}
+                                        isDisabled={!isEditable}
+                                    />
+                                ) : (
+                                    <DataInput
+                                        key={i}
+                                        label={field.label}
+                                        placeholder={field.placeholder}
+                                        setData={setEditableData}
+                                        formLabel={field.formData}
+                                        type={field.type}
+                                        errorMessage={errors[field.formData]}
+                                        value={editableData[field.formData]}
+                                        disabled={!isEditable}
+                                    />
+                                )
+                            ))}
+                        </Box>
 
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: 'auto', gap: 2 }}>
-                            {isEditable &&
+                        {/* Buttons */}
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: 2, marginLeft: 'auto' }}>
+                            {isEditable && (
                                 <Box sx={{ width: '40%' }}>
-                                    <GrayButton text='Cancelar' action={() => {
+                                    <GrayButton text="Cancelar" action={() => {
                                         setEditableData(formData)
                                         setIsEditable(false)
                                     }} />
                                 </Box>
-                            }
+                            )}
+
                             <Button
                                 sx={{
                                     border: '0.1rem solid var(--secondary-color)',
@@ -328,7 +381,7 @@ export default function Settings() {
                                     borderRadius: '0.6rem',
                                     color: isEditable ? 'white' : 'var(--secondary-color)',
                                     fontWeight: 600,
-                                    width: isMobile ? '100' : '60%',
+                                    width: isMobile ? '100%' : '60%',
                                     minWidth: 'min-content',
                                     gap: '1rem',
                                     whiteSpace: 'nowrap',
@@ -340,30 +393,18 @@ export default function Settings() {
                                     }
                                 }}
                                 onClick={() => {
-                                    if (!isEditable || verifyFields()) {
-                                        setIsEditable(!isEditable)
-                                    }
-
-                                    if (isEditable) {
-                                        if (verifyFields()) {
-                                            setSaveChanges(true);
-                                        }
-                                    }
-                                }}>
-                                {!isEditable ? (
-                                    <>
-                                        <FaPencilAlt /> Editar información
-                                    </>
-                                ) : (
-                                    <>
-                                        <FaRegSave /> Guardar información
-                                    </>
-                                )}
+                                    if (!isEditable || verifyFields()) setIsEditable(!isEditable);
+                                    if (isEditable && verifyFields()) setSaveChanges(true);
+                                }}
+                            >
+                                {!isEditable ? <><FaPencilAlt /> Editar información</> : <><FaRegSave /> Guardar información</>}
                             </Button>
                         </Box>
                     </Box>
+
                     <Divider />
-                    <Box sx={{ paddingTop: '1rem' }}>
+
+                    <Box>
                         <Typography
                             variant='h5'
                             sx={{
@@ -453,7 +494,10 @@ export default function Settings() {
                     >
                         <Button
                             variant="outlined"
-                            onClick={() => setSaveChanges(false)}
+                            onClick={() => {
+                                setSaveChanges(false)
+                                setEditableData(formData)
+                            }}
                             sx={{
                                 borderColor: 'var(--dark-gray-color)',
                                 color: 'var(--dark-gray-color)',
@@ -472,7 +516,10 @@ export default function Settings() {
                                 fontWeight: 600,
                                 borderRadius: '0.5rem',
                             }}
-                            onClick={() => { handleSaveFields() }}
+                            onClick={() => {
+                                handleSaveFields()
+                                setFormData(editableData)
+                            }}
                         >
                             Guardar
                         </Button>
@@ -536,7 +583,9 @@ export default function Settings() {
 
                         <Button
                             variant="contained"
-                            onClick={() => {
+                            onClick={async () => {
+
+                                await handleEditPassword()
                                 setSavePassword(false);
                                 setLoadingModal(true);
                             }}

@@ -13,13 +13,13 @@ export default function MisPagos() {
         },
 
         {
-            name: 'Otto Rocket',
+            name: 'Tuco',
             plan: 'Básico',
             siguientePago: '2023-10-15',
             estado: 'Activo'
         },
         {
-            name: 'Otto Rocket',
+            name: 'ZZZ',
             plan: 'Básico',
             siguientePago: '2023-10-15',
             estado: 'Activo'

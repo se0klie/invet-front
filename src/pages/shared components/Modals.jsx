@@ -1,8 +1,9 @@
-import { Modal, Box, Typography, Button } from "@mui/material";
+import { Modal, Box, Typography, Button, Dialog, DialogTitle, DialogContentText, DialogContent, DialogActions } from "@mui/material";
 import { RxCross1 } from "react-icons/rx";
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { FaRegCircleCheck } from "react-icons/fa6";
 import { MdErrorOutline } from "react-icons/md";
+import { ErrorOutline } from "@mui/icons-material";
 
 export function CancelPlanModal({ open, setOpen, petName, onCancel }) {
     return (
@@ -100,7 +101,7 @@ export function LoadingModal({ text, open, setOpen, modalStep }) {
                 }}
             >
                 {modalStep === 0 &&
-                    <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1.5rem', textAlign: 'center'}}>
+                    <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1.5rem', textAlign: 'center' }}>
                         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                             <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'black' }}>
                                 {text}
@@ -116,7 +117,7 @@ export function LoadingModal({ text, open, setOpen, modalStep }) {
                 }
 
                 {modalStep === 1 &&
-                    <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1.5rem', textAlign: 'center'}}>
+                    <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1.5rem', textAlign: 'center' }}>
                         <FaRegCircleCheck color="green" size={45} />
                         <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'black' }}>
                             Proceso terminado con éxito
@@ -127,7 +128,7 @@ export function LoadingModal({ text, open, setOpen, modalStep }) {
                 {modalStep === -1 &&
                     <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
                         <MdErrorOutline color="var(--error-color)" size={45} />
-                        <Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginY: '1rem'}}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', marginY: '1rem' }}>
                             <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'black' }}>
                                 Hubo un error en el proceso
                             </Typography>
@@ -140,4 +141,46 @@ export function LoadingModal({ text, open, setOpen, modalStep }) {
             </Box>
         </Modal>
     )
+}
+
+
+export function ErrorModal({ open, onClose, message }) {
+    return (
+        <Dialog
+            open={open}
+            onClose={onClose}
+            PaperProps={{
+                sx: { borderRadius: 3, p: 1.5, width: '30%'}
+            }}
+        >
+            <DialogTitle
+                sx={{
+                    fontWeight: 600,
+                    color: "error.main",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1
+                }}
+            >
+                <ErrorOutline color="error" /> Hubo un error
+            </DialogTitle>
+
+            <DialogContent>
+                <DialogContentText sx={{ color: "text.primary" }}>
+                    {message || "Algo salió mal. Por favor, inténtalo de nuevo."}
+                </DialogContentText>
+            </DialogContent>
+
+            <DialogActions>
+                <Button
+                    onClick={onClose}
+                    variant="contained"
+                    color="error"
+                    sx={{ borderRadius: 2, px: 3 }}
+                >
+                    Entendido
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
 }

@@ -7,7 +7,7 @@ import { LightGreenButton } from "./Buttons";
 import { CancelPlanModal, LoadingModal } from "./Modals";
 import { TfiExchangeVertical } from "react-icons/tfi";
 import { LiaExchangeAltSolid } from "react-icons/lia";
-
+import { useNavigate } from "react-router-dom";
 export default function PetBox({ petName, status, plan, pets }) {
     const [transferPlan, setTransferPlan] = useState(false)
     const [cancelPlan, setCancelPlan] = useState(false)
@@ -19,7 +19,7 @@ export default function PetBox({ petName, status, plan, pets }) {
         message: '',
         severity: 'success', // "success" | "error" | "warning" | "info"
     });
-
+    const navigate = useNavigate();
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
 
     useEffect(() => {
@@ -172,7 +172,6 @@ export default function PetBox({ petName, status, plan, pets }) {
                                         backgroundColor: 'var(--error-fill-hover-color)',
                                     },
                                 }}
-                                fromDashboard={true}
                                 onClick={() => setCancelPlan(true)}
                             >
                                 Cancelar plan
@@ -195,6 +194,7 @@ export default function PetBox({ petName, status, plan, pets }) {
                                     backgroundColor: 'var(--darkgreen-color)',
                                 },
                             }}
+                            onClick={() => {navigate('/ourService')}}
                         >
                             Añadir plan
                         </Button>

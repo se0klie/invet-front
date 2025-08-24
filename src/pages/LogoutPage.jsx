@@ -1,14 +1,20 @@
 import { Box, Typography } from "@mui/material";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
 
 export default function LogoutPage() {
     const navigate = useNavigate();
+    
+    useEffect(() => {
+        localStorage.removeItem('email');
+        Cookies.remove('authToken')
+    }, [])
 
     useEffect(() => {
         const timeout = setTimeout(() => {
-            navigate("/login"); 
-        }, 5000); 
+            navigate("/");
+        }, 5000);
 
         return () => clearTimeout(timeout);
     }, [navigate]);

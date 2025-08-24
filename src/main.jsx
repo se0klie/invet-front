@@ -7,15 +7,15 @@ import { SnackbarProvider } from 'notistack'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <SnackbarProvider
-      maxSnack={3}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-    >
-      <AuthProvider>
+    <AuthProvider>
+      <SnackbarProvider
+        maxSnack={3}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
         <BrowserRouter>
           <App />
         </BrowserRouter>
-      </AuthProvider>
-    </SnackbarProvider>
+      </SnackbarProvider>
+    </AuthProvider>
   </React.StrictMode>
 )
