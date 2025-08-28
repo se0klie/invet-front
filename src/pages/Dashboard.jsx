@@ -4,13 +4,12 @@ import { Box, Typography, Button, Fab } from "@mui/material";
 import MisMascotas from "./Dashboard pages/MisMascotas";
 import MisPagos from "./Dashboard pages/MisPagos";
 import { FaWhatsapp } from "react-icons/fa";
-import { useMediaQuery, useTheme } from '@mui/material'
+
 export default function Dashboard() {
     const { user, login } = useAuth();
     const [divisionSelected, setDivisionSelected] = useState('Mis mascotas');
     const url = `https://wa.me/593999495379`;
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
-
     useEffect(() => {
         function handleResize() {
             setIsMobile(window.innerWidth <= 1024);

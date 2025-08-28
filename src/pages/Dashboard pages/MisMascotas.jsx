@@ -3,36 +3,100 @@ import { useState, useEffect } from "react";
 import EmptyPet from "./EmptyPet";
 import { AddPet, LightGreenButton } from '../../pages/shared components/Buttons'
 import PetBox from "../../pages/shared components/PetBox"
-import { DataInput } from "../../pages/shared components/Inputs";
+import { DataInput, DataSelect } from "../../pages/shared components/Inputs";
 import { RxCross1 } from "react-icons/rx";
-import { useMediaQuery, useTheme } from '@mui/material'
 import { LoadingModal } from "../shared components/Modals";
+import axios_api from '../axios'
+import { endpoints } from "../endpoints";
+import { useAuth } from "../../context/AuthContext";
+import Cookies from 'js-cookie';
+import axios from "axios";
 export default function MisMascotas() {
+    const { user } = useAuth()
     const [snackbar, setSnackbar] = useState({
         open: false,
         message: '',
         severity: 'success', // "success" | "error" | "warning" | "info"
     });
-    const [pets, setPets] = useState([
-        {
-            name: 'Firulais',
-            status: 'Activo',
-            plan: 'Básico',
-        },
-        {
-            name: 'Tuco',
-            status: 'Activo',
-            plan: 'Básico',
-        },
-        {
-            name: 'Otto',
-        }
-    ]);
+    const [pets, setPets] = useState([]);
     const [addPetModal, setAddPetModal] = useState(false);
     const [loadingModal, setLoadingModal] = useState(false)
     const [loadingModalStep, setLoadingModalStep] = useState(0)
-    const [newPetData, setNewPetData] = useState({ image: undefined, name: '', breed: '', birthdate: '' });
+    const [newPetData, setNewPetData] = useState({ image: undefined, name: '', breed: '', birthdate: '', city: '' });
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+    const [refresh, setRefresh] = useState(false)
+
+    async function getPets() {
+        try {
+            const response = await axios.get(
+                `${import.meta.env.VITE_BACKEND_URL}db/mascotas/?cliente=${localStorage.getItem('email') || user.email}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get('authToken')}`
+                    }
+                }
+            );
+            if (response.status === 200) {
+                const data = response.data;
+                setPets(data)
+            }
+        } catch (err) {
+            console.error('Error in GET /pets', err)
+
+        }
+    }
+
+    useEffect(() => {
+        if (pets.length === 0) {
+            getPets()
+        }
+    }, [])
+
+    async function addPet() {
+        setAddPetModal(false)
+        setLoadingModalStep(0)
+        setLoadingModal(true)
+        try {
+            const payload = {
+                email: localStorage.getItem('email'),
+                subscripcion_id: null,
+                nombre: newPetData.nombre,
+                raza: newPetData.raza,
+                fecha_nacimiento: newPetData.fecha_nacimiento,
+                ciudad: newPetData.ciudad,
+                url_foto: newPetData.image || ''
+            }
+            const response = await axios_api.post(
+                endpoints.add_pet,
+                payload,
+                {
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get('authToken')}`
+                    }
+                }
+            );
+
+            if (response.status === 201) {
+                await getPets()
+                setTimeout(() => {
+                    setLoadingModalStep(1);
+                    setTimeout(() => {
+                        setLoadingModal(false)
+                        setLoadingModalStep(0)
+                    }, 2000);
+                }, 3000);
+            }
+        } catch (err) {
+            console.error('Error POST to /add-pet', err);
+            setTimeout(() => {
+                setLoadingModalStep(-1);
+                setTimeout(() => {
+                    setLoadingModal(false)
+                    setLoadingModalStep(0)
+                }, 2000);
+            }, 3000);
+        }
+    }
 
     useEffect(() => {
         function handleResize() {
@@ -41,16 +105,6 @@ export default function MisMascotas() {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
-
-    useEffect(() => {
-        setTimeout(() => {
-            setLoadingModalStep(1)
-            setTimeout(() => {
-                setLoadingModal(false)
-                setLoadingModalStep(0)
-            }, 2500);
-        }, 3000);
-    }, [loadingModal])
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -119,10 +173,9 @@ export default function MisMascotas() {
                         {pets.map((pet, index) => (
                             <PetBox
                                 key={index}
-                                petName={pet.name}
-                                status={pet.status}
-                                plan={pet.plan}
+                                status={'Activo'}
                                 pets={pets}
+                                pet={pets[index]}
                             />
                         ))}
                     </Box>
@@ -132,7 +185,6 @@ export default function MisMascotas() {
                 open={addPetModal}
                 onClose={() => setAddPetModal(false)}
                 disableEnforceFocus={true}
-                disableBackdropClick={false}
             >
                 <Box
                     sx={{
@@ -188,25 +240,32 @@ export default function MisMascotas() {
                                 label={'Nombre'}
                                 placeholder={'Ej. Pelusita'}
                                 setData={setNewPetData}
-                                value={newPetData.name}
+                                value={newPetData.nombre}
                                 type={'text'}
-                                formLabel={'name'}
+                                formLabel={'nombre'}
                             />
                             <DataInput
                                 label={'Raza'}
                                 placeholder={'Ej. Pooddle'}
                                 setData={setNewPetData}
-                                value={newPetData.breed}
+                                value={newPetData.raza}
                                 type={'text'}
-                                formLabel={'breed'}
+                                formLabel={'raza'}
                             />
 
                             <DataInput
                                 label={'Fecha de nacimiento'}
                                 setData={setNewPetData}
-                                value={newPetData.birthDate}
-                                formLabel={'birthdate'}
+                                value={newPetData.fecha_nacimiento}
+                                formLabel={'fecha_nacimiento'}
                                 type={'date'}
+                            />
+
+                            <DataSelect
+                                label={'Ciudad'}
+                                setData={setNewPetData}
+                                value={newPetData.ciudad}
+                                formLabel={'ciudad'}
                             />
                         </Box>
 
@@ -267,10 +326,9 @@ export default function MisMascotas() {
                                     </label>
                                 </Box>
                                 <LightGreenButton text='Añadir' action={
-                                    () => {
+                                    async () => {
                                         if (newPetData.birthdate && newPetData.name && newPetData.breed) {
-                                            setAddPetModal(false)
-                                            setLoadingModal(true)
+                                            await addPet()
                                             setNewPetData({
                                                 name: '',
                                                 breed: '',

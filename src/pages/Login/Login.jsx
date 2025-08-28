@@ -64,6 +64,7 @@ function Login({ setStep }) {
     const [openErrorModal, setOpenErrorModal] = useState(false)
     const [loginErrorMessage, setLoginErrorMessage] = useState('')
     const { login } = useAuth()
+
     async function handleLogin() {
         try {
             if (!data.email || !data.password) {
@@ -74,8 +75,9 @@ function Login({ setStep }) {
             const request = await loginHelper(data.email, data.password);
             if (request.response === true) {
                 login({
-                    name: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
-                    email: data.email
+                    nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
+                    email: data.email,
+                    cedula: request.data.cedula
                 })
                 navigate(fromCheckout ? '/identify-pet' : '/dashboard');
             } else {

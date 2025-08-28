@@ -1,14 +1,14 @@
 import { Box, Button, Typography, Modal, Select, MenuItem, Snackbar, Alert } from "@mui/material";
 import { YellowAlert } from "./Alerts";
 import { useMediaQuery, useTheme } from '@mui/material'
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import { RxCross1 } from "react-icons/rx";
 import { LightGreenButton } from "./Buttons";
 import { CancelPlanModal, LoadingModal } from "./Modals";
 import { TfiExchangeVertical } from "react-icons/tfi";
 import { LiaExchangeAltSolid } from "react-icons/lia";
 import { useNavigate } from "react-router-dom";
-export default function PetBox({ petName, status, plan, pets }) {
+export default function PetBox({ status = 'Activa', pets, pet }) {
     const [transferPlan, setTransferPlan] = useState(false)
     const [cancelPlan, setCancelPlan] = useState(false)
     const [selectedPet, setSelectedPet] = useState('')
@@ -29,7 +29,6 @@ export default function PetBox({ petName, status, plan, pets }) {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
-
 
     function onCancelPlan() {
         setCancelPlan(false)
@@ -90,7 +89,7 @@ export default function PetBox({ petName, status, plan, pets }) {
             >
                 <img
                     src="https://hips.hearstapps.com/hmg-prod/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=0.752xw:1.00xh;0.175xw,0&resize=1200:*"
-                    alt={`Foto de ${petName}`}
+                    alt={`Foto de ${pet?.nombre || ''}`}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
             </Box>
@@ -105,21 +104,22 @@ export default function PetBox({ petName, status, plan, pets }) {
                         mb: 1,
                     }}
                 >
-                    {petName}
+                    {pet?.nombre}
                 </Typography>
 
-                {plan ?
+                {pet?.subscripcion ?
                     (
                         <Box sx={{ mb: 3, }}>
                             <Typography variant="body2" sx={{ color: 'gray' }}>
-                                <strong>Plan:</strong> {plan}
+                                <strong>Plan:</strong> 
+                                {pet?.subscripcion === 1 ? 'Básico' : pet?.subscripcion === 2 ? 'Premium' : pet?.subscripcion === 3 ? 'Presencial' : ''}
                             </Typography>
                             <Typography variant="body2" sx={{ color: 'gray' }}>
                                 <strong>Estado del plan:</strong> {status}
                             </Typography>
                         </Box>
                     ) : (
-                        <YellowAlert message={`${petName} no tiene un plan asociado, ¡Contrata uno!`} fromDashboard={true} />
+                        <YellowAlert message={`${pet?.nombre} no tiene un plan asociado, ¡Contrata uno!`} fromDashboard={true} />
                     )
                 }
 
@@ -134,7 +134,7 @@ export default function PetBox({ petName, status, plan, pets }) {
                         mt: 1,
                     }}
                 >
-                    {plan ? (
+                    {pet?.subscripcion ? (
                         <>
                             <Button
                                 fullWidth
@@ -194,7 +194,7 @@ export default function PetBox({ petName, status, plan, pets }) {
                                     backgroundColor: 'var(--darkgreen-color)',
                                 },
                             }}
-                            onClick={() => {navigate('/ourService')}}
+                            onClick={() => { navigate('/ourService') }}
                         >
                             Añadir plan
                         </Button>
@@ -227,7 +227,7 @@ export default function PetBox({ petName, status, plan, pets }) {
                                 Intercambiar plan
                             </Typography>
                             <Typography variant="body2" sx={{ color: 'gray' }}>
-                                Esta acción intercambiará el plan actual de {petName} a {selectedPet ? selectedPet.name : 'la mascota que desees'} manteniendo el monto y día de cobro mensual {selectedPet.plan && 'para cada plan'}.
+                                Esta acción intercambiará el plan actual de {pet?.nombre} a {selectedPet ? selectedPet.name : 'la mascota que desees'} manteniendo el monto y día de cobro mensual {selectedPet.plan && 'para cada plan'}.
                             </Typography>
                         </Box>
 
@@ -251,7 +251,7 @@ export default function PetBox({ petName, status, plan, pets }) {
                             }}>
                             <Box>
                                 <Typography variant="h6" sx={{ color: 'var(--darkgreen-color)', fontWeight: 600, }}>
-                                    {petName}
+                                    {pet?.nombre}
                                 </Typography>
                             </Box>
                             <Box
@@ -264,7 +264,7 @@ export default function PetBox({ petName, status, plan, pets }) {
                                     Plan:
                                 </Typography>
                                 <Typography variant="body2" sx={{ color: 'gray' }}>
-                                    {plan}
+                                    {pet?.subscripcion === 1 ? 'Básico' : pet?.subscripcion === 2 ? 'Premium' : pet?.subscripcion === 3 ? 'Presencial' : ''}
                                 </Typography>
                             </Box>
                         </Box>
@@ -329,14 +329,14 @@ export default function PetBox({ petName, status, plan, pets }) {
                                             >
                                                 <MenuItem value="" disabled>Selecciona una mascota</MenuItem>
                                                 {pets
-                                                    .filter(pet => pet.name !== petName)
-                                                    .map((pet, index) => (
+                                                    .filter(petX => petX.name !== pet?.nombre)
+                                                    .map((petX, index) => (
                                                         <MenuItem
                                                             key={index}
-                                                            value={pet}
-                                                            onClick={() => setSelectedPet(pet)}   // ✅ use pet directly
+                                                            value={petX}
+                                                            onClick={() => setSelectedPet(petX)}
                                                         >
-                                                            {pet.name}
+                                                            {petX.name}
                                                         </MenuItem>
                                                     ))}
 
@@ -359,7 +359,7 @@ export default function PetBox({ petName, status, plan, pets }) {
                     >
                         {selectedPet && !selectedPet.plan && (
                             <YellowAlert
-                                message={`${petName} no tendrá un plan asociado luego de esta acción.`}
+                                message={`${pet?.nombre} no tendrá un plan asociado luego de esta acción.`}
                                 showIcon={false}
                             />
                         )}
@@ -384,7 +384,7 @@ export default function PetBox({ petName, status, plan, pets }) {
                     </Box>
                 </Box>
             </Modal>
-            <CancelPlanModal open={cancelPlan} setOpen={setCancelPlan} petName={petName} onCancel={onCancelPlan} />
+            <CancelPlanModal open={cancelPlan} setOpen={setCancelPlan} petName={pet?.nombre} onCancel={onCancelPlan} />
             <LoadingModal open={loadingModal} setOpen={setLoadingModal} text="Generando cambios..." modalStep={loadingModalStep} />
             <Snackbar
                 open={snackbar.open}

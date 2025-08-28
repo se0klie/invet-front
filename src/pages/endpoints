@@ -8,5 +8,6 @@ export const endpoints = {
     create_sub: urlJoin(API_ROOT, "create-subscription/"),
     remove_card: urlJoin(API_ROOT, "delete-card/"),
     registered_cards: urlJoin(API_ROOT, "registered-cards/"),
-    update_data: urlJoin(API_ROOT, 'modify-account/')
+    update_data: urlJoin(API_ROOT, 'modify-account/'),
+    add_pet: urlJoin(API_ROOT, 'create-mascota/'),
 };

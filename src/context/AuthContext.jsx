@@ -1,16 +1,47 @@
 // src/context/AuthContext.jsx
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
+import Cookies from 'js-cookie';
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null); 
-  
-  const login = (userData) => setUser(userData);
-  const logout = () => setUser(null);
+  const [authToken, setAuthToken] = useState(null);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const storedToken = Cookies.get("authToken");
+    const storedUser = localStorage.getItem("email");
+    const storedUserID = localStorage.getItem("cedula");
+
+    if (storedToken && storedUser) {
+      setAuthToken(storedToken);
+      setUser({
+        email: storedUser,
+        cedula: storedUserID
+      });
+    } else {
+      logout();
+    }
+  }, []);
+
+  const login = (userData) => {
+    localStorage.setItem("email", userData.email);
+    localStorage.setItem("cedula", userData.cedula);
+    localStorage.setItem("nombre", userData.nombre);
+    setUser(userData);
+  };
+
+  const logout = () => {
+    Cookies.remove("authToken");
+    localStorage.removeItem("email");
+    localStorage.removeItem("cedula");
+    localStorage.removeItem("nombre");
+    setAuthToken(null);
+    setUser(null);
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ authToken, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

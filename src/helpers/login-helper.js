@@ -1,4 +1,3 @@
-import { Cookie } from '@mui/icons-material';
 import axios_api from '../pages/axios';
 import { endpoints } from '../pages/endpoints';
 import Cookies from 'js-cookie';
