@@ -363,7 +363,6 @@ export default function Settings() {
                             ))}
                         </Box>
 
-                        {/* Buttons */}
                         <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: 2, marginLeft: 'auto' }}>
                             {isEditable && (
                                 <Box sx={{ width: '40%' }}>

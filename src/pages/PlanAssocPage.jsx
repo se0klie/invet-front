@@ -1,23 +1,27 @@
 import { Box, Typography, Button, Select, MenuItem, Snackbar, Alert } from "@mui/material"
 import { useState, useEffect } from "react"
-import { DataInput } from "./shared components/Inputs";
+import { DataInput, DataSelect } from "./shared components/Inputs";
 import { YellowAlert } from "./shared components/Alerts";
 import { LightGreenButton } from "./shared components/Buttons";
 import { LuCirclePlus } from "react-icons/lu";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FiPlus } from "react-icons/fi";
 import { LoadingModal } from "./shared components/Modals";
+import { getPets, addPet } from "../helpers/pets-helper";
+
 export default function PetPlanAssociation() {
     const navigate = useNavigate();
     const [step, setStep] = useState(0)
     const [open, setOpen] = useState(false);
+    const location = useLocation()
     const [showModal, setShowModal] = useState(false)
     const [loadingModalStep, setLoadingModalStep] = useState(0)
+    const plan_quantities = location?.state?.plans;
     const [plans, setPlans] = useState({
         basic: {
             plan: 'basic',
             label: 'Básico',
-            quantity: 1,
+            quantity: 0,
         },
         premium: {
             plan: 'premium',
@@ -30,21 +34,53 @@ export default function PetPlanAssociation() {
             quantity: 0
         }
     })
-    const [pets, setPets] = useState([
-        {
-            name: 'Tuco',
-            breed: 'Bull Terrier',
-            birthdate: '01/10/2010'
-        },
-        {
-            name: 'Otto',
-            breed: 'Bull Terrier',
-            birthdate: '01/10/2010'
-        }
-    ])
+    const [pets, setPets] = useState([])
     const totalQuantity = Object.values(plans)
         .reduce((sum, plan) => sum + plan.quantity, 0);
-    const [allowContinue, setAllowContinue] = useState(pets.length > totalQuantity)
+    const [allowContinue, setAllowContinue] = useState(false)
+    const [updatedData, setUpdatedData] = useState({})
+
+    useEffect(() => {
+        const newData = {};
+        let counter = 1;
+        Object.entries(plans).forEach(([planType, plan]) => {
+            for (let i = 0; i < plan.quantity; i++) {
+                newData[`${planType}-${i + 1}`] = "";
+                counter++;
+            }
+        });
+
+        setUpdatedData(newData);
+    }, [plans]);
+
+    async function fetchPets() {
+        try {
+            const response = await getPets(localStorage.getItem('email'))
+            if (response.length > 0) {
+                setPets(response)
+            }
+        } catch (err) {
+            console.error('Error in GET /pets', err)
+            return err
+        }
+    }
+
+    useEffect(() => {
+        fetchPets()
+        const newPlans = { ...plans };
+        for (const key in plan_quantities) {
+            newPlans[key] = {
+                ...newPlans[key],
+                quantity: plan_quantities[key]
+            };
+        }
+        setPlans(newPlans);
+    }, []);
+
+    useEffect(() => {
+        const allFilled = Object.values(updatedData).every(value => value !== "");
+        setAllowContinue(allFilled);
+    }, [updatedData]);
 
     useEffect(() => {
         if (step === 0 && pets.length < totalQuantity) {
@@ -55,7 +91,6 @@ export default function PetPlanAssociation() {
         }
     }, [])
 
-    // TODO: check if user has any pets and the quantity is less or equal to the number of plans to pay
     return (
         <Box
             sx={{
@@ -72,7 +107,7 @@ export default function PetPlanAssociation() {
             {step === 0 &&
                 <Box sx={{ gap: 2, width: '100%', display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
                     <Typography variant="h5" sx={{ color: 'var(--darkgreen-color)', fontWeight: 600 }}>Asignar planes a mascota</Typography>
-                    <AsignPlanToPet pets={pets} plans={plans} setStep={setStep} setAllow={setAllowContinue} />
+                    <AsignPlanToPet pets={pets} plans={plans} setStep={setStep} setUpdatedData={setUpdatedData} updatedData={updatedData} />
                 </Box>
             }
             {step === 1 &&
@@ -103,32 +138,35 @@ export default function PetPlanAssociation() {
                 >
                     Regresar
                 </Button>
-                <Button
-                    onMouseEnter={() => {
-                        if (pets.length < totalQuantity) {
-                            setOpen(true)
-                        }
-                    }}
-                    onClick={() => {
-                        if (pets.length >= totalQuantity && allowContinue) {
-                            setShowModal(true)
-                            setTimeout(() => {
-                                setLoadingModalStep(1)
-                                setTimeout(() => {
-                                    setShowModal(false)
-                                    setLoadingModalStep(0)
-                                    navigate('/terms-conds')
-                                }, 2500);
-                            }, 3000);
 
-                        } else {
-                            setOpen(true)
-                        }
-                    }}
-                    sx={{ color: 'white', minWidth: 120, background: (pets.length < totalQuantity || !allowContinue) ? 'var(--disabled-color)' : 'var(--darkgreen-color)', fontWeight: 600, boxShadow: 0, cursor: pets.length < totalQuantity ? 'not-allowed' : 'pointer' }}
-                >
-                    Continuar
-                </Button>
+                {step !== 1 &&
+                    <Button
+                        onMouseEnter={() => {
+                            if (pets.length < totalQuantity) {
+                                setOpen(true)
+                            }
+                        }}
+                        onClick={() => {
+                            if (pets.length >= totalQuantity && allowContinue) {
+                                setShowModal(true)
+                                setTimeout(() => {
+                                    setLoadingModalStep(1)
+                                    setTimeout(() => {
+                                        setShowModal(false)
+                                        setLoadingModalStep(0)
+                                        navigate('/terms-conds', { state: { pets_plans: updatedData, back_info: plan_quantities } })
+                                    }, 2500);
+                                }, 3000);
+
+                            } else {
+                                setOpen(true)
+                            }
+                        }}
+                        sx={{ color: 'white', minWidth: 120, background: allowContinue ? 'var(--darkgreen-color)' : 'var(--disabled-color)', fontWeight: 600, boxShadow: 0, cursor: allowContinue ? 'pointer' : 'not-allowed' }}
+                    >
+                        Continuar
+                    </Button>
+                }
             </Box>
             <Snackbar open={open} onClose={() => setOpen(false)} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
                 <Alert
@@ -151,12 +189,12 @@ function AddPet({ pets, plans, setStep }) {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     const [numMascotas, setNumMascotas] = useState(totalQuantity - pets.length)
     const [petData, setPetData] = useState({
-        name: '',
-        breed: '',
-        birthdate: '',
-        image: undefined
+        nombre: '',
+        raza: '',
+        fecha_nacimiento: '',
+        ciudad: '',
+        url: undefined
     })
-    const [newPets, setNewPets] = useState([])
     const [showModal, setShowModal] = useState(false)
     const [loadingModalStep, setLoadingModalStep] = useState(0)
     const [errors, setErrors] = useState({})
@@ -184,7 +222,7 @@ function AddPet({ pets, plans, setStep }) {
         const newErrors = {};
 
         Object.entries(petData).forEach(([key, value]) => {
-            if (!value && key !== 'image') {
+            if (!value && key !== 'url') {
                 newErrors[key] = 'Este campo es necesario.';
                 hasErrors = true;
             }
@@ -220,9 +258,10 @@ function AddPet({ pets, plans, setStep }) {
             <YellowAlert message={`Necesitas agregar ${numMascotas} mascota(s) antes de continuar`} />
             <Box sx={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', mt: 2, alignItems: 'center', gap: 5 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, width: '80%' }}>
-                    <DataInput label="Nombre" placeholder='Ej. Pelusa' setData={setPetData} formLabel={'name'} value={petData.name} errorMessage={errors['name']} />
-                    <DataInput label="Raza" placeholder='Ej. Mestiza' setData={setPetData} formLabel={'breed'} value={petData.breed} errorMessage={errors['breed']} />
-                    <DataInput label="Fecha estimada de nacimiento" type="date" setData={setPetData} formLabel={'birthdate'} value={petData.birthdate || ''} errorMessage={errors['birthdate']} />
+                    <DataInput label="Nombre" placeholder='Ej. Pelusa' setData={setPetData} formLabel={'nombre'} value={petData.nombre} errorMessage={errors['nombre']} />
+                    <DataInput label="Raza" placeholder='Ej. Mestiza' setData={setPetData} formLabel={'raza'} value={petData.raza} errorMessage={errors['raza']} />
+                    <DataInput label="Fecha estimada de nacimiento" type="date" setData={setPetData} formLabel={'fecha_nacimiento'} value={petData.fecha_nacimiento || ''} errorMessage={errors['fecha_nacimiento']} />
+                    <DataSelect label="Ciudad" value={petData.ciudad} setData={setPetData} errorMessage={errors['ciudad']} formLabel={'ciudad'} />
                 </Box>
                 <Box sx={{ mx: 1 }}>
                     <input
@@ -267,21 +306,17 @@ function AddPet({ pets, plans, setStep }) {
                     </label>
                     <Box sx={{ mt: 3 }}>
                         <LightGreenButton text='Añadir' action={
-                            () => {
+                            async () => {
                                 const hasErrors = checkErrors()
                                 if (!hasErrors) {
-                                    if (numMascotas === 0) {
-                                        setNewPets(prev => [...prev, petData]);
+                                    if (numMascotas <= 0) {
+                                        await addPet(localStorage.getItem('email'), petData.nombre, petData.raza, petData.fecha_nacimiento, petData.ciudad, petData.url)
                                         setShowModal(true)
-
+                                        setTimeout(() => {
+                                            setStep(0)
+                                        }, 3000);
                                     } else {
-                                        setNewPets(prev => [...prev, petData]);
-                                        setPetData({
-                                            name: '',
-                                            breed: '',
-                                            birthdate: '',
-                                            image: undefined
-                                        })
+                                        await addPet(localStorage.getItem('email'), petData.nombre, petData.raza, petData.fecha_nacimiento, petData.ciudad, petData.url)
                                         setNumMascotas(numMascotas - 1)
                                     }
                                 }
@@ -294,19 +329,18 @@ function AddPet({ pets, plans, setStep }) {
         </Box>
     )
 }
-function AsignPlanToPet({ pets, plans, setStep, setAllow }) {
+function AsignPlanToPet({ pets, plans, setStep, setUpdatedData, updatedData }) {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     const [data, setData] = useState(
         Object.values(plans)
             .filter(plan => plan.quantity > 0)
             .reduce((acc, plan) => {
-                for (let i = 0; i < plan.quantity; i++) {
+                for (let i = 1; i < plan.quantity; i++) {
                     acc[`${plan.plan}-${i}`] = '';
                 }
                 return acc;
             }, {})
     );
-
 
     useEffect(() => {
         function handleResize() {
@@ -329,13 +363,22 @@ function AsignPlanToPet({ pets, plans, setStep, setAllow }) {
             newData[planKey] = petName;
             return newData;
         });
+
     };
+
+    useEffect(() => {
+        setUpdatedData(prev => ({
+            ...prev,    
+            ...data     
+        }));
+    }, [data]);
+
 
     const getAvailablePets = (currentPlanKey) => {
         const chosenPets = Object.values(data).filter(Boolean);
         return pets.filter(
             (pet) =>
-                !chosenPets.includes(pet.name) || data[currentPlanKey] === pet.name
+                !chosenPets.includes(pet.nombre) || data[currentPlanKey] === pet.nombre
         );
     };
 
@@ -414,7 +457,7 @@ function AsignPlanToPet({ pets, plans, setStep, setAllow }) {
                             .filter(([planKey, planData]) => planData.quantity > 0)
                             .map(([planKey, planData]) =>
                                 Array.from({ length: planData.quantity }).map((_, i) => (
-                                    <Box key={`${planKey}-${i}`} sx={{ width: "100%" }}>
+                                    <Box key={`${planKey}-${i+1}`} sx={{ width: "100%" }}>
                                         <Typography
                                             sx={{
                                                 color: "var(--blackinput-color)",
@@ -426,10 +469,11 @@ function AsignPlanToPet({ pets, plans, setStep, setAllow }) {
                                         </Typography>
                                         <Select
                                             fullWidth
-                                            value={data[`${planKey}-${i}`] || ""}
+                                            value={data[`${planKey}-${i+1}`] || ""}
                                             size="small"
-                                            onChange={(e) =>
-                                                handleSelectPet(`${planKey}-${i}`, e.target.value)
+                                            onChange={(e) => {
+                                                handleSelectPet(`${planKey}-${i+1}`, e.target.value)
+                                            }
                                             }
                                             displayEmpty
                                             sx={{
@@ -441,9 +485,9 @@ function AsignPlanToPet({ pets, plans, setStep, setAllow }) {
                                             }}
                                         >
                                             <MenuItem value="">Ninguno</MenuItem>
-                                            {getAvailablePets(`${planKey}-${i}`).map((pet) => (
-                                                <MenuItem key={pet.name} value={pet.name}>
-                                                    {pet.name}
+                                            {getAvailablePets(`${planKey}-${i+1}`).map((pet) => (
+                                                <MenuItem key={pet.nombre} value={pet.nombre}>
+                                                    {pet.nombre}
                                                 </MenuItem>
                                             ))}
                                         </Select>

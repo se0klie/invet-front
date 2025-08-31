@@ -5,6 +5,7 @@ import { PlanCardServices } from "../shared components/PlanCard";
 import { ProductCarousel } from "../shared components/Carousel";
 import { IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+
 export default function ServicePage() {
     const navigate = useNavigate()
     const url = `https://wa.me/593999495379`;
@@ -289,7 +290,9 @@ export default function ServicePage() {
                                 isHighlight={item.isHighlight}
                                 img={`services/${item.image}`}
                                 buttonText="Suscribirse"
-                                action={() => navigate('/login', { state: { from: 'checkout' } })}
+                                action={() => {
+                                    navigate('/payment', { state: { from: 'checkout', plan: {name: item.name, value: item.value}} })
+                                }}
                             />
                         </Box>
 

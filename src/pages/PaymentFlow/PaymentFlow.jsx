@@ -24,9 +24,32 @@ export default function PaymentPage() {
         subtotal: 0,
         iva: 0,
     })
-
+    const location = useLocation()
     const open = Boolean(anchorEl);
     const navigate = useNavigate()
+    const plan = location?.state?.plan;
+
+    useEffect(() => {
+        console.log(plan)
+        switch (plan.name) {
+            case 'Básico':
+                setQuantities({
+                    ...quantities,
+                    basic: quantities.basic + 1
+                });
+
+            case 'Premium':
+                setQuantities({
+                    ...quantities,
+                    premium: quantities.premium + 1
+                });
+            case 'Presencial':
+                setQuantities({
+                    ...quantities,
+                    onsite: quantities.onsite + 1
+                });
+        }
+    }, [plan])
 
     useEffect(() => {
         const updatedBill = {
@@ -244,7 +267,7 @@ export default function PaymentPage() {
                                 }}
                             >
                                 <DarkGreenButton text="Inicia sesión" action={() => {
-                                    navigate('/login', { state: { from: 'checkout' } })
+                                    navigate('/login', { state: { from: 'checkout', plans: quantities } })
                                 }} />
                                 <Typography>O regístrate para continuar</Typography>
                             </Box>

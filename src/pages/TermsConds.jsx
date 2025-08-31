@@ -1,10 +1,14 @@
 import { Box, Typography, Checkbox, FormControlLabel, Divider, Button } from "@mui/material";
-import { YellowAlert } from "./shared components/Alerts";
 import { useState, useEffect } from "react";
 import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { LoadingModal } from "./shared components/Modals";
 export default function TermsAndConds() {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+    const location = useLocation()
+    const data_received = location?.state?.pets_plans;
+    const [openModal, setOpenModal] = useState(false)
+    const [stepModal, setStepModal] = useState(0)
     useEffect(() => {
         function handleResize() {
             setIsMobile(window.innerWidth <= 1024);
@@ -12,6 +16,17 @@ export default function TermsAndConds() {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    useEffect(() => {
+        setTimeout(() => {
+            setStepModal(1)
+            setTimeout(() => {
+                setOpenModal(false)
+                setStepModal(0)
+                navigate('/good-end')
+            }, 2500);
+        }, 3000);
+    }, [openModal])
 
     const [canAccept, setCanAccept] = useState(false);
     const [accepted, setAccepted] = useState(false);
@@ -203,7 +218,7 @@ export default function TermsAndConds() {
                                     sx={{
                                         color: 'var(--darkgreen-color)',
                                         '&.Mui-disabled': {
-                                            color: 'rgba(0, 0, 0, 0.26)', 
+                                            color: 'rgba(0, 0, 0, 0.26)',
                                             opacity: 0.5,
                                         },
                                     }}
@@ -230,11 +245,7 @@ export default function TermsAndConds() {
                         variant="outlined"
                         sx={{ minWidth: 120, borderColor: 'var(--dark-gray-hover-color)', color: 'var(--dark-gray-hover-color)' }}
                         onClick={() => {
-                            if (step === 0) {
-                                navigate('/ourService')
-                            } else {
-                                setStep(step - 1)
-                            }
+                            navigate('/identify-pet', { state: { plans: location?.state?.back_info } })
                         }}
                     >
                         Regresar
@@ -243,13 +254,15 @@ export default function TermsAndConds() {
                         variant="contained"
                         disabled={!accepted}
                         sx={{ minWidth: 120, background: 'var(--darkgreen-color)', fontWeight: 600 }}
-                        onClick={()=> {navigate('/good-end')}}
+                        onClick={() => {
+                            setOpenModal(true)
+                        }}
                     >
                         Continuar
                     </Button>
                 </Box>
             </Box>
+            <LoadingModal text={'Registrando mascotas...'} open={openModal} setOpen={setOpenModal} modalStep={stepModal} />
         </Box>
-
     )
 }

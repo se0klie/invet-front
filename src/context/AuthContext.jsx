@@ -12,12 +12,13 @@ export function AuthProvider({ children }) {
     const storedToken = Cookies.get("authToken");
     const storedUser = localStorage.getItem("email");
     const storedUserID = localStorage.getItem("cedula");
-
+    const storedName = localStorage.getItem("nombre");
     if (storedToken && storedUser) {
       setAuthToken(storedToken);
       setUser({
         email: storedUser,
-        cedula: storedUserID
+        cedula: storedUserID,
+        nombre: storedName
       });
     } else {
       logout();

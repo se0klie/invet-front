@@ -21,7 +21,6 @@ import { ErrorModal } from '../shared components/Modals';
 
 export default function InitialState() {
     const [currentStep, setCurrentStep] = useState(1) //1: login, 2: reset psswd, 3: confirm code, 4: changepassword, 5: register
-    const fromCheckout = useLocation().state?.from === 'checkout' || false
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
 
     useEffect(() => {
@@ -57,13 +56,25 @@ function Login({ setStep }) {
         email: '',
         password: ''
     })
+    const location = useLocation()
     const [showPassword, setShowPassword] = useState()
     const handleTogglePassword = () => setShowPassword((prev) => !prev);
     const navigate = useNavigate()
-    const fromCheckout = useLocation().state?.from === 'checkout' || false
+    const fromCheckout = location.state?.from === 'checkout' || false
     const [openErrorModal, setOpenErrorModal] = useState(false)
     const [loginErrorMessage, setLoginErrorMessage] = useState('')
-    const { login } = useAuth()
+    const { login, user } = useAuth()
+    const plans = location?.state?.plans
+
+    useEffect(() => {
+        if (user?.email || (localStorage.getItem('email') && localStorage.getItem('cedula') && Cookies.get('authToken'))) {
+            if (fromCheckout) {
+                navigate('/identify-pet', { state: { plans} })
+            } else {
+                navigate('/login')
+            }
+        }
+    }, [])
 
     async function handleLogin() {
         try {
@@ -79,7 +90,11 @@ function Login({ setStep }) {
                     email: data.email,
                     cedula: request.data.cedula
                 })
-                navigate(fromCheckout ? '/identify-pet' : '/dashboard');
+                if (fromCheckout) {
+                    navigate('/identify-pet', { state: { plans: location.state?.plans } })
+                } else {
+                    navigate('/dashboard')
+                }
             } else {
                 setLoginErrorMessage(request.message)
                 setOpenErrorModal(true)
@@ -414,7 +429,7 @@ function Register({ setStep, currentStep }) {
         message: '',
         severity: 'success',
     });
-    const fromCheckout = useLocation().state?.from === 'checkout' || false
+    const fromCheckout = location?.state?.from === 'checkout' || false
     const groupedFields = [
         ['idnumber', 'firstNames', 'lastNames', 'email', 'phone'],
         ['city', 'address'],

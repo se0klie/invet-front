@@ -56,7 +56,7 @@ export default function SubsBox({ petName, date, plan }) {
 
             </Box>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '0.4rem' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '0.5rem' }}>
                 <Box sx={{ width: isMobile ? '40%' : '50%', display: 'flex', gap: '0.3rem' }}>
                     <CancelButton action={() => setCancelPlan(true)} text={`${isMobile ? 'Cancelar' : 'Cancelar plan'}`} />
                 </Box>

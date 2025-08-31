@@ -33,7 +33,7 @@ export default function MenuBar() {
                         <Typography variant="span" sx={{ flexGrow: 1, color: 'white', display: 'flex' }}>
                             {!isMobile && <Typography sx={{ mr: 1 }}>Bienvenido/a,</Typography>}
                             <Typography component="span" sx={{ fontWeight: 'bold', color: 'white' }}>
-                                {user ? user.name : localStorage.getItem('nombre') || localStorage.getItem('email') || "Invitado"}
+                                {user ? user.nombre : localStorage.getItem('nombre') || localStorage.getItem('email') || "Invitado"}
                             </Typography>
                         </Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

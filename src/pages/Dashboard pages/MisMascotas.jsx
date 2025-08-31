@@ -176,6 +176,7 @@ export default function MisMascotas() {
                                 status={'Activo'}
                                 pets={pets}
                                 pet={pets[index]}
+                                refreshDashboard={getPets}
                             />
                         ))}
                     </Box>

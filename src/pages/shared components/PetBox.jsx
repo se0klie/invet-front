@@ -8,7 +8,11 @@ import { CancelPlanModal, LoadingModal } from "./Modals";
 import { TfiExchangeVertical } from "react-icons/tfi";
 import { LiaExchangeAltSolid } from "react-icons/lia";
 import { useNavigate } from "react-router-dom";
-export default function PetBox({ status = 'Activa', pets, pet }) {
+import axios_api from "../axios";
+import { endpoints } from "../endpoints";
+import Cookies from "js-cookie";
+
+export default function PetBox({ status = 'Activa', pets, pet, refreshDashboard }) {
     const [transferPlan, setTransferPlan] = useState(false)
     const [cancelPlan, setCancelPlan] = useState(false)
     const [selectedPet, setSelectedPet] = useState('')
@@ -42,16 +46,36 @@ export default function PetBox({ status = 'Activa', pets, pet }) {
         }, 3000);
     }
 
-    function onExchangePlan() {
+    async function onExchangePlan() {
         setTransferPlan(false)
         setLoadingModal(true)
-        setTimeout(() => {
-            setLoadingModalStep(1)
-            setTimeout(() => {
-                setLoadingModalStep(0)
-                setLoadingModal(false)
-            }, 2000);
-        }, 3000);
+        try {
+            const response = await axios_api.post(endpoints.exchange_plans,
+                {
+                    email: localStorage.getItem('email'),
+                    mascota_origen_id: pet.id,
+                    mascota_destino_id: selectedPet.id
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get('authToken')}`
+                    }
+                }
+            )
+            if (response.status === 201) {
+                refreshDashboard()
+                setTimeout(() => {
+                    setLoadingModalStep(1)
+                    setTimeout(() => {
+                        setLoadingModal(false)
+                        setLoadingModalStep(0)
+                    }, 2000);
+                }, 3000);
+            }
+        } catch (err) {
+            console.error('Error exchange /POST', err)
+            return err
+        }
     }
     return (
         <Box
@@ -111,7 +135,7 @@ export default function PetBox({ status = 'Activa', pets, pet }) {
                     (
                         <Box sx={{ mb: 3, }}>
                             <Typography variant="body2" sx={{ color: 'gray' }}>
-                                <strong>Plan:</strong> 
+                                <strong>Plan:</strong>
                                 {pet?.subscripcion === 1 ? 'Básico' : pet?.subscripcion === 2 ? 'Premium' : pet?.subscripcion === 3 ? 'Presencial' : ''}
                             </Typography>
                             <Typography variant="body2" sx={{ color: 'gray' }}>
@@ -227,7 +251,7 @@ export default function PetBox({ status = 'Activa', pets, pet }) {
                                 Intercambiar plan
                             </Typography>
                             <Typography variant="body2" sx={{ color: 'gray' }}>
-                                Esta acción intercambiará el plan actual de {pet?.nombre} a {selectedPet ? selectedPet.name : 'la mascota que desees'} manteniendo el monto y día de cobro mensual {selectedPet.plan && 'para cada plan'}.
+                                Esta acción intercambiará el plan actual de {pet?.nombre} a {selectedPet ? selectedPet.nombre : 'la mascota que desees'} manteniendo el monto y día de cobro mensual {selectedPet.plan && 'para cada plan'}.
                             </Typography>
                         </Box>
 
@@ -282,7 +306,7 @@ export default function PetBox({ status = 'Activa', pets, pet }) {
                                     <Box>
                                         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                             <Typography variant="h6" sx={{ color: 'var(--darkgreen-color)', fontWeight: 600, }}>
-                                                {selectedPet.name || 'Mascota #2'}
+                                                {selectedPet.nombre || 'Mascota #2'}
                                             </Typography>
                                             <RxCross1
                                                 style={{ color: 'black', cursor: 'pointer' }}
@@ -307,7 +331,7 @@ export default function PetBox({ status = 'Activa', pets, pet }) {
                                 ) : (
                                     <Box>
                                         <Typography variant="h6" sx={{ color: 'var(--darkgreen-color)', fontWeight: 600, }}>
-                                            {selectedPet.name || 'Mascota #2'}
+                                            {selectedPet.nombre || 'Mascota #2'}
                                         </Typography>
                                         <Box
                                             sx={{
@@ -329,14 +353,14 @@ export default function PetBox({ status = 'Activa', pets, pet }) {
                                             >
                                                 <MenuItem value="" disabled>Selecciona una mascota</MenuItem>
                                                 {pets
-                                                    .filter(petX => petX.name !== pet?.nombre)
+                                                    .filter(petX => petX.nombre !== pet?.nombre)
                                                     .map((petX, index) => (
                                                         <MenuItem
                                                             key={index}
                                                             value={petX}
                                                             onClick={() => setSelectedPet(petX)}
                                                         >
-                                                            {petX.name}
+                                                            {petX.nombre}
                                                         </MenuItem>
                                                     ))}
 

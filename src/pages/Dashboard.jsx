@@ -18,10 +18,14 @@ export default function Dashboard() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    useEffect(()=> {
+        console.log(user)
+    })
+
     return (
         <Box sx={{ backgroundColor: 'var(--primary-color)', minHeight: '100vh', padding: isMobile ? '1rem' : '2rem', boxSizing: 'border-box' }}>
             <Typography variant="h4" sx={{ marginBottom: '20px', color: 'var(--blackinput-color)', fontWeight: 'bold' }}>
-                Hola, {user ? user.name : "Invitado"}
+                Hola, {user ? (user.nombre || localStorage.getItem('nombre')): "Invitado"}
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }} >
