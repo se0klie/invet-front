@@ -2,13 +2,17 @@ import { Box, Typography } from "@mui/material";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Cookies from 'js-cookie';
-
+import { useAuth } from "../context/AuthContext";
 export default function LogoutPage() {
+    const {logout} = useAuth()
     const navigate = useNavigate();
-    
+
     useEffect(() => {
-        localStorage.removeItem('email');
-        Cookies.remove('authToken')
+        logout()
+        Cookies.remove("authToken");
+        localStorage.removeItem("email");
+        localStorage.removeItem("cedula");
+        localStorage.removeItem("nombre");
     }, [])
 
     useEffect(() => {

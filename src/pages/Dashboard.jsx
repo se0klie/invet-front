@@ -4,12 +4,21 @@ import { Box, Typography, Button, Fab } from "@mui/material";
 import MisMascotas from "./Dashboard pages/MisMascotas";
 import MisPagos from "./Dashboard pages/MisPagos";
 import { FaWhatsapp } from "react-icons/fa";
+import axios_api from "./axios";
+import { endpoints } from "./endpoints";
+import axios from "axios";
+import Cookies from 'js-cookie'
 
 export default function Dashboard() {
+    const [subscriptionsClient, setSubscriptionsClient] = useState([]);
+    const [subscriptions, setSubscriptions] = useState({})
     const { user, login } = useAuth();
     const [divisionSelected, setDivisionSelected] = useState('Mis mascotas');
     const url = `https://wa.me/593999495379`;
+    const [pets, setPets] = useState([])
+    const [subs, setSubs] = useState([])
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+
     useEffect(() => {
         function handleResize() {
             setIsMobile(window.innerWidth <= 1024);
@@ -18,14 +27,80 @@ export default function Dashboard() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    useEffect(()=> {
-        console.log(user)
-    })
+    async function fetchSubs() {
+        try {
+            const response = await axios_api.post(endpoints.get_subs,
+                {
+                    email: localStorage.getItem('email')
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get('authToken')}`
+                    }
+                });
+            if (response.status) {
+                setSubscriptionsClient(response.data.results)
+            }
+        } catch (err) {
+            console.error('GET subs', err)
+            return err
+        }
+    }
+
+    useEffect(() => {
+        if (subscriptionsClient && pets) {
+            const subscriptionsById = {};
+            subscriptionsClient.forEach(sub => {
+                subscriptionsById[sub.id] = sub;
+            });
+
+            const petsWithSubsObj = {};
+            pets.forEach(pet => {
+                const sub = pet.subscripcion_id ? subscriptionsById[pet.subscripcion_id] : undefined;
+                if (sub) {
+                    petsWithSubsObj[pet.id] = {
+                        pet,
+                        subscripcion: sub
+                    };
+                }
+            });
+            setSubscriptions(petsWithSubsObj)
+        }
+    }, [subscriptionsClient, pets]);
+
+    async function getPets() {
+        try {
+            const response = await axios_api.post(
+                endpoints.get_pets,
+                {
+                    email: localStorage.getItem('email')
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get('authToken')}`
+                    }
+                }
+            );
+            if (response.status === 200) {
+                const data = response.data.results;
+                setPets(data)
+            }
+        } catch (err) {
+            console.error('Error in GET /pets', err)
+        }
+    }
+
+    useEffect(() => {
+        fetchSubs()
+        if (pets.length === 0) {
+            getPets()
+        }
+    }, [])
 
     return (
         <Box sx={{ backgroundColor: 'var(--primary-color)', minHeight: '100vh', padding: isMobile ? '1rem' : '2rem', boxSizing: 'border-box' }}>
             <Typography variant="h4" sx={{ marginBottom: '20px', color: 'var(--blackinput-color)', fontWeight: 'bold' }}>
-                Hola, {user ? (user.nombre || localStorage.getItem('nombre')): "Invitado"}
+                Hola, {user ? (user.nombre || localStorage.getItem('nombre')) : "Invitado"}
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }} >
@@ -73,7 +148,10 @@ export default function Dashboard() {
                         sx={{
                             backgroundColor: 'var(--extra-light-gray-color)',
                         }}>
-                        <MisMascotas />
+                        <MisMascotas pets={pets} subs={subscriptions} handleRefresh={() => {
+                            getPets()
+                            fetchSubs()
+                        }} />
                     </Box>
                 }
 
@@ -83,7 +161,12 @@ export default function Dashboard() {
                         sx={{
                             backgroundColor: 'var(--extra-light-gray-color)',
                         }}>
-                        <MisPagos />
+                        <MisPagos pets={pets} subscriptions={subscriptions}
+                            handleRefresh={() => {
+                                getPets()
+                                fetchSubs()
+                            }} />
+
                     </Box>
                 }
 

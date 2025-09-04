@@ -30,24 +30,16 @@ export default function PaymentPage() {
     const plan = location?.state?.plan;
 
     useEffect(() => {
-        console.log(plan)
-        switch (plan.name) {
-            case 'Básico':
-                setQuantities({
-                    ...quantities,
-                    basic: quantities.basic + 1
-                });
-
-            case 'Premium':
-                setQuantities({
-                    ...quantities,
-                    premium: quantities.premium + 1
-                });
-            case 'Presencial':
-                setQuantities({
-                    ...quantities,
-                    onsite: quantities.onsite + 1
-                });
+        if (location?.state?.from === 'plan-assoc') {
+            const newQuantities = Object.fromEntries(
+                Object.entries(plan).map(([key, value]) => [key, value.quantity])
+            );
+            setQuantities(newQuantities);
+        } else {
+            setQuantities({
+                ...quantities,
+                [plan.name]: quantities[plan.name] + 1
+            });
         }
     }, [plan])
 
@@ -131,7 +123,8 @@ export default function PaymentPage() {
                         height: '100%',
                     }}
                 >
-                    <Button variant="outlined" sx={{ alignSelf: 'flex-start', mb: isMobile ? '' : 'auto', color: 'white', borderColor: 'white', gap: 2 }}>
+                    <Button variant="outlined" sx={{ alignSelf: 'flex-start', mb: isMobile ? '' : 'auto', color: 'white', borderColor: 'white', gap: 2 }}
+                        onClick={() => { navigate('/ourService') }}>
                         <IoIosArrowBack /> Regresar
                     </Button>
 

@@ -11,48 +11,26 @@ import { endpoints } from "../endpoints";
 import { useAuth } from "../../context/AuthContext";
 import Cookies from 'js-cookie';
 import axios from "axios";
-export default function MisMascotas() {
-    const { user } = useAuth()
+export default function MisMascotas({ pets, subs, handleRefresh }) {
     const [snackbar, setSnackbar] = useState({
         open: false,
         message: '',
         severity: 'success', // "success" | "error" | "warning" | "info"
     });
-    const [pets, setPets] = useState([]);
+
     const [addPetModal, setAddPetModal] = useState(false);
     const [loadingModal, setLoadingModal] = useState(false)
     const [loadingModalStep, setLoadingModalStep] = useState(0)
     const [newPetData, setNewPetData] = useState({ image: undefined, name: '', breed: '', birthdate: '', city: '' });
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
-    const [refresh, setRefresh] = useState(false)
+    const [modalMessage, setModalMessage] = useState('Cargando...')
 
-    async function getPets() {
-        try {
-            const response = await axios.get(
-                `${import.meta.env.VITE_BACKEND_URL}db/mascotas/?cliente=${localStorage.getItem('email') || user.email}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookies.get('authToken')}`
-                    }
-                }
-            );
-            if (response.status === 200) {
-                const data = response.data;
-                setPets(data)
-            }
-        } catch (err) {
-            console.error('Error in GET /pets', err)
-
-        }
-    }
 
     useEffect(() => {
-        if (pets.length === 0) {
-            getPets()
-        }
-    }, [])
-
+        console.log(pets, subs)
+    }, [pets, subs])
     async function addPet() {
+        setModalMessage('Agregando mascota...')
         setAddPetModal(false)
         setLoadingModalStep(0)
         setLoadingModal(true)
@@ -77,7 +55,7 @@ export default function MisMascotas() {
             );
 
             if (response.status === 201) {
-                await getPets()
+                await handleRefresh()
                 setTimeout(() => {
                     setLoadingModalStep(1);
                     setTimeout(() => {
@@ -173,10 +151,10 @@ export default function MisMascotas() {
                         {pets.map((pet, index) => (
                             <PetBox
                                 key={index}
-                                status={'Activo'}
                                 pets={pets}
                                 pet={pets[index]}
-                                refreshDashboard={getPets}
+                                refreshDashboard={handleRefresh}
+                                sub={subs[pet.id]?.subscripcion}
                             />
                         ))}
                     </Box>
@@ -350,7 +328,7 @@ export default function MisMascotas() {
                     </Box>
                 </Box>
             </Modal>
-            <LoadingModal text="Agregando mascota...." modalStep={loadingModalStep} open={loadingModal} setOpen={setLoadingModal} />
+            <LoadingModal text={modalMessage} modalStep={loadingModalStep} open={loadingModal} setOpen={setLoadingModal} />
             <Snackbar
                 open={snackbar.open}
                 autoHideDuration={3000}

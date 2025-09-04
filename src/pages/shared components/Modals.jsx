@@ -85,7 +85,10 @@ export function LoadingModal({ text, open, setOpen, modalStep }) {
     return (
         <Modal
             open={open}
-            onClose={() => setOpen(false)}
+            onClose={(event, reason) => {
+                if (reason === "backdropClick") return;
+                setOpen(false);
+            }}
         >
             <Box
                 sx={{
@@ -150,7 +153,7 @@ export function ErrorModal({ open, onClose, message }) {
             open={open}
             onClose={onClose}
             PaperProps={{
-                sx: { borderRadius: 3, p: 1.5, width: '30%'}
+                sx: { borderRadius: 3, p: 1.5, width: '30%' }
             }}
         >
             <DialogTitle

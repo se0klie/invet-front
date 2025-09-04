@@ -10,5 +10,9 @@ export const endpoints = {
     registered_cards: urlJoin(API_ROOT, "registered-cards/"),
     update_data: urlJoin(API_ROOT, 'modify-account/'),
     add_pet: urlJoin(API_ROOT, 'create-mascota/'),
-    exchange_plans: urlJoin(API_ROOT, 'transfer-subscription/'),
+    exchange_plans: urlJoin(API_ROOT, 'swap-subscriptions/'),
+    get_subs: urlJoin(API_ROOT, 'get-subscriptions/'),
+    change_method: urlJoin(API_ROOT, 'change-card-for-subscription/'),
+    cancel_sub: urlJoin(API_ROOT, 'cancel-subscription/'),
+    get_pets: urlJoin(API_ROOT, 'get-mascotas/')
 };

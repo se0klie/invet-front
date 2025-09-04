@@ -60,21 +60,29 @@ function Login({ setStep }) {
     const [showPassword, setShowPassword] = useState()
     const handleTogglePassword = () => setShowPassword((prev) => !prev);
     const navigate = useNavigate()
-    const fromCheckout = location.state?.from === 'checkout' || false
+    const [fromCheckout, setFromCheckout] = useState(location.state?.from === 'checkout' || false)
     const [openErrorModal, setOpenErrorModal] = useState(false)
     const [loginErrorMessage, setLoginErrorMessage] = useState('')
     const { login, user } = useAuth()
     const plans = location?.state?.plans
 
     useEffect(() => {
+        if (location.state?.from === 'checkout') {
+            setFromCheckout(true)
+        }
+
         if (user?.email || (localStorage.getItem('email') && localStorage.getItem('cedula') && Cookies.get('authToken'))) {
             if (fromCheckout) {
-                navigate('/identify-pet', { state: { plans} })
-            } else {
-                navigate('/login')
+                navigate('/identify-pet', { state: { plans } })
+            } else{
+                navigate('/dashboard')
             }
         }
     }, [])
+
+    useEffect(() => {
+        console.log(fromCheckout)
+    }, [fromCheckout])
 
     async function handleLogin() {
         try {
@@ -90,6 +98,7 @@ function Login({ setStep }) {
                     email: data.email,
                     cedula: request.data.cedula
                 })
+
                 if (fromCheckout) {
                     navigate('/identify-pet', { state: { plans: location.state?.plans } })
                 } else {

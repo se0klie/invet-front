@@ -1,6 +1,5 @@
 import { Box, Button, Typography, Modal, Select, MenuItem, Snackbar, Alert } from "@mui/material";
 import { YellowAlert } from "./Alerts";
-import { useMediaQuery, useTheme } from '@mui/material'
 import { useState, useEffect } from "react";
 import { RxCross1 } from "react-icons/rx";
 import { LightGreenButton } from "./Buttons";
@@ -11,8 +10,9 @@ import { useNavigate } from "react-router-dom";
 import axios_api from "../axios";
 import { endpoints } from "../endpoints";
 import Cookies from "js-cookie";
+import { FaCircle } from "react-icons/fa";
 
-export default function PetBox({ status = 'Activa', pets, pet, refreshDashboard }) {
+export default function PetBox({ pets, pet, refreshDashboard, sub }) {
     const [transferPlan, setTransferPlan] = useState(false)
     const [cancelPlan, setCancelPlan] = useState(false)
     const [selectedPet, setSelectedPet] = useState('')
@@ -21,10 +21,26 @@ export default function PetBox({ status = 'Activa', pets, pet, refreshDashboard 
     const [snackbar, setSnackbar] = useState({
         open: false,
         message: '',
-        severity: 'success', // "success" | "error" | "warning" | "info"
+        severity: 'success',
     });
     const navigate = useNavigate();
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+    const [planName, setPlanName] = useState('Básico')
+    const planState = sub?.estado === 0 ? 'Activo' : sub?.estado === 1 ? 'Completado' : sub?.estado === 2 ? 'Suspendido' : 'Cancelado'
+
+    useEffect(() => {
+        const plan = sub?.plan_id
+        switch (plan) {
+            case 2:
+                setPlanName('Premium')
+            case 3:
+                setPlanName('Presencial')
+        }
+    }, [sub]);
+
+    useEffect(() => {
+        console.log(pet, sub)
+    }, [sub, pet])
 
     useEffect(() => {
         function handleResize() {
@@ -34,16 +50,40 @@ export default function PetBox({ status = 'Activa', pets, pet, refreshDashboard 
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    function onCancelPlan() {
+    async function handleCancelPlan() {
         setCancelPlan(false)
         setLoadingModal(true)
-        setTimeout(() => {
-            setLoadingModalStep(1)
+        try {
+            const response = await axios_api.patch(endpoints.cancel_sub, {
+                email: localStorage.getItem('email'),
+                subscripcion_id: sub.id
+            }, {
+                headers: {
+                    Authorization: `Bearer ${Cookies.get('authToken')}`
+                }
+            })
+
+            if (response.status === 200) {
+                setTimeout(() => {
+                    setLoadingModalStep(1)
+                    setTimeout(() => {
+                        setLoadingModalStep(0)
+                        setLoadingModal(false)
+                    }, 2000);
+                }, 3000);
+            }
+            return 200
+        } catch (err) {
+            console.error('/PATCH cancel subs: ', err)
             setTimeout(() => {
-                setLoadingModalStep(0)
-                setLoadingModal(false)
-            }, 2000);
-        }, 3000);
+                setLoadingModalStep(-1)
+                setTimeout(() => {
+                    setLoadingModalStep(0)
+                    setLoadingModal(false)
+                }, 2000);
+            }, 3000);
+            return err;
+        }
     }
 
     async function onExchangePlan() {
@@ -131,21 +171,35 @@ export default function PetBox({ status = 'Activa', pets, pet, refreshDashboard 
                     {pet?.nombre}
                 </Typography>
 
-                {pet?.subscripcion ?
-                    (
-                        <Box sx={{ mb: 3, }}>
-                            <Typography variant="body2" sx={{ color: 'gray' }}>
-                                <strong>Plan:</strong>
-                                {pet?.subscripcion === 1 ? 'Básico' : pet?.subscripcion === 2 ? 'Premium' : pet?.subscripcion === 3 ? 'Presencial' : ''}
-                            </Typography>
-                            <Typography variant="body2" sx={{ color: 'gray' }}>
-                                <strong>Estado del plan:</strong> {status}
-                            </Typography>
-                        </Box>
-                    ) : (
-                        <YellowAlert message={`${pet?.nombre} no tiene un plan asociado, ¡Contrata uno!`} fromDashboard={true} />
-                    )
+                {(!sub || sub?.estado === 3) &&
+                    <YellowAlert message={`${pet?.nombre} no tiene un plan asociado, ¡Contrata uno!`} fromDashboard={true} />
                 }
+
+                <Box sx={{ my: 1, display: 'flex', flexDirection: 'column', gap: 0.5, opacity: pet?.subscripcion_id ? '100%' : '0', cursor:'default'}}>
+                    <Typography variant="body1" sx={{ color: 'gray' }}>
+                        <strong>Plan: </strong>
+                        <Typography component="span" sx={{ color: 'black' }}>
+                            {planName || ''}
+                        </Typography>
+                    </Typography>
+
+                    <Typography variant="body1" sx={{ color: 'gray', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <strong>Estado del plan:</strong>
+                        <FaCircle
+                            style={{
+                                color:
+                                    sub?.estado <= 1
+                                        ? 'green'
+                                        : sub?.estado === 2
+                                            ? 'red'
+                                            : 'gray',
+                            }}
+                        />
+                        <Typography component="span" sx={{ color: 'black' }}>
+                            {planState || ''}
+                        </Typography>
+                    </Typography>
+                </Box>
 
                 <Box
                     sx={{
@@ -158,7 +212,7 @@ export default function PetBox({ status = 'Activa', pets, pet, refreshDashboard 
                         mt: 1,
                     }}
                 >
-                    {pet?.subscripcion ? (
+                    {pet?.subscripcion_id && sub?.estado <= 1 ? (
                         <>
                             <Button
                                 fullWidth
@@ -408,7 +462,7 @@ export default function PetBox({ status = 'Activa', pets, pet, refreshDashboard 
                     </Box>
                 </Box>
             </Modal>
-            <CancelPlanModal open={cancelPlan} setOpen={setCancelPlan} petName={pet?.nombre} onCancel={onCancelPlan} />
+            <CancelPlanModal open={cancelPlan} setOpen={setCancelPlan} petName={pet?.nombre} onCancel={handleCancelPlan} />
             <LoadingModal open={loadingModal} setOpen={setLoadingModal} text="Generando cambios..." modalStep={loadingModalStep} />
             <Snackbar
                 open={snackbar.open}

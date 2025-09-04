@@ -13,6 +13,7 @@ export default function ServicePage() {
     const inmediatePlans = [
         {
             name: 'Básico',
+            tag: 'basic',
             value: 120,
             image: 'plan1-inmediato.png',
             points: [
@@ -29,6 +30,7 @@ export default function ServicePage() {
         },
         {
             name: 'Premium',
+            tag: 'premium',
             value: 230,
             image: 'plan2-inmediato.png',
             points: [
@@ -46,6 +48,7 @@ export default function ServicePage() {
         },
         {
             name: 'Presencial',
+            tag: 'onsite',
             value: 300,
             image: 'plan3-inmediato.png',
             points: [
@@ -72,6 +75,7 @@ export default function ServicePage() {
     const preventivePlans = [
         {
             name: 'Básico',
+            tag: 'basic',
             value: 11,
             months: 10,
             image: 'plan1-inmediato.png',
@@ -91,6 +95,7 @@ export default function ServicePage() {
         },
         {
             name: 'Premium',
+            tag: 'premium',
             value: 18.30,
             months: 12,
             image: 'plan2-preventivo.png',
@@ -111,6 +116,7 @@ export default function ServicePage() {
         },
         {
             name: 'Presencial',
+            tag: 'onsite',
             value: 24.15,
             months: 12,
             image: 'plan3-inmediato.png',
@@ -291,7 +297,7 @@ export default function ServicePage() {
                                 img={`services/${item.image}`}
                                 buttonText="Suscribirse"
                                 action={() => {
-                                    navigate('/payment', { state: { from: 'checkout', plan: {name: item.name, value: item.value}} })
+                                    navigate('/payment', { state: { from: 'checkout', plan: {name: item.tag, value: item.value}} })
                                 }}
                             />
                         </Box>

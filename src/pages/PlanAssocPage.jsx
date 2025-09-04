@@ -65,6 +65,9 @@ export default function PetPlanAssociation() {
         }
     }
 
+    useEffect(()=> {
+        console.log(updatedData)
+    }, [updatedData])
     useEffect(() => {
         fetchPets()
         const newPlans = { ...plans };
@@ -130,7 +133,7 @@ export default function PetPlanAssociation() {
                     sx={{ minWidth: 120, borderColor: 'var(--dark-gray-hover-color)', color: 'var(--dark-gray-hover-color)' }}
                     onClick={() => {
                         if (step === 0) {
-                            navigate('/ourService')
+                            navigate('/payment', {state: {plan: plans, from: 'plan-assoc'}})
                         } else {
                             setStep(step - 1)
                         }
@@ -329,7 +332,7 @@ function AddPet({ pets, plans, setStep }) {
         </Box>
     )
 }
-function AsignPlanToPet({ pets, plans, setStep, setUpdatedData, updatedData }) {
+function AsignPlanToPet({ pets, plans, setStep, setUpdatedData }) {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     const [data, setData] = useState(
         Object.values(plans)
@@ -350,35 +353,37 @@ function AsignPlanToPet({ pets, plans, setStep, setUpdatedData, updatedData }) {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const handleSelectPet = (planKey, petName) => {
+    const handleSelectPet = (planKey, id) => {
         setData((prev) => {
             const newData = { ...prev };
 
             Object.keys(newData).forEach((key) => {
-                if (key !== planKey && newData[key] === petName) {
+                if (key !== planKey && newData[key] === id) {
                     newData[key] = "";
                 }
             });
 
-            newData[planKey] = petName;
+            newData[planKey] = id;
             return newData;
         });
-
     };
+
 
     useEffect(() => {
         setUpdatedData(prev => ({
-            ...prev,    
-            ...data     
+            ...prev,
+            ...data
         }));
     }, [data]);
 
 
     const getAvailablePets = (currentPlanKey) => {
-        const chosenPets = Object.values(data).filter(Boolean);
+        const chosenPetIds = Object.values(data).filter(Boolean); 
+
         return pets.filter(
             (pet) =>
-                !chosenPets.includes(pet.nombre) || data[currentPlanKey] === pet.nombre
+                pet.subscripcion === null &&
+                (!chosenPetIds.includes(pet.id) || data[currentPlanKey] === pet.id)
         );
     };
 
@@ -457,7 +462,7 @@ function AsignPlanToPet({ pets, plans, setStep, setUpdatedData, updatedData }) {
                             .filter(([planKey, planData]) => planData.quantity > 0)
                             .map(([planKey, planData]) =>
                                 Array.from({ length: planData.quantity }).map((_, i) => (
-                                    <Box key={`${planKey}-${i+1}`} sx={{ width: "100%" }}>
+                                    <Box key={`${planKey}-${i + 1}`} sx={{ width: "100%" }}>
                                         <Typography
                                             sx={{
                                                 color: "var(--blackinput-color)",
@@ -469,12 +474,11 @@ function AsignPlanToPet({ pets, plans, setStep, setUpdatedData, updatedData }) {
                                         </Typography>
                                         <Select
                                             fullWidth
-                                            value={data[`${planKey}-${i+1}`] || ""}
+                                            value={data[`${planKey}-${i + 1}`] || ""} // now data stores the ID
                                             size="small"
                                             onChange={(e) => {
-                                                handleSelectPet(`${planKey}-${i+1}`, e.target.value)
-                                            }
-                                            }
+                                                handleSelectPet(`${planKey}-${i + 1}`, e.target.value);
+                                            }}
                                             displayEmpty
                                             sx={{
                                                 "& .MuiInputBase-root": {
@@ -485,12 +489,13 @@ function AsignPlanToPet({ pets, plans, setStep, setUpdatedData, updatedData }) {
                                             }}
                                         >
                                             <MenuItem value="">Ninguno</MenuItem>
-                                            {getAvailablePets(`${planKey}-${i+1}`).map((pet) => (
-                                                <MenuItem key={pet.nombre} value={pet.nombre}>
+                                            {getAvailablePets(`${planKey}-${i + 1}`).map((pet) => (
+                                                <MenuItem key={pet.id} value={pet.id}>
                                                     {pet.nombre}
                                                 </MenuItem>
                                             ))}
                                         </Select>
+
                                     </Box>
                                 ))
                             )}

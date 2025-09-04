@@ -1,14 +1,25 @@
-import { Box, Typography, Checkbox, FormControlLabel, Divider, Button } from "@mui/material";
+import { Box, Typography, Checkbox, FormControl, FormHelperText, FormControlLabel, Divider, Button } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, data } from "react-router-dom";
 import { LoadingModal } from "./shared components/Modals";
+import Cookies from "js-cookie";
+import axios_api from "./axios";
+import { endpoints } from "./endpoints";
+
 export default function TermsAndConds() {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     const location = useLocation()
-    const data_received = location?.state?.pets_plans;
+    const data_received = location?.state?.pets_plans; //has pets id and new plans
     const [openModal, setOpenModal] = useState(false)
     const [stepModal, setStepModal] = useState(0)
+    const [socket, setSocket] = useState(null)
+    const [canAccept, setCanAccept] = useState(false);
+    const [accepted, setAccepted] = useState(false);
+    const termsRef = useRef(null);
+    const navigate = useNavigate()
+    const [buttonStep, setButtonStep] = useState(0)
+
     useEffect(() => {
         function handleResize() {
             setIsMobile(window.innerWidth <= 1024);
@@ -17,21 +28,95 @@ export default function TermsAndConds() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    useEffect(() => {
-        setTimeout(() => {
-            setStepModal(1)
-            setTimeout(() => {
-                setOpenModal(false)
-                setStepModal(0)
-                navigate('/good-end')
-            }, 2500);
-        }, 3000);
-    }, [openModal])
+    const sendWebsocketMessage = (message) => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(message);
+        }
+    };
 
-    const [canAccept, setCanAccept] = useState(false);
-    const [accepted, setAccepted] = useState(false);
-    const termsRef = useRef(null);
-    const navigate = useNavigate()
+    async function handleSubscription(token) {
+        try {
+            let quantities = {
+                basic: 0,
+                premium: 0,
+                onsite: 0,
+            };
+
+            Object.keys(data_received).forEach((key) => {
+                const plan = key.split("-")[0];
+                quantities[plan] = (quantities[plan] ?? 0) + 1;
+            });
+
+            for (const [plan, quantity] of Object.entries(quantities)) {
+                if (quantity > 0) {
+                    for (let i = 0; i < quantity; i++) {
+                        const response = await axios_api.post(
+                            endpoints.create_sub,
+                            {
+                                email: localStorage.getItem("email"),
+                                plan_id: plan === "basic" ? 1 : plan === "premium" ? 2 : 3,
+                                token_tarjeta: token,
+                            },
+                            {
+                                headers: {
+                                    Authorization: `Bearer ${Cookies.get("authToken")}`,
+                                },
+                            }
+                        );
+                    }
+                }
+            }
+
+            setOpenModal(false);
+            setButtonStep(1)
+        } catch (err) {
+            console.error("Error, subscription", err);
+            setTimeout(() => {
+                setStepModal(-1)
+                setTimeout(() => {
+                    setOpenModal(false)
+                    setStepModal(0)
+                }, 2500);
+            }, 3000);
+            return err;
+        }
+    }
+
+    useEffect(() => {
+        const ws = new WebSocket("wss://backendinvet.com/ws/notifications/");
+        setSocket(ws);
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data)
+            if (data?.data?.url) {
+                window.open(data.data.url, "_blank", "noopener,noreferrer");
+            } else {
+                if (data.authorizationCode) {
+                    const card_data = data.cardToken;
+                    handleSubscription(card_data)
+                    ws.close()
+                }
+            }
+        };
+
+        ws.onerror = (error) => {
+            console.error("WebSocket error:", error);
+        };
+
+        return () => {
+            ws.close();
+        };
+    }, []);
+
+    function openSocket() {
+        setOpenModal(true)
+        const payload = {
+            session_token: Cookies.get('authToken'),
+            email: localStorage.getItem('email')
+        }
+        sendWebsocketMessage(JSON.stringify(payload))
+    }
+
     useEffect(() => {
         const handleScroll = () => {
             const el = termsRef.current;
@@ -50,6 +135,7 @@ export default function TermsAndConds() {
             if (el) el.removeEventListener("scroll", handleScroll);
         };
     }, []);
+
     return (
         <Box
             sx={{
@@ -131,9 +217,16 @@ export default function TermsAndConds() {
                         ref={termsRef}
                         sx={{
                             flex: 1,
-                            overflowY: "auto",
+                            overflowY: "scroll",
                             pr: 1,
-
+                            scrollbarWidth: "thin",
+                            "&::-webkit-scrollbar": {
+                                width: "8px",
+                            },
+                            "&::-webkit-scrollbar-thumb": {
+                                backgroundColor: "rgba(0,0,0,0.4)",
+                                borderRadius: "4px",
+                            },
                         }}
                     >
                         <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'black', mb: 2 }}>
@@ -209,29 +302,26 @@ export default function TermsAndConds() {
                     </Box>
                     <Divider style={{ color: 'gray', width: '97%' }} />
                     <Box>
-                        <FormControlLabel
-                            control={
+                        <FormControl error={!canAccept}>
+                            <Box display="flex" alignItems="center">
                                 <Checkbox
                                     disabled={!canAccept}
                                     checked={accepted}
                                     onChange={(e) => setAccepted(e.target.checked)}
                                     sx={{
-                                        color: 'var(--darkgreen-color)',
-                                        '&.Mui-disabled': {
-                                            color: 'rgba(0, 0, 0, 0.26)',
+                                        "&.Mui-disabled": {
+                                            color: "rgba(0, 0, 0, 0.26)",
                                             opacity: 0.5,
                                         },
                                     }}
-
                                 />
-                            }
-                            label={
-                                <Typography sx={{ color: 'black' }}>
-                                    Acepto los <strong>Términos y Condiciones</strong>
-                                </Typography>
-                            }
-                            sx={{ mt: 2 }}
-                        />
+                                <Typography sx={{ color: 'black' }}>Acepto los términos y condiciones</Typography>
+                            </Box>
+
+                            {!canAccept && (
+                                <FormHelperText>Debes leer todo antes de continuar.</FormHelperText>
+                            )}
+                        </FormControl>
                     </Box>
                 </Box>
                 <Box
@@ -255,14 +345,18 @@ export default function TermsAndConds() {
                         disabled={!accepted}
                         sx={{ minWidth: 120, background: 'var(--darkgreen-color)', fontWeight: 600 }}
                         onClick={() => {
-                            setOpenModal(true)
+                            if (buttonStep === 0) {
+                                openSocket()
+                            } else {
+                                navigate('/good-end')
+                            }
                         }}
                     >
-                        Continuar
+                        {buttonStep === 0 ? 'Registrar método de pago' : 'Finalizar proceso'}
                     </Button>
                 </Box>
             </Box>
-            <LoadingModal text={'Registrando mascotas...'} open={openModal} setOpen={setOpenModal} modalStep={stepModal} />
+            <LoadingModal text={'Esperando OK para registro... ¡No cierres esta ventana!'} open={openModal} setOpen={setOpenModal} modalStep={stepModal} />
         </Box>
     )
 }
