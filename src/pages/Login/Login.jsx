@@ -130,7 +130,7 @@ function Login({ setStep }) {
                     }}
                     onClick={() => {
                         if (fromCheckout) {
-                            navigate('/payment', {state: {plan: plans, from: 'login'}})
+                            navigate('/payment', { state: { plan: plans, from: 'login' } })
                         } else {
                             navigate('/')
                         }
@@ -707,54 +707,90 @@ function Register({ setStep, currentStep }) {
                         gap: 1.5,
                     }}
                 >
-
-                    {isMobile
-                        ? registerFields
-                            .filter(field => groupedFields[formStep]?.includes(field.formData))
-                            .map((field, i) => (
-                                field.formData === 'city' ? (
-                                    <>
-                                        <YellowAlert message={'Recuerda que nuestros servcios son exclusivos para: Guayaquil, Chongón, Durán y Samborondón.'} />
-                                        <DataSelect key={i} label="Ciudad" setData={setFormData} formLabel="city" value={formData.city} errorMessage={errors.city} />
-                                    </>
-                                ) : field.formData === 'password' ? (
-                                    <PasswordLabelWithTooltip key={i} label={field.label} placeholder={field.placeholder} setData={setFormData} formLabel={field.formData} value={formData[field.formData]} errorMessage={errors.password} showTooltip={true} />
-                                ) : field.formData === 'repeatedpassword' ? (
-                                    <PasswordLabelWithTooltip key={i} label={field.label} placeholder={field.placeholder} setData={setFormData} formLabel={field.formData} value={formData[field.formData]} errorMessage={errors.repeatedpassword} />
-                                ) : (
-                                    <DataInput
+                    {(isMobile
+                        ? registerFields.filter(field => groupedFields[formStep]?.includes(field.formData))
+                        : registerFields
+                    ).map((field, i) => {
+                        // Determine the input component
+                        let InputComponent;
+                        if (field.formData === 'city') {
+                            InputComponent = (
+                                <Box key={i} sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                    {isMobile && <YellowAlert message={'Recuerda que nuestros servicios son exclusivos para: Guayaquil, Chongón, Durán y Samborondón.'} />}
+                                    <DataSelect
                                         key={i}
+                                        label="Ciudad"
+                                        setData={setFormData}
+                                        formLabel="city"
+                                        value={formData.city}
+                                    />
+                                    {errors.city && (
+                                        <Typography variant="caption" color="error">
+                                            {errors.city}
+                                        </Typography>
+                                    )}
+                                </Box>
+                            );
+                        } else if (field.formData === 'password') {
+                            InputComponent = (
+                                <Box key={i} sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                    <PasswordLabelWithTooltip
+                                        label={field.label}
+                                        placeholder={field.placeholder}
+                                        setData={setFormData}
+                                        formLabel={field.formData}
+                                        value={formData[field.formData]}
+                                        showTooltip={true}
+                                    />
+                                    {errors.password && (
+                                        <Typography variant="caption" color="error">
+                                            {errors.password}
+                                        </Typography>
+                                    )}
+                                </Box>
+                            );
+                        } else if (field.formData === 'repeatedpassword') {
+                            InputComponent = (
+                                <Box key={i} sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                    <PasswordLabelWithTooltip
+                                        label={field.label}
+                                        placeholder={field.placeholder}
+                                        setData={setFormData}
+                                        formLabel={field.formData}
+                                        value={formData[field.formData]}
+                                    />
+                                    {errors.repeatedpassword && (
+                                        <Typography variant="caption" color="error">
+                                            {errors.repeatedpassword}
+                                        </Typography>
+                                    )}
+                                </Box>
+                            );
+                        } else {
+                            InputComponent = (
+                                <Box key={i} sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                    <DataInput
                                         label={field.label}
                                         placeholder={field.placeholder}
                                         setData={setFormData}
                                         formLabel={field.formData}
                                         isOnlyNumber={field.type === 'number'}
                                         value={formData[field.formData]}
-                                        errorMessage={errors[field.formData]}
+                                        type={field.type}
                                     />
-                                )
-                            ))
-                        : registerFields.map((field, i) => (
-                            field.formData === 'city' ? (
-                                <DataSelect key={i} label={field.label} setData={setFormData} formLabel="city" value={formData.city} errorMessage={errors.city} />
-                            ) : field.formData === 'password' ? (
-                                <PasswordLabelWithTooltip key={i} label={field.label} placeholder={field.placeholder} setData={setFormData} formLabel={field.formData} value={formData[field.formData]} errorMessage={errors.password} showTooltip={true} />
-                            ) : field.formData === 'repeatedpassword' ? (
-                                <PasswordLabelWithTooltip key={i} label={field.label} placeholder={field.placeholder} setData={setFormData} formLabel={field.formData} errorMessage={errors.repeatedpassword} />
-                            ) : (
-                                <DataInput
-                                    key={i}
-                                    label={field.label}
-                                    placeholder={field.placeholder}
-                                    setData={setFormData}
-                                    formLabel={field.formData}
-                                    type={field.type}
-                                    errorMessage={errors[field.formData]}
-                                    value={formData[field.formData]}
-                                />
-                            )
-                        ))}
+                                    {errors[field.formData] && (
+                                        <Typography variant="caption" color="error">
+                                            {errors[field.formData]}
+                                        </Typography>
+                                    )}
+                                </Box>
+                            );
+                        }
+
+                        return InputComponent;
+                    })}
                 </Box>
+
 
                 {isMobile && (
                     <Box mt={2} display="flex" justifyContent="space-between" gap="2rem">
