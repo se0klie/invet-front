@@ -29,7 +29,6 @@ export function CancelPlanModal({ open, setOpen, petName, onCancel }) {
                         <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'var(--error-color)' }}>
                             Cancelar plan
                         </Typography>
-
                     </Box>
 
                     <RxCross1

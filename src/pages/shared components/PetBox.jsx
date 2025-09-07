@@ -145,7 +145,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
                 />
             </Box>
 
-            <Box sx={{ width: '100%' }}>
+            <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <Typography
                     variant="h6"
                     sx={{
@@ -158,34 +158,36 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
                     {pet?.nombre}
                 </Typography>
 
-                {(!sub || sub?.estado === 3) &&
-                    <YellowAlert message={`${pet?.nombre} no tiene un plan asociado, ¡Contrata uno!`} fromDashboard={true} />
-                }
+                <Box sx={{paddingTop: '1rem', paddingBottom: '1rem'}}>
+                    {(!sub || sub?.estado === 3) ? (
+                        <YellowAlert message={`${pet?.nombre} no tiene un plan asociado, ¡Contrata uno!`} fromDashboard={true} />
+                    ) : (
+                        <Box sx={{ my: 1, display: 'flex', flexDirection: 'column', gap: 0.5, opacity: pet?.subscripcion_id ? '100%' : '0', cursor: 'default' }}>
+                            <Typography variant="body1" sx={{ color: 'gray' }}>
+                                <strong>Plan: </strong>
+                                <Typography component="span" sx={{ color: 'black' }}>
+                                    {plans[sub?.plan_id] || ''}
+                                </Typography>
+                            </Typography>
 
-                <Box sx={{ my: 1, display: 'flex', flexDirection: 'column', gap: 0.5, opacity: pet?.subscripcion_id ? '100%' : '0', cursor: 'default' }}>
-                    <Typography variant="body1" sx={{ color: 'gray' }}>
-                        <strong>Plan: </strong>
-                        <Typography component="span" sx={{ color: 'black' }}>
-                            {plans[sub?.plan_id] || ''}
-                        </Typography>
-                    </Typography>
-
-                    <Typography variant="body1" sx={{ color: 'gray', display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        <strong>Estado del plan:</strong>
-                        <FaCircle
-                            style={{
-                                color:
-                                    sub?.estado <= 1
-                                        ? 'green'
-                                        : sub?.estado === 2
-                                            ? 'red'
-                                            : 'gray',
-                            }}
-                        />
-                        <Typography component="span" sx={{ color: 'black' }}>
-                            {planState || ''}
-                        </Typography>
-                    </Typography>
+                            <Typography variant="body1" sx={{ color: 'gray', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                <strong>Estado del plan:</strong>
+                                <FaCircle
+                                    style={{
+                                        color:
+                                            sub?.estado <= 1
+                                                ? 'green'
+                                                : sub?.estado === 2
+                                                    ? 'red'
+                                                    : 'gray',
+                                    }}
+                                />
+                                <Typography component="span" sx={{ color: 'black' }}>
+                                    {planState || ''}
+                                </Typography>
+                            </Typography>
+                        </Box>
+                    )}
                 </Box>
 
                 <Box
@@ -309,7 +311,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
                                     Plan:
                                 </Typography>
                                 <Typography variant="body2" sx={{ color: 'gray' }}>
-                                    {plans[sub?.plan_id ] || '-'}
+                                    {plans[sub?.plan_id] || '-'}
                                 </Typography>
                             </Box>
                         </Box>
