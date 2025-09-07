@@ -58,7 +58,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub }) {
                     Authorization: `Bearer ${Cookies.get('authToken')}`
                 }
             })
-
+            refreshDashboard()
             if (response.status === 200) {
                 setTimeout(() => {
                     setLoadingModalStep(1)
@@ -89,8 +89,8 @@ export default function PetBox({ pets, pet, refreshDashboard, sub }) {
             const response = await axios_api.post(endpoints.exchange_plans,
                 {
                     email: localStorage.getItem('email'),
-                    mascota_origen_id: pet.id,
-                    mascota_destino_id: selectedPet.id
+                    mascota_1_id: pet.id,
+                    mascota_2_id: selectedPet.id
                 },
                 {
                     headers: {
@@ -98,7 +98,8 @@ export default function PetBox({ pets, pet, refreshDashboard, sub }) {
                     }
                 }
             )
-            if (response.status === 201) {
+            console.log(response)
+            if (response.status === 200) {
                 refreshDashboard()
                 setTimeout(() => {
                     setLoadingModalStep(1)
@@ -171,7 +172,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub }) {
                     <YellowAlert message={`${pet?.nombre} no tiene un plan asociado, ¡Contrata uno!`} fromDashboard={true} />
                 }
 
-                <Box sx={{ my: 1, display: 'flex', flexDirection: 'column', gap: 0.5, opacity: pet?.subscripcion_id ? '100%' : '0', cursor:'default'}}>
+                <Box sx={{ my: 1, display: 'flex', flexDirection: 'column', gap: 0.5, opacity: pet?.subscripcion_id ? '100%' : '0', cursor: 'default' }}>
                     <Typography variant="body1" sx={{ color: 'gray' }}>
                         <strong>Plan: </strong>
                         <Typography component="span" sx={{ color: 'black' }}>
@@ -209,47 +210,27 @@ export default function PetBox({ pets, pet, refreshDashboard, sub }) {
                     }}
                 >
                     {pet?.subscripcion_id && sub?.estado <= 1 ? (
-                        <>
-                            <Button
-                                fullWidth
-                                variant="contained"
-                                sx={{
-                                    backgroundColor: 'var(--secondary-color)',
-                                    color: '#fff',
-                                    borderRadius: 2,
-                                    fontWeight: 600,
-                                    px: 2,
-                                    py: 1.2,
-                                    fontSize: { xs: '0.8rem', sm: '0.875rem' },
-                                    whiteSpace: 'nowrap',
-                                    textAlign: 'center',
-                                    '&:hover': {
-                                        backgroundColor: 'var(--darkgreen-color)',
-                                    },
-                                }}
-                                onClick={() => setTransferPlan(true)}
-                            >
-                                {isMobile ? 'Intercambiar plan' : 'Intercambiar plan con otra mascota'}
-                            </Button>
-
-                            <Button
-                                fullWidth
-                                sx={{
-                                    borderRadius: 2,
-                                    fontWeight: 600,
-                                    backgroundColor: 'var(--error-fill-color)',
-                                    px: 2,
-                                    py: 1.2,
-                                    fontSize: { xs: '0.8rem', sm: '0.875rem' },
-                                    color: 'white',
-                                    '&:hover': {
-                                        backgroundColor: 'var(--error-fill-hover-color)',
-                                    },
-                                }}
-                                onClick={() => setCancelPlan(true)}
-                            >
-                                Cancelar plan
-                            </Button></>
+                        <Button
+                            fullWidth
+                            variant="contained"
+                            sx={{
+                                backgroundColor: 'var(--secondary-color)',
+                                color: '#fff',
+                                borderRadius: 2,
+                                fontWeight: 600,
+                                px: 2,
+                                py: 1.2,
+                                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                                whiteSpace: 'nowrap',
+                                textAlign: 'center',
+                                '&:hover': {
+                                    backgroundColor: 'var(--darkgreen-color)',
+                                },
+                            }}
+                            onClick={() => setTransferPlan(true)}
+                        >
+                            {isMobile ? 'Intercambiar plan' : 'Intercambiar plan con otra mascota'}
+                        </Button>
                     ) : (
                         <Button
                             fullWidth
@@ -413,7 +394,6 @@ export default function PetBox({ pets, pet, refreshDashboard, sub }) {
                                                             {petX.nombre}
                                                         </MenuItem>
                                                     ))}
-
                                             </Select>
                                         </Box>
                                     </Box>

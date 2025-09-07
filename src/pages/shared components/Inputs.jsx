@@ -201,7 +201,7 @@ export function PasswordLabelWithTooltip({ setData, label, placeholder, formLabe
                         sx={{
                             position: 'absolute',
                             top: '-1.5rem',
-                            right: 0,
+                            right: '0',
                             backgroundColor: 'rgba(244, 67, 54, 0.1)',
                             color: '#d32f2f',
                             padding: '0.3rem 0.6rem',

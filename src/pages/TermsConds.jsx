@@ -34,25 +34,8 @@ export default function TermsAndConds() {
         }
     };
 
-    useEffect(() => {
-        for (const [plan, pet_id] of Object.entries(data_received)) {
-            console.log(plan.split('-')[0], data_received[plan])
-        }
-    }, [])
-
     async function handleSubscription(token) {
         try {
-            // let quantities = {
-            //     basic: 0,
-            //     premium: 0,
-            //     onsite: 0,
-            // };
-
-            // Object.keys(data_received).forEach((key) => {
-            //     const plan = key.split("-")[0];
-            //     quantities[plan] = (quantities[plan] ?? 0) + 1;
-            // });
-
             for (const [plan, pet_id] of Object.entries(data_received)) {
                 let plan_name = plan.split('-')[0]
                 const response = await axios_api.post(
@@ -68,8 +51,7 @@ export default function TermsAndConds() {
                         },
                     }
                 );
-                console.log(response)
-                if(response.status === 201){
+                if (response.status === 201) {
                     const req_petUpd = await axios_api.patch(endpoints.edit_pet,
                         {
                             email: localStorage.getItem('email'),
@@ -82,12 +64,11 @@ export default function TermsAndConds() {
                             }
                         }
                     )
-                    console.log(req_petUpd)
                 }
             }
 
             setOpenModal(false);
-            setButtonStep(1)
+            navigate('/good-end')
         } catch (err) {
             console.error("Error, subscription", err);
             setTimeout(() => {
@@ -384,8 +365,6 @@ export default function TermsAndConds() {
                         onClick={() => {
                             if (buttonStep === 0) {
                                 openSocket()
-                            } else {
-                                navigate('/good-end')
                             }
                         }}
                     >

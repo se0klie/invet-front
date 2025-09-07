@@ -6,11 +6,7 @@ import { MdOutlinePets } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 
 export default function MisPagos({ pets, subscriptions, handleRefresh }) {
-    const [invoices, setInvoices] = useState([
-        { id: '#12345', fecha: '11 Jun, 2025', plan: 'Básico', mascota: 'Mojito', monto: 11 },
-        { id: '#12345', fecha: '12 Jun, 2025', plan: 'Básico', mascota: 'Otto', monto: 11 },
-        { id: '#12345', fecha: '13 Jun, 2025', plan: 'Básico', mascota: 'Mojito', monto: 11 },
-    ]);
+    const [invoices, setInvoices] = useState([]);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     const [loadingInfo, setLoadingInfo] = useState({
         pets: false,
@@ -119,23 +115,71 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
                 }}
             />
 
-            <Box sx={{ display: 'flex', flexDirection: 'column', height: '50%', width: '100%' }}>
-                <Typography variant="h5" sx={{ color: 'var(--blackinput-color)', fontWeight: 'bold' }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '50%',
+                    width: '100%',
+                    px: 2,
+                }}
+            >
+                <Typography
+                    variant="h5"
+                    sx={{ color: 'var(--blackinput-color)', fontWeight: 'bold', mb: 2 }}
+                >
                     Historial de facturas
                 </Typography>
-                {invoices.length === 0 ? (
-                    <Typography variant="body1" sx={{ color: 'var(--soft-black-color)', fontWeight: 'bold' }}>
-                        No tienes facturas.
-                    </Typography>
-                ) : (
-                    <Box sx={{ marginTop: '20px' }}>
-                        {!isMobile &&
-                            <FacturasTable rows={invoices} />}
-                        {isMobile &&
-                            <FacturasList rows={invoices} />}
-                    </Box>
-                )}
+
+                <Box
+                    sx={{
+                        flex: 1,
+                        display: 'flex',
+                        justifyContent: invoices.length === 0 ? 'center' : 'flex-start',
+                        alignItems: invoices.length === 0 ? 'center' : 'flex-start',
+                        width: '100%',
+                        py: 2, 
+                    }}
+                >
+                    {invoices.length === 0 ? (
+                        <Box
+                            sx={{
+                                width: { xs: '50%', sm: '30%', md: '20%' }, 
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 1.5,
+                                alignItems: 'center',
+                                textAlign: 'center',
+                            }}
+                        >
+                            <img
+                                src="/images/common/no_data.svg"
+                                alt="No data"
+                                style={{
+                                    width: '100%',
+                                    height: 'auto',
+                                    objectFit: 'contain',
+                                }}
+                            />
+                            <Typography
+                                sx={{
+                                    fontWeight: 600,
+                                    color: 'var(--darkgreen-color)',
+                                    fontSize: { xs: '0.9rem', sm: '1rem' },
+                                    whiteSpace: 'nowrap',
+                                }}
+                            >
+                                No hay facturas por mostrar
+                            </Typography>
+                        </Box>
+                    ) : (
+                        <Box sx={{ width: '100%' }}>
+                            {!isMobile ? <FacturasTable rows={invoices} /> : <FacturasList rows={invoices} />}
+                        </Box>
+                    )}
+                </Box>
             </Box>
+
         </Box>
     )
 }
