@@ -5,7 +5,7 @@ import { useNavigate, useLocation, data } from "react-router-dom";
 import { LoadingModal } from "./shared components/Modals";
 import Cookies from "js-cookie";
 import axios_api from "./axios";
-import { endpoints } from "./endpoints";
+import { endpoints } from "./endpoints.js";
 
 export default function TermsAndConds() {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
@@ -34,36 +34,55 @@ export default function TermsAndConds() {
         }
     };
 
+    useEffect(() => {
+        for (const [plan, pet_id] of Object.entries(data_received)) {
+            console.log(plan.split('-')[0], data_received[plan])
+        }
+    }, [])
+
     async function handleSubscription(token) {
         try {
-            let quantities = {
-                basic: 0,
-                premium: 0,
-                onsite: 0,
-            };
+            // let quantities = {
+            //     basic: 0,
+            //     premium: 0,
+            //     onsite: 0,
+            // };
 
-            Object.keys(data_received).forEach((key) => {
-                const plan = key.split("-")[0];
-                quantities[plan] = (quantities[plan] ?? 0) + 1;
-            });
+            // Object.keys(data_received).forEach((key) => {
+            //     const plan = key.split("-")[0];
+            //     quantities[plan] = (quantities[plan] ?? 0) + 1;
+            // });
 
-            for (const [plan, quantity] of Object.entries(quantities)) {
-                if (quantity > 0) {
-                    for (let i = 0; i < quantity; i++) {
-                        const response = await axios_api.post(
-                            endpoints.create_sub,
-                            {
-                                email: localStorage.getItem("email"),
-                                plan_id: plan === "basic" ? 1 : plan === "premium" ? 2 : 3,
-                                token_tarjeta: token,
-                            },
-                            {
-                                headers: {
-                                    Authorization: `Bearer ${Cookies.get("authToken")}`,
-                                },
-                            }
-                        );
+            for (const [plan, pet_id] of Object.entries(data_received)) {
+                let plan_name = plan.split('-')[0]
+                const response = await axios_api.post(
+                    endpoints.create_sub,
+                    {
+                        email: localStorage.getItem("email"),
+                        plan_id: plan_name === "basic" ? 1 : plan_name === "premium" ? 2 : 3,
+                        token_tarjeta: token,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${Cookies.get("authToken")}`,
+                        },
                     }
+                );
+                console.log(response)
+                if(response.status === 201){
+                    const req_petUpd = await axios_api.patch(endpoints.edit_pet,
+                        {
+                            email: localStorage.getItem('email'),
+                            mascota_id: pet_id,
+                            subscripcion_id: response.data.id
+                        },
+                        {
+                            headers: {
+                                Authorization: `Bearer ${Cookies.get('authToken')}`
+                            }
+                        }
+                    )
+                    console.log(req_petUpd)
                 }
             }
 
@@ -84,29 +103,41 @@ export default function TermsAndConds() {
 
     useEffect(() => {
         const ws = new WebSocket("wss://backendinvet.com/ws/notifications/");
-        setSocket(ws);
+
+        ws.onopen = () => {
+            setSocket(ws);
+        };
 
         ws.onmessage = (event) => {
-            const data = JSON.parse(event.data)
-            if (data?.data?.url) {
-                window.open(data.data.url, "_blank", "noopener,noreferrer");
-            } else {
-                if (data.authorizationCode) {
+            try {
+                const data = JSON.parse(event.data);
+
+                if (data?.data?.url) {
+                    window.open(data.data.url, "_blank", "noopener,noreferrer");
+                } else if (data.authorizationCode) {
                     const card_data = data.cardToken;
-                    handleSubscription(card_data)
-                    ws.close()
+                    handleSubscription(card_data);
+
+                    ws.close();
                 }
+            } catch (err) {
+                console.error("Error parsing message:", err);
             }
         };
 
         ws.onerror = (error) => {
-            console.error("WebSocket error:", error);
+            console.error("❌ WebSocket error:", error);
+        };
+
+        ws.onclose = (e) => {
+            console.warn("⚠️ WebSocket closed:", e.code, e.reason);
         };
 
         return () => {
             ws.close();
         };
     }, []);
+
 
     function openSocket() {
         setOpenModal(true)

@@ -124,13 +124,19 @@ function Login({ setStep }) {
                         textTransform: "none",
                         fontSize: "0.9rem",
                         "&:hover": {
-                            backgroundColor: "rgba(255,255,255,0.1)", // sutil hover
+                            backgroundColor: "rgba(255,255,255,0.1)",
                         },
                         color: 'var(--darkgreen-color)'
                     }}
-                    onClick={() => { navigate('/') }}
+                    onClick={() => {
+                        if (fromCheckout) {
+                            navigate('/payment', {state: {plan: plans, from: 'login'}})
+                        } else {
+                            navigate('/')
+                        }
+                    }}
                 >
-                    Página principal
+                    {fromCheckout ? 'Regresar a su factura' : 'Página principal'}
                 </Button>
             </Box>
             <Box
@@ -454,7 +460,7 @@ function Register({ setStep, currentStep }) {
         message: '',
         severity: 'success',
     });
-    const {login} = useAuth()
+    const { login } = useAuth()
     const [fromCheckout, setFromCheckout] = useState(location?.state?.from === 'checkout' || false)
     const groupedFields = [
         ['idnumber', 'firstNames', 'lastNames', 'email', 'phone'],
@@ -540,7 +546,7 @@ function Register({ setStep, currentStep }) {
             return response.status;
         } catch (err) {
             console.error("API call failed:", err);
-            return err.status || 500; // Return 500 if no response status is available
+            return err.status || 500;
         }
     }
 

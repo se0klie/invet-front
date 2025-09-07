@@ -1,7 +1,7 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 import axios_api from "../pages/axios";
-import { endpoints } from '../pages/endpoints'
+import { endpoints } from '../pages/endpoints.js'
 export async function getPets(email) {
     try {
         const response = await axios_api.post(
@@ -15,9 +15,8 @@ export async function getPets(email) {
                 }
             }
         );
-        console.log(response)
         if (response.status === 200) {
-            const data = response.data;
+            const data = response.data.results;
             return data
         }
         return []

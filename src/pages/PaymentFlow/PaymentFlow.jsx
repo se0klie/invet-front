@@ -7,6 +7,8 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { DarkGreenButton } from "../shared components/Buttons";
 import { YellowAlert } from "../shared components/Alerts";
+import Cookies from "js-cookie";
+
 export default function PaymentPage() {
     const [bill, setBill] = useState({
         number: '0',
@@ -35,6 +37,11 @@ export default function PaymentPage() {
                 Object.entries(plan).map(([key, value]) => [key, value.quantity])
             );
             setQuantities(newQuantities);
+        } else if (location?.state?.from === 'login') {
+            const newQuantities = Object.fromEntries(
+                Object.entries(plan).map(([key, value]) => [key, plan[key]])
+            );
+            setQuantities(newQuantities);
         } else {
             setQuantities({
                 ...quantities,
@@ -57,13 +64,13 @@ export default function PaymentPage() {
         setBill(updatedBill);
 
         const totalToBill = Object.values(updatedBill.items).reduce(
-            (sum, item) => sum + item.value * item.quantity,
-            2
+            (sum, item) => sum + item.value.toFixed(2) * item.quantity,
+            0
         );
 
         setLatePrice({
             subtotal: totalToBill.toFixed(2),
-            iva: (totalToBill + totalToBill * 0.15).toFixed(2),
+            iva: (totalToBill * 0.15 + totalToBill).toFixed(2),
         });
     }, [quantities]);
 
@@ -243,30 +250,47 @@ export default function PaymentPage() {
                                 variant="h5"
                                 sx={{
                                     fontWeight: 600,
-                                    color: 'var(--hoverdarkgreen-color)',
+                                    color: 'black',
                                     textAlign: 'center',
                                 }}
                             >
-                                Proceder al pago
+                                 Asigne los planes a sus mascotas
                             </Typography>
 
-                            <Box
-                                sx={{
-                                    width: '50%',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                }}
-                            >
-                                <DarkGreenButton text="Inicia sesión" action={() => {
-                                    navigate('/login', { state: { from: 'checkout', plans: quantities } })
-                                }} />
-                                <Typography>o</Typography>
-                                <DarkGreenButton text="Regístrate" action={() => {
-                                    navigate('/login', { state: { from: 'checkout', plans: quantities, step: 5 } })
-                                }} />
-                            </Box>
+                            {localStorage.getItem('email') && Cookies.get('authToken') ? (
+                                <Box
+                                    sx={{
+                                        width: '50%',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    <DarkGreenButton text="Continuar" action={() => {
+                                        navigate('/login', { state: { from: 'checkout', plans: quantities } })
+                                    }} />
+                                </Box>
+                            ) : (
+                                <Box
+                                    sx={{
+                                        width: '50%',
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                    }}
+                                >
+                                    <Typography sx={{ color: 'black', fontWeight: 600 }}>Para continuar</Typography>
+                                    <DarkGreenButton text="Inicia sesión" action={() => {
+                                        navigate('/login', { state: { from: 'checkout', plans: quantities } })
+                                    }} />
+                                    <Typography>o</Typography>
+                                    <DarkGreenButton text="Regístrate" action={() => {
+                                        navigate('/login', { state: { from: 'checkout', plans: quantities, step: 5 } })
+                                    }} />
+                                </Box>
+                            )}
                         </Box>
                     }
                 </Box>
@@ -294,24 +318,47 @@ export default function PaymentPage() {
                                 textAlign: 'center',
                             }}
                         >
-                            Proceder al pago
+                            Asigne los planes a sus mascotas
                         </Typography>
 
-                        <Box
-                            sx={{
-                                flex: 1,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: 1
-                            }}
-                        >
-                            <DarkGreenButton text="Inicia sesión" action={() => {
-                                navigate('/login', { state: { from: 'checkout' } })
-                            }} />
-                            <Typography>O regístrate para continuar</Typography>
-                        </Box>
+                        {localStorage.getItem('email') && Cookies.get('authToken') ? (
+                            <Box
+                                sx={{
+                                    flex: 1,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: 1,
+                                    width: '40%'
+                                }}
+                            >
+                                <DarkGreenButton text="Continuar" action={() => {
+                                    navigate('/login', { state: { from: 'checkout', plans: quantities} })
+                                }} />
+                            </Box>
+                        ) : (
+                            <Box
+                                sx={{
+                                    flex: 1,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: 1,
+                                    width: '40%'
+                                }}
+                            >
+                                <Typography sx={{ color: 'black', fontWeight: 600 }}>Para continuar</Typography>
+                                <DarkGreenButton text="Inicia sesión" action={() => {
+                                    navigate('/login', { state: { from: 'checkout', plans: quantities } })
+                                }} />
+                                <Typography>o</Typography>
+                                <DarkGreenButton text="Regístrate" action={() => {
+                                    navigate('/login', { state: { from: 'checkout', plans: quantities, step: 5 } })
+                                }} />
+                            </Box>
+                        )}
                     </Box>
 
                 }

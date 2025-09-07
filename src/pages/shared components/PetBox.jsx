@@ -8,7 +8,7 @@ import { TfiExchangeVertical } from "react-icons/tfi";
 import { LiaExchangeAltSolid } from "react-icons/lia";
 import { useNavigate } from "react-router-dom";
 import axios_api from "../axios";
-import { endpoints } from "../endpoints";
+import { endpoints } from "../endpoints.js";
 import Cookies from "js-cookie";
 import { FaCircle } from "react-icons/fa";
 

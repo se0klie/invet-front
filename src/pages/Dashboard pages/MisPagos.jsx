@@ -2,10 +2,6 @@ import { Box, Divider, Typography } from "@mui/material"
 import { useState, useEffect } from "react";
 import SubsBox from "../shared components/SubsBox";
 import { FacturasTable, FacturasList } from "../shared components/BillTable";
-import axios_api from "../axios";
-import { endpoints } from "../endpoints";
-import Cookies from 'js-cookie'
-import axios from "axios";
 import { MdOutlinePets } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 
@@ -51,15 +47,6 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
-
-    useEffect(() => {
-        Object.entries(validSubs)
-            .filter(([_, subObj]) => subObj.pet.subscripcion !== null && subObj.subscripcion?.estado === 0)
-            .forEach(([key, subObj]) => {
-                console.log(subObj);
-            });
-    }, [validSubs]);
-
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'flex-start', height: '100%', padding: '1.5em' }}>

@@ -6,7 +6,6 @@ import MisPagos from "./Dashboard pages/MisPagos";
 import { FaWhatsapp } from "react-icons/fa";
 import axios_api from "./axios";
 import { endpoints } from "./endpoints";
-import axios from "axios";
 import Cookies from 'js-cookie'
 
 export default function Dashboard() {

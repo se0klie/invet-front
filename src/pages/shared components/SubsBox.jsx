@@ -177,7 +177,6 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
                     Authorization: `Bearer ${Cookies.get('authToken')}`
                 }
             })
-            console.log(response)
             if (response.status === 200) {
                 setTimeout(() => {
                     setLoadingModalStep(1)

@@ -15,5 +15,7 @@ export const endpoints = {
     change_method: urlJoin(API_ROOT, 'change-card-for-subscription/'),
     cancel_sub: urlJoin(API_ROOT, 'cancel-subscription/'),
     get_pets: urlJoin(API_ROOT, 'get-mascotas/'),
-    account_data: urlJoin(API_ROOT, 'account-data/')
+    account_data: urlJoin(API_ROOT, 'account-data/'),
+    edit_pet: urlJoin(API_ROOT, 'modify-mascota/')
+    
 };

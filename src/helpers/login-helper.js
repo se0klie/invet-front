@@ -1,5 +1,5 @@
 import axios_api from '../pages/axios';
-import { endpoints } from '../pages/endpoints';
+import { endpoints } from '../pages/endpoints.js';
 import Cookies from 'js-cookie';
 
 export async function loginHelper(email, password) {
@@ -17,7 +17,6 @@ export async function loginHelper(email, password) {
                     }
                 }
             )
-            console.log(data)
             if (data.status === 201) {
                 return { response: true, token: response.data.bearer_token, data: data.data }
             }

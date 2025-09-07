@@ -7,7 +7,7 @@ import { DataInput, DataSelect } from "../../pages/shared components/Inputs";
 import { RxCross1 } from "react-icons/rx";
 import { LoadingModal } from "../shared components/Modals";
 import axios_api from '../axios'
-import { endpoints } from "../endpoints";
+import { endpoints } from "../endpoints.js";
 import { useAuth } from "../../context/AuthContext";
 import Cookies from 'js-cookie';
 import axios from "axios";
