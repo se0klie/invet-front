@@ -36,7 +36,7 @@ export default function PetPlanAssociation() {
     })
     const [pets, setPets] = useState([])
     const totalQuantity = Object.values(plans)
-        .reduce((sum, plan) => sum + plan.quantity, 1);
+        .reduce((sum, plan) => sum + plan.quantity, 0);
     const [allowContinue, setAllowContinue] = useState(false)
     const [updatedData, setUpdatedData] = useState({})
 
@@ -152,7 +152,11 @@ export default function PetPlanAssociation() {
                             }
                         }}
                         onClick={() => {
+                            console.log(pets)
+                            console.log(totalQuantity)
+                            console.log(allowContinue)
                             if (pets.length >= totalQuantity && allowContinue) {
+                                console.log("entre")
                                 setShowModal(true)
                                 setTimeout(() => {
                                     setLoadingModalStep(1)
@@ -176,10 +180,10 @@ export default function PetPlanAssociation() {
             <Snackbar open={open} onClose={() => setOpen(false)} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
                 <Alert
                     onClose={() => setOpen(false)}
-                    severity="error"
+                    severity="info"
                     sx={{ width: '100%' }}
                 >
-                    Necesitas registrar nuevas mascotas antes de continuar.
+                    Selecciona mascotas o agrega nuevas mascotas.
                 </Alert>
             </Snackbar>
             <LoadingModal text={'Cargando...'} open={showModal} setOpen={setShowModal} modalStep={loadingModalStep} />
@@ -497,7 +501,7 @@ function AsignPlanToPet({ pets, plans, setStep, setUpdatedData }) {
                                                 mt: 1,
                                             }}
                                         >
-                                            <MenuItem value="">Ninguno</MenuItem>
+                                            <MenuItem value="">Seleccionar mascota</MenuItem>
                                             {getAvailablePets(`${planKey}-${i + 1}`).map((pet) => (
                                                 <MenuItem key={pet.id} value={pet.id}>
                                                     {pet.nombre}

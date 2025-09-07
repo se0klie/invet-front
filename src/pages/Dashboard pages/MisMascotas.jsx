@@ -300,7 +300,7 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
                                         </Box>
                                     </label>
                                 </Box>
-                                <LightGreenButton text='Añadir' action={
+                                <LightGreenButton text='Guardar mascota' action={
                                     async () => {
                                         if (newPetData.birthdate && newPetData.name && newPetData.breed) {
                                             await addPet()
