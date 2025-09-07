@@ -12,7 +12,9 @@ import { endpoints } from "../endpoints.js";
 import Cookies from "js-cookie";
 import { FaCircle } from "react-icons/fa";
 
-export default function PetBox({ pets, pet, refreshDashboard, sub }) {
+const plans = { 1: 'Básico', 2: 'Premium', 3: 'Presencial' }
+
+export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
     const [transferPlan, setTransferPlan] = useState(false)
     const [cancelPlan, setCancelPlan] = useState(false)
     const [selectedPet, setSelectedPet] = useState('')
@@ -25,18 +27,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub }) {
     });
     const navigate = useNavigate();
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
-    const [planName, setPlanName] = useState('Básico')
     const planState = sub?.estado === 0 ? 'Activo' : sub?.estado === 1 ? 'Completado' : sub?.estado === 2 ? 'Suspendido' : 'Cancelado'
-
-    useEffect(() => {
-        const plan = sub?.plan_id
-        switch (plan) {
-            case 2:
-                setPlanName('Premium')
-            case 3:
-                setPlanName('Presencial')
-        }
-    }, [sub]);
 
     useEffect(() => {
         function handleResize() {
@@ -98,7 +89,6 @@ export default function PetBox({ pets, pet, refreshDashboard, sub }) {
                     }
                 }
             )
-            console.log(response)
             if (response.status === 200) {
                 refreshDashboard()
                 setTimeout(() => {
@@ -176,7 +166,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub }) {
                     <Typography variant="body1" sx={{ color: 'gray' }}>
                         <strong>Plan: </strong>
                         <Typography component="span" sx={{ color: 'black' }}>
-                            {planName || ''}
+                            {plans[sub?.plan_id] || ''}
                         </Typography>
                     </Typography>
 
@@ -319,7 +309,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub }) {
                                     Plan:
                                 </Typography>
                                 <Typography variant="body2" sx={{ color: 'gray' }}>
-                                    {pet?.subscripcion === 1 ? 'Básico' : pet?.subscripcion === 2 ? 'Premium' : pet?.subscripcion === 3 ? 'Presencial' : ''}
+                                    {plans[sub?.plan_id ] || '-'}
                                 </Typography>
                             </Box>
                         </Box>
@@ -355,7 +345,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub }) {
                                                 Plan:
                                             </Typography>
                                             <Typography variant="body2" sx={{ color: 'gray' }}>
-                                                {selectedPet.plan || 'Sin plan'}
+                                                {plans[subs[selectedPet?.id]?.subscripcion?.plan_id] || 'Sin plan'}
                                             </Typography>
                                         </Box>
                                     </Box>
@@ -411,7 +401,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub }) {
                             width: '100%'
                         }}
                     >
-                        {selectedPet && !selectedPet.plan && (
+                        {selectedPet && !selectedPet.subscripcion_id && (
                             <YellowAlert
                                 message={`${pet?.nombre} no tendrá un plan asociado luego de esta acción.`}
                                 showIcon={false}

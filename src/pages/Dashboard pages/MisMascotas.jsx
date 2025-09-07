@@ -149,6 +149,7 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
                                 pet={pets[index]}
                                 refreshDashboard={handleRefresh}
                                 sub={subs[pet.id]?.subscripcion}
+                                subs={subs}
                             />
                         ))}
                     </Box>
@@ -246,7 +247,7 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
                             <DataSelect
                                 label={'Ciudad'}
                                 setData={setNewPetData}
-                                value={newPetData.ciudad}
+                                value={newPetData.city}
                                 formLabel={'city'}
                             />
                         </Box>
@@ -309,7 +310,6 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
                                 </Box>
                                 <LightGreenButton text='Guardar mascota' action={
                                     async () => {
-                                        console.log(newPetData)
                                         if (newPetData.birthdate && newPetData.name && newPetData.breed) {
                                             await addPet()
                                             setNewPetData({
