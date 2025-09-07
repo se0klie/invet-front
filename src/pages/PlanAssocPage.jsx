@@ -51,7 +51,7 @@ export default function PetPlanAssociation() {
         });
 
         setUpdatedData(newData);
-    }, [plans]);
+    }, []);
 
     async function fetchPets() {
         try {
@@ -64,10 +64,7 @@ export default function PetPlanAssociation() {
             return err
         }
     }
-
-    useEffect(()=> {
-        console.log(updatedData)
-    }, [updatedData])
+    
     useEffect(() => {
         fetchPets()
         const newPlans = { ...plans };
@@ -78,11 +75,11 @@ export default function PetPlanAssociation() {
             };
         }
         setPlans(newPlans);
-    }, []);
+    }, [plan_quantities]);
 
     useEffect(() => {
-        const allFilled = Object.values(updatedData).every(value => value !== "");
-        setAllowContinue(allFilled);
+        const allFilled = Object.values(updatedData).every(value => value !== "" );
+        setAllowContinue(allFilled && Object.keys(updatedData).length > 0);
     }, [updatedData]);
 
     useEffect(() => {
@@ -158,8 +155,8 @@ export default function PetPlanAssociation() {
                                         setShowModal(false)
                                         setLoadingModalStep(0)
                                         navigate('/terms-conds', { state: { pets_plans: updatedData, back_info: plan_quantities } })
-                                    }, 2500);
-                                }, 3000);
+                                    }, 2000);
+                                }, 2000);
 
                             } else {
                                 setOpen(true)
@@ -353,6 +350,9 @@ function AsignPlanToPet({ pets, plans, setStep, setUpdatedData }) {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    useEffect(()=> {
+        console.log(pets)
+    }, [pets])
     const handleSelectPet = (planKey, id) => {
         setData((prev) => {
             const newData = { ...prev };

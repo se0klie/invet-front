@@ -9,7 +9,6 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { useSnackbar } from 'notistack';
 import { DataInput, DataSelect, PasswordLabelWithTooltip } from '../shared components/Inputs';
 import { useNavigate } from 'react-router-dom';
-import { useMediaQuery, useTheme } from '@mui/material'
 import { YellowAlert } from '../shared components/Alerts';
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useLocation } from 'react-router-dom';
@@ -18,9 +17,11 @@ import { endpoints } from '../endpoints';
 import Cookies from 'js-cookie';
 import { loginHelper } from '../../helpers/login-helper';
 import { ErrorModal } from '../shared components/Modals';
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 export default function InitialState() {
-    const [currentStep, setCurrentStep] = useState(1) //1: login, 2: reset psswd, 3: confirm code, 4: changepassword, 5: register
+    const location = useLocation()
+    const [currentStep, setCurrentStep] = useState(location?.state?.step || 1) //1: login, 2: reset psswd, 3: confirm code, 4: changepassword, 5: register
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
 
     useEffect(() => {
@@ -61,28 +62,23 @@ function Login({ setStep }) {
     const handleTogglePassword = () => setShowPassword((prev) => !prev);
     const navigate = useNavigate()
     const [fromCheckout, setFromCheckout] = useState(location.state?.from === 'checkout' || false)
+    const plans = location?.state?.plans
     const [openErrorModal, setOpenErrorModal] = useState(false)
     const [loginErrorMessage, setLoginErrorMessage] = useState('')
     const { login, user } = useAuth()
-    const plans = location?.state?.plans
 
     useEffect(() => {
         if (location.state?.from === 'checkout') {
             setFromCheckout(true)
         }
-
         if (user?.email || (localStorage.getItem('email') && localStorage.getItem('cedula') && Cookies.get('authToken'))) {
             if (fromCheckout) {
                 navigate('/identify-pet', { state: { plans } })
-            } else{
+            } else {
                 navigate('/dashboard')
             }
         }
     }, [])
-
-    useEffect(() => {
-        console.log(fromCheckout)
-    }, [fromCheckout])
 
     async function handleLogin() {
         try {
@@ -100,7 +96,7 @@ function Login({ setStep }) {
                 })
 
                 if (fromCheckout) {
-                    navigate('/identify-pet', { state: { plans: location.state?.plans } })
+                    navigate('/identify-pet', { state: { plans } })
                 } else {
                     navigate('/dashboard')
                 }
@@ -118,6 +114,25 @@ function Login({ setStep }) {
         <Box
             className='content-box1'
         >
+            <Box sx={{ position: "absolute", top: 16, left: 16 }}>
+                <Button
+                    startIcon={<ArrowBackIcon />}
+                    variant="text"
+                    color="secondary"
+                    sx={{
+                        fontWeight: 500,
+                        textTransform: "none",
+                        fontSize: "0.9rem",
+                        "&:hover": {
+                            backgroundColor: "rgba(255,255,255,0.1)", // sutil hover
+                        },
+                        color: 'var(--darkgreen-color)'
+                    }}
+                    onClick={() => { navigate('/') }}
+                >
+                    Página principal
+                </Button>
+            </Box>
             <Box
                 className='content-box2'
             >
@@ -430,6 +445,7 @@ function Register({ setStep, currentStep }) {
     })
     const isMobile = window.innerWidth <= 1000
     const navigate = useNavigate()
+    const location = useLocation()
     const [formStep, setFormStep] = useState(0);
     const [errors, setErrors] = useState({})
     const [hasErrors, setHasErrors] = useState(false)
@@ -438,12 +454,14 @@ function Register({ setStep, currentStep }) {
         message: '',
         severity: 'success',
     });
-    const fromCheckout = location?.state?.from === 'checkout' || false
+    const {login} = useAuth()
+    const [fromCheckout, setFromCheckout] = useState(location?.state?.from === 'checkout' || false)
     const groupedFields = [
         ['idnumber', 'firstNames', 'lastNames', 'email', 'phone'],
         ['city', 'address'],
         ['password', 'repeatedpassword'],
     ]
+    const plans = location?.state?.plans
 
     const registerFields = [
         {
@@ -506,8 +524,6 @@ function Register({ setStep, currentStep }) {
 
     async function registerUser() {
         try {
-            console.log("formData:", formData);
-
             const response = await axios_api.post(
                 endpoints.create_user,
                 {
@@ -521,7 +537,6 @@ function Register({ setStep, currentStep }) {
 
                 },
             );
-            console.log("response:", response);
             return response.status;
         } catch (err) {
             console.error("API call failed:", err);
@@ -570,7 +585,6 @@ function Register({ setStep, currentStep }) {
                 hasErrors = true;
             }
         });
-        console.log('newerrors:', newErrors);
         setErrors(newErrors);
         return !hasErrors;
     }
@@ -583,8 +597,6 @@ function Register({ setStep, currentStep }) {
 
         for (let item of group) {
             const value = formData[item] || '';
-            console.log("checking item:", item, "value:", formData[item]);
-
             if (!value) {
                 setErrors(prev => ({
                     ...prev,
@@ -606,7 +618,7 @@ function Register({ setStep, currentStep }) {
                     [item]: 'Cédula no válida.',
                 }));
                 hasErrors = true;
-            } else if (item === 'phone' && value.length < 10) {
+            } else if (item === 'phone' && value.length !== 10) {
                 setErrors(prev => ({
                     ...prev,
                     [item]: 'Celular inválido.',
@@ -652,9 +664,12 @@ function Register({ setStep, currentStep }) {
         }
         return !hasErrors;
     }
+
     useEffect(() => {
-        console.log(errors, formData)
-    }, [formData, errors])
+        if (location.state?.from === 'checkout') {
+            setFromCheckout(true)
+        }
+    }, [])
 
     return (
         <Box
@@ -752,7 +767,6 @@ function Register({ setStep, currentStep }) {
                             size={25}
                             color={formStep === groupedFields.length - 1 && '#ccc'}
                             onClick={() => {
-                                console.log(verifyFieldsPhone(formStep))
                                 if (verifyFieldsPhone(formStep)) {
                                     if (formStep !== groupedFields.length - 1) {
                                         setFormStep(formStep + 1)
@@ -774,11 +788,25 @@ function Register({ setStep, currentStep }) {
                     } else {
                         isValid = verifyFieldsPhone(formStep)
                     }
-                    console.log('isvalid:', isValid);
                     if (isValid) {
                         const response = await registerUser()
                         if (response === 201 || response === 200) {
-                            navigate('/welcomePage')
+                            if (fromCheckout) {
+                                const request = await loginHelper(formData.email, formData.password);
+
+                                if (request.response) {
+                                    login({
+                                        nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
+                                        email: request.data.email,
+                                        cedula: request.data.cedula
+                                    })
+                                    navigate('/identify-pet', { state: { plans } })
+                                }
+
+                            } else {
+                                navigate('/welcomePage')
+                            }
+
                         } else {
                             setSnackbar({
                                 open: true,

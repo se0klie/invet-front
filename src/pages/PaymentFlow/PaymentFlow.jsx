@@ -10,7 +10,7 @@ import { YellowAlert } from "../shared components/Alerts";
 export default function PaymentPage() {
     const [bill, setBill] = useState({
         number: '0',
-        items: { basic: { label: 'básico', subtext: '10 meses', quantity: 0, value: 121 }, premium: { label: 'premium', subtext: '12 meses', quantity: 0, value: 219.6 }, onsite: { label: 'presencial', subtext: '12 meses', quantity: 0, value: 289.8 } }
+        items: { basic: { label: 'básico', subtext: '10 meses', quantity: 0, value: 11 }, premium: { label: 'premium', subtext: '12 meses', quantity: 0, value: 18.3 }, onsite: { label: 'presencial', subtext: '12 meses', quantity: 0, value: 24.15 } }
     })
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     const [anchorEl, setAnchorEl] = useState(null);
@@ -262,7 +262,10 @@ export default function PaymentPage() {
                                 <DarkGreenButton text="Inicia sesión" action={() => {
                                     navigate('/login', { state: { from: 'checkout', plans: quantities } })
                                 }} />
-                                <Typography>O regístrate para continuar</Typography>
+                                <Typography>o</Typography>
+                                <DarkGreenButton text="Regístrate" action={() => {
+                                    navigate('/login', { state: { from: 'checkout', plans: quantities, step: 5 } })
+                                }} />
                             </Box>
                         </Box>
                     }

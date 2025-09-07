@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate, useLocation } from "react-router-dom";
+import Cookies from "js-cookie";
 
 export default function MainflowNavbar() {
   const location = useLocation()
@@ -132,19 +133,39 @@ export default function MainflowNavbar() {
             >
               Nuestros servicios
             </Button>
-            <Button
-              variant="contained"
-              sx={{
-                backgroundColor: "#2C7A7B",
-                borderRadius: "10px",
-                textTransform: "none",
-                fontWeight: "bold",
-                "&:hover": { backgroundColor: "#256d6d" },
-              }}
-              onClick={() => { navigate('/login') }}
-            >
-              Ingresar
-            </Button>
+            {localStorage.getItem('email') && Cookies.get('authToken') ? (
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: "#2C7A7B",
+                  borderRadius: "10px",
+                  textTransform: "none",
+                  fontWeight: "bold",
+                  "&:hover": { backgroundColor: "#256d6d" },
+                  gap: 1
+                }}
+                onClick={() => { navigate('/dashboard') }}
+              >
+                <Box sx={{ borderRadius: '100%', backgroundColor: 'var(--darkgreen-color)', width: '30px', height: '30px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <img src="/images/user-avatar.png" alt="User Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
+                </Box>
+                <Typography sx={{ fontWeight: 600, fontSize: '0.9rem' }}>Mi perfil</Typography>
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: "#2C7A7B",
+                  borderRadius: "10px",
+                  textTransform: "none",
+                  fontWeight: "bold",
+                  "&:hover": { backgroundColor: "#256d6d" },
+                }}
+                onClick={() => { navigate('/login') }}
+              >
+                Ingresar
+              </Button>
+            )}
           </Box>
         )}
 
@@ -170,9 +191,39 @@ export default function MainflowNavbar() {
             <Button variant="contained" sx={{ backgroundColor: "#2C7A7B" }} onClick={() => { navigate('/ourService') }}>
               Nuestros servicios
             </Button>
-            <Button variant="contained" sx={{ backgroundColor: "#2C7A7B" }} onClick={() => navigate('/login')}>
-              Ingresar
-            </Button>
+            {localStorage.getItem('email') && Cookies.get('authToken') ? (
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: "#2C7A7B",
+                  borderRadius: "3px",
+                  textTransform: "none",
+                  fontWeight: "bold",
+                  "&:hover": { backgroundColor: "#256d6d" },
+                  gap: 1
+                }}
+                onClick={() => { navigate('/dashboard') }}
+              >
+                <Box sx={{ borderRadius: '100%', backgroundColor: 'var(--darkgreen-color)', width: '30px', height: '30px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <img src="/images/user-avatar.png" alt="User Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
+                </Box>
+                <Typography sx={{ fontSize: '0.9rem', textTransform: 'uppercase' }}>Mi perfil</Typography>
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: "#2C7A7B",
+                  borderRadius: "3px",
+                  textTransform: "none",
+                  fontWeight: "bold",
+                  "&:hover": { backgroundColor: "#256d6d" },
+                }}
+                onClick={() => { navigate('/login') }}
+              >
+                Ingresar
+              </Button>
+            )}
           </Box>
         </Box>
       </Drawer>

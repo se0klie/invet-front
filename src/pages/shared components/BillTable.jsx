@@ -118,7 +118,7 @@ export const FacturasList = ({ rows }) => {
                 Descargar todo
             </Button>
             {rows.map((row, i) => (
-                <Box>
+                <Box key={i}>
                     <Box key={i} sx={{ display: 'flex', flexDirection: 'column', padding: '1rem', backgroundColor: 'white', marginY: '1rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                             <   Typography variant="body1" sx={{ fontWeight: 'bold', color: 'var(--darkgreen-color)' }}>

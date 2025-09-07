@@ -39,10 +39,6 @@ export default function PetBox({ pets, pet, refreshDashboard, sub }) {
     }, [sub]);
 
     useEffect(() => {
-        console.log(pet, sub)
-    }, [sub, pet])
-
-    useEffect(() => {
         function handleResize() {
             setIsMobile(window.innerWidth <= 1024);
         }

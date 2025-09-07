@@ -71,7 +71,6 @@ export function CancelPlanModal({ open, setOpen, petName, onCancel }) {
                         }}
                         onClick={() => {
                             onCancel()
-                            console.log('CancelPlanModal onCancel prop:', onCancel);
                         }}>
                         Aceptar
                     </Button>

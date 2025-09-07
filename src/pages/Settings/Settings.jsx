@@ -130,7 +130,6 @@ export default function Settings() {
                 }
             );
             const userData = response.data[0];
-            console.log(userData)
             if (userData) {
                 setFormData({
                     firstNames: userData.nombres,

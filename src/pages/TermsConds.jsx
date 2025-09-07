@@ -288,6 +288,12 @@ export default function TermsAndConds() {
                                 items: [
                                     "Al marcar la casilla correspondiente y enviar el formulario, el cliente declara que acepta plenamente estos Términos y Condiciones, constituyendo un contrato digital válido conforme a la Ley de Comercio Electrónico, Firmas Electrónicas y Mensajes de Datos del Ecuador."
                                 ]
+                            },
+                            {
+                                title: '⁠Política de cobros y avisos.',
+                                items: [
+                                    "En caso de que el débito automático a la tarjeta registrada por el cliente no pueda efectuarse, se enviarán hasta tres notificaciones de alerta al correo o número de contacto proporcionado.Si, luego de estos intentos, el pago no se realiza, el plan preventivo será suspendido temporalmente por un período de 14 días calendario, durante el cual el cliente podrá regularizar su situación mediante el pago pendiente.Si al finalizar dicho período no se registra el pago correspondiente, el plan será cancelado de manera definitiva, perdiendo el cliente los beneficios asociados."
+                                ]
                             }
                         ].map((section, index) => (
                             <Typography key={index} sx={{ color: 'black', mb: 2 }}>

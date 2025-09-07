@@ -25,10 +25,6 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     const [modalMessage, setModalMessage] = useState('Cargando...')
 
-
-    useEffect(() => {
-        console.log(pets, subs)
-    }, [pets, subs])
     async function addPet() {
         setModalMessage('Agregando mascota...')
         setAddPetModal(false)

@@ -41,7 +41,7 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
                 subs: true
             }))
         }
-        console.log(subscriptions)
+
     }, [pets, subscriptions])
 
     useEffect(() => {
@@ -51,6 +51,14 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    useEffect(() => {
+        Object.entries(validSubs)
+            .filter(([_, subObj]) => subObj.pet.subscripcion !== null && subObj.subscripcion?.estado === 0)
+            .forEach(([key, subObj]) => {
+                console.log(subObj);
+            });
+    }, [validSubs]);
 
 
     return (
@@ -105,10 +113,10 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
                             }}
                         >
                             {Object.entries(validSubs)
-                                .filter(([_, subObj]) => subObj.pet.subscripcion !== null)
+                                .filter(([_, subObj]) => subObj.pet.subscripcion !== null && subObj.subscripcion.estado === 0)
                                 .map(([key, subObj]) => (
                                     <Box key={key} sx={{ scrollSnapAlign: 'start', flex: '0 0 auto' }}>
-                                        <SubsBox pet={subObj.pet} subData={subObj.subscripcion} />
+                                        <SubsBox pet={subObj.pet} subData={subObj.subscripcion} handleRefresh={handleRefresh} />
                                     </Box>
                                 ))}
                         </Box>

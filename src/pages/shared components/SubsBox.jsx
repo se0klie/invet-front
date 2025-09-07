@@ -8,17 +8,18 @@ import { endpoints } from "../endpoints";
 import Cookies from 'js-cookie'
 import { RxCross1 } from "react-icons/rx";
 
-export default function SubsBox({ pet, subData }) {
+export default function SubsBox({ pet, subData, handleRefresh }) {
     const [price, setPrice] = useState('$11.00');
     const [planName, setPlan] = useState('Básico')
     const [nextPayDate, setNextPayDate] = useState("")
     const [cancelPlan, setCancelPlan] = useState(false)
-    const [loadingModal, setLoadingModal] = useState()
+    const [loadingModal, setLoadingModal] = useState(false)
     const [loadingModalStep, setLoadingModalStep] = useState(0)
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     const [changePaymentMethod, setChangePaymentMethod] = useState(false)
     const [socket, setSocket] = useState(null)
     const [modalText, setModalText] = useState('Generando cambios...')
+    const [selectedPlan, setSelectedPlan] = useState(-1)
 
     function getNextDateForDay() {
         const start_date = subData.fecha_inicio;
@@ -74,7 +75,6 @@ export default function SubsBox({ pet, subData }) {
             const pay_date = getNextDateForDay()
             setNextPayDate(pay_date)
         }
-
     }, [subData])
 
     useEffect(() => {
@@ -102,7 +102,6 @@ export default function SubsBox({ pet, subData }) {
             } else {
                 if (data.authorizationCode) {
                     const card_data = data.cardToken;
-                    console.log(card_data)
                     handlePaymentMethodChange(card_data)
                     ws.close()
                 }
@@ -144,6 +143,7 @@ export default function SubsBox({ pet, subData }) {
                 }
             )
             if (response.status === 200) {
+                handleRefresh()
                 setTimeout(() => {
                     setLoadingModalStep(1)
                     setTimeout(() => {
@@ -165,16 +165,39 @@ export default function SubsBox({ pet, subData }) {
         }
     }
 
-    function onCancelPlan() {
+    async function onCancelPlan() {
         setCancelPlan(false)
         setLoadingModal(true)
-        setTimeout(() => {
-            setLoadingModalStep(1)
+        try {
+            const response = await axios_api.patch(endpoints.cancel_sub, {
+                email: localStorage.getItem('email'),
+                subscripcion_id: selectedPlan
+            }, {
+                headers: {
+                    Authorization: `Bearer ${Cookies.get('authToken')}`
+                }
+            })
+            console.log(response)
+            if (response.status === 200) {
+                setTimeout(() => {
+                    setLoadingModalStep(1)
+                    setTimeout(() => {
+                        setLoadingModal(false)
+                        setLoadingModalStep(0)
+                    }, 2500);
+                }, 3000);
+            }
+        } catch (err) {
+            console.error('Error in PATCH cancel sub', err)
             setTimeout(() => {
-                setLoadingModalStep(0)
-                setLoadingModal(false)
-            }, 2000);
-        }, 3000);
+                setLoadingModalStep(-1)
+                setTimeout(() => {
+                    setLoadingModal(false)
+                    setLoadingModalStep(0)
+                }, 2500);
+            }, 3000);
+            return err
+        }
     }
 
     return (
@@ -195,7 +218,11 @@ export default function SubsBox({ pet, subData }) {
 
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '0.5rem' }}>
                 <Box sx={{ width: isMobile ? '40%' : '50%', display: 'flex', gap: '0.3rem' }}>
-                    <CancelButton action={() => setCancelPlan(true)} text={`${isMobile ? 'Cancelar' : 'Cancelar plan'}`} />
+                    <CancelButton action={() => {
+                        setSelectedPlan(subData.id)
+                        setCancelPlan(true)
+                    }
+                    } text={`${isMobile ? 'Cancelar' : 'Cancelar plan'}`} />
                 </Box>
                 <Box sx={{ textAlign: 'left' }}>
                     <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#007780' }}>
