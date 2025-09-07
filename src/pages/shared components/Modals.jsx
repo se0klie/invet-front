@@ -59,7 +59,7 @@ export function CancelPlanModal({ open, setOpen, petName, onCancel }) {
                         }}
 
                     >
-                        Cancelar
+                        Regresar
                     </Button>
                     <Button
                         sx={{

@@ -7,6 +7,7 @@ import axios_api from "../axios";
 import { endpoints } from "../endpoints";
 import Cookies from 'js-cookie'
 import { RxCross1 } from "react-icons/rx";
+import { BorderColor } from "@mui/icons-material";
 
 export default function SubsBox({ pet, subData, handleRefresh }) {
     const [price, setPrice] = useState('$11.00');
@@ -19,6 +20,7 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
     const [changePaymentMethod, setChangePaymentMethod] = useState(false)
     const [modalText, setModalText] = useState('Generando cambios...')
     const [selectedPlan, setSelectedPlan] = useState(-1)
+    const [isCanceled, setIsCanceled] = useState(false);
 
     function getNextDateForDay() {
         const start_date = subData.fecha_inicio;
@@ -86,7 +88,7 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
 
     function openSocket() {
         const ws = new WebSocket("wss://backendinvet.com/ws/notifications/");
-            ws.onopen = () => {
+        ws.onopen = () => {
             const payload = {
                 session_token: Cookies.get('authToken'),
                 email: localStorage.getItem('email')
@@ -163,6 +165,8 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
                 }
             })
             if (response.status === 200) {
+                setIsCanceled(true);
+                handleRefresh()
                 setTimeout(() => {
                     setLoadingModalStep(1)
                     setTimeout(() => {
@@ -202,11 +206,14 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
 
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: '0.5rem' }}>
                 <Box sx={{ width: isMobile ? '40%' : '50%', display: 'flex', gap: '0.3rem' }}>
-                    <CancelButton action={() => {
-                        setSelectedPlan(subData.id)
-                        setCancelPlan(true)
-                    }
-                    } text={`${isMobile ? 'Cancelar' : 'Cancelar plan'}`} />
+                    {isCanceled ? (
+                        <CancelButton text="Cancelado" disabled sx={{ backgroundColor: 'gray', cursor: 'default' }} />
+                    ) : (
+                        <CancelButton action={() => {
+                            setSelectedPlan(subData.id);
+                            setCancelPlan(true);
+                        }} text={`${isMobile ? 'Cancelar' : 'Cancelar plan'}`} />
+                    )}
                 </Box>
                 <Box sx={{ textAlign: 'left' }}>
                     <Typography variant="body2" sx={{ fontWeight: 'bold', color: '#007780' }}>
