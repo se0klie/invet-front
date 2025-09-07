@@ -19,7 +19,7 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
     const [addPetModal, setAddPetModal] = useState(false);
     const [loadingModal, setLoadingModal] = useState(false)
     const [loadingModalStep, setLoadingModalStep] = useState(0)
-    const [newPetData, setNewPetData] = useState({ image: undefined, name: '', breed: '', birthdate: '', city: '' });
+    const [newPetData, setNewPetData] = useState({ image: undefined, nombre: '', raza: '', fecha_nacimiento: '', ciudad: '' });
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     const [modalMessage, setModalMessage] = useState('Cargando...')
 
@@ -310,12 +310,13 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
                                 </Box>
                                 <LightGreenButton text='Guardar mascota' action={
                                     async () => {
-                                        if (newPetData.birthdate && newPetData.name && newPetData.breed) {
+                                        console.log(newPetData)
+                                        if (newPetData.nombre && newPetData.raza && newPetData.fecha_nacimiento) {
                                             await addPet()
                                             setNewPetData({
-                                                name: '',
-                                                breed: '',
-                                                birthdate: '',
+                                                nombre: '',
+                                                raza: '',
+                                                fecha_nacimiento: '',
                                                 image: undefined
                                             })
                                         } else {

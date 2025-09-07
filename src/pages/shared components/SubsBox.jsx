@@ -17,7 +17,6 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
     const [loadingModalStep, setLoadingModalStep] = useState(0)
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     const [changePaymentMethod, setChangePaymentMethod] = useState(false)
-    const [socket, setSocket] = useState(null)
     const [modalText, setModalText] = useState('Generando cambios...')
     const [selectedPlan, setSelectedPlan] = useState(-1)
 
@@ -85,16 +84,15 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const sendWebsocketMessage = (message) => {
-        if (socket && socket.readyState === WebSocket.OPEN) {
-            socket.send(message);
-        }
-    };
-
-    useEffect(() => {
+    function openSocket() {
         const ws = new WebSocket("wss://backendinvet.com/ws/notifications/");
-        setSocket(ws);
-
+            ws.onopen = () => {
+            const payload = {
+                session_token: Cookies.get('authToken'),
+                email: localStorage.getItem('email')
+            };
+            ws.send(JSON.stringify(payload));
+        };
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data)
             if (data?.data?.url) {
@@ -107,25 +105,12 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
                 }
             }
         };
-
         ws.onerror = (error) => {
             console.error("WebSocket error:", error);
         };
-
-        return () => {
-            ws.close();
-        };
-    }, []);
-
-    function openSocket() {
         setModalText('Esperando respuesta...')
         setChangePaymentMethod(false)
         setLoadingModal(true)
-        const payload = {
-            session_token: Cookies.get('authToken'),
-            email: localStorage.getItem('email')
-        }
-        sendWebsocketMessage(JSON.stringify(payload))
     }
 
     async function handlePaymentMethodChange(card) {

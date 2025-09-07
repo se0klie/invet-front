@@ -13,7 +13,6 @@ export default function TermsAndConds() {
     const data_received = location?.state?.pets_plans; //has pets id and new plans
     const [openModal, setOpenModal] = useState(false)
     const [stepModal, setStepModal] = useState(0)
-    const [socket, setSocket] = useState(null)
     const [canAccept, setCanAccept] = useState(false);
     const [accepted, setAccepted] = useState(false);
     const termsRef = useRef(null);
@@ -28,11 +27,11 @@ export default function TermsAndConds() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const sendWebsocketMessage = (message) => {
-        if (socket && socket.readyState === WebSocket.OPEN) {
-            socket.send(message);
+    useEffect(() => {
+        for (const [plan, pet_id] of Object.entries(data_received)) {
+            console.log(plan.split('-')[0], data_received[plan])
         }
-    };
+    }, [])
 
     async function handleSubscription(token) {
         try {
@@ -82,13 +81,16 @@ export default function TermsAndConds() {
         }
     }
 
-    useEffect(() => {
+
+    function openSocket() {
         const ws = new WebSocket("wss://backendinvet.com/ws/notifications/");
-
         ws.onopen = () => {
-            setSocket(ws);
+            const payload = {
+                session_token: Cookies.get('authToken'),
+                email: localStorage.getItem('email')
+            };
+            ws.send(JSON.stringify(payload));
         };
-
         ws.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
@@ -98,35 +100,19 @@ export default function TermsAndConds() {
                 } else if (data.authorizationCode) {
                     const card_data = data.cardToken;
                     handleSubscription(card_data);
-
                     ws.close();
                 }
             } catch (err) {
                 console.error("Error parsing message:", err);
             }
         };
-
         ws.onerror = (error) => {
             console.error("❌ WebSocket error:", error);
         };
-
         ws.onclose = (e) => {
             console.warn("⚠️ WebSocket closed:", e.code, e.reason);
         };
-
-        return () => {
-            ws.close();
-        };
-    }, []);
-
-
-    function openSocket() {
         setOpenModal(true)
-        const payload = {
-            session_token: Cookies.get('authToken'),
-            email: localStorage.getItem('email')
-        }
-        sendWebsocketMessage(JSON.stringify(payload))
     }
 
     useEffect(() => {
