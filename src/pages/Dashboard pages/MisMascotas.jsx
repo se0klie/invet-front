@@ -8,9 +8,7 @@ import { RxCross1 } from "react-icons/rx";
 import { LoadingModal } from "../shared components/Modals";
 import axios_api from '../axios'
 import { endpoints } from "../endpoints.js";
-import { useAuth } from "../../context/AuthContext";
 import Cookies from 'js-cookie';
-import axios from "axios";
 export default function MisMascotas({ pets, subs, handleRefresh }) {
     const [snackbar, setSnackbar] = useState({
         open: false,
@@ -34,10 +32,10 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
             const payload = {
                 email: localStorage.getItem('email'),
                 subscripcion_id: null,
-                nombre: newPetData.nombre,
-                raza: newPetData.raza,
-                fecha_nacimiento: newPetData.fecha_nacimiento,
-                ciudad: newPetData.ciudad,
+                nombre: newPetData.name,
+                raza: newPetData.breed,
+                fecha_nacimiento: newPetData.birthdate,
+                ciudad: newPetData.city,
                 url_foto: newPetData.image || ''
             }
             const response = await axios_api.post(
@@ -158,7 +156,16 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
             </Box>
             <Modal
                 open={addPetModal}
-                onClose={() => setAddPetModal(false)}
+                onClose={() => {
+                    setNewPetData({
+                        image: undefined,
+                        name: '',
+                        breed: '',
+                        birthdate: '',
+                        city: ''
+                    })
+                    setAddPetModal(false)
+                }}
                 disableEnforceFocus={true}
             >
                 <Box
@@ -217,7 +224,7 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
                                 setData={setNewPetData}
                                 value={newPetData.nombre}
                                 type={'text'}
-                                formLabel={'nombre'}
+                                formLabel={'name'}
                             />
                             <DataInput
                                 label={'Raza'}
@@ -225,14 +232,14 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
                                 setData={setNewPetData}
                                 value={newPetData.raza}
                                 type={'text'}
-                                formLabel={'raza'}
+                                formLabel={'breed'}
                             />
 
                             <DataInput
                                 label={'Fecha de nacimiento'}
                                 setData={setNewPetData}
                                 value={newPetData.fecha_nacimiento}
-                                formLabel={'fecha_nacimiento'}
+                                formLabel={'birthdate'}
                                 type={'date'}
                             />
 
@@ -240,7 +247,7 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
                                 label={'Ciudad'}
                                 setData={setNewPetData}
                                 value={newPetData.ciudad}
-                                formLabel={'ciudad'}
+                                formLabel={'city'}
                             />
                         </Box>
 
@@ -302,6 +309,7 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
                                 </Box>
                                 <LightGreenButton text='Añadir' action={
                                     async () => {
+                                        console.log(newPetData)
                                         if (newPetData.birthdate && newPetData.name && newPetData.breed) {
                                             await addPet()
                                             setNewPetData({

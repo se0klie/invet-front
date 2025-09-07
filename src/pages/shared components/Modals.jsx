@@ -24,14 +24,12 @@ export function CancelPlanModal({ open, setOpen, petName, onCancel }) {
                     width: { xs: '70%', md: 650, lg: 700 },
                 }}
             >
-                <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                         <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'var(--error-color)' }}>
                             Cancelar plan
                         </Typography>
-                        <Typography variant="body1" sx={{ color: 'black' }}>
-                            Se eliminará el plan asociado a <strong>{petName}</strong>, ¿deseas continuar?
-                        </Typography>
+
                     </Box>
 
                     <RxCross1
@@ -39,6 +37,9 @@ export function CancelPlanModal({ open, setOpen, petName, onCancel }) {
                         onClick={() => setOpen(false)}
                     />
                 </Box>
+                <Typography variant="body1" sx={{ color: 'black', py: '0.8rem' }}>
+                    Se cancelará el plan asociado a <strong>{petName}</strong> y ya no podrás acceder a los servicios sujetos al plan, esta acción es irreversible y no está sometida a reembolsos, ¿deseas continuar?
+                </Typography>
                 <Box sx={{
                     display: 'flex',
                     alignItems: 'center',

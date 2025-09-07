@@ -574,16 +574,16 @@ function Register({ setStep, currentStep }) {
                 const hasNumber = /[0-9]/.test(value);
 
                 if (!isLongEnough) {
-                    newErrors[key] = 'La contraseña debe tener al menos 8 caracteres.';
+                    newErrors[key] = 'Incluye al menos 8 caracteres.';
                     hasErrors = true;
                 } else if (!hasUppercase) {
-                    newErrors[key] = 'La contraseña debe tener al menos una mayúscula.';
+                    newErrors[key] = 'Incluye al menos una mayúscula.';
                     hasErrors = true;
                 } else if (!hasLowercase) {
-                    newErrors[key] = 'La contraseña debe tener al menos una minúscula.';
+                    newErrors[key] = 'Incluye al menos una minúscula.';
                     hasErrors = true;
                 } else if (!hasNumber) {
-                    newErrors[key] = 'La contraseña debe tener al menos un número.';
+                    newErrors[key] = 'Incluye al menos un número.';
                     hasErrors = true;
                 }
             } else if (key === 'repeatedpassword' && formData.password !== value) {
@@ -638,13 +638,13 @@ function Register({ setStep, currentStep }) {
 
                 let message = '';
                 if (!isLongEnough) {
-                    message = 'La contraseña debe tener al menos 8 caracteres.';
+                    message = 'Incluye al menos 8 caracteres.';
                 } else if (!hasUppercase) {
-                    message = 'La contraseña debe tener al menos una mayúscula.';
+                    message = 'Incluye al menos una mayúscula.';
                 } else if (!hasLowercase) {
-                    message = 'La contraseña debe tener al menos una minúscula.';
+                    message = 'Incluye al menos una minúscula.';
                 } else if (!hasNumber) {
-                    message = 'La contraseña debe tener al menos un número.';
+                    message = 'Incluye al menos un número.';
                 }
 
                 if (message) {

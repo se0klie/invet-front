@@ -14,8 +14,6 @@ export default function PetPlanAssociation() {
     const [step, setStep] = useState(0)
     const [open, setOpen] = useState(false);
     const location = useLocation()
-    const [showModal, setShowModal] = useState(false)
-    const [loadingModalStep, setLoadingModalStep] = useState(0)
     const plan_quantities = location?.state?.plans;
     const [plans, setPlans] = useState({
         basic: {
@@ -36,11 +34,17 @@ export default function PetPlanAssociation() {
     })
     const [pets, setPets] = useState([])
     const totalQuantity = Object.values(plans)
-        .reduce((sum, plan) => sum + plan.quantity, 1);
+        .reduce((sum, plan) => sum + plan.quantity, 0);
     const [allowContinue, setAllowContinue] = useState(false)
     const [updatedData, setUpdatedData] = useState({})
 
-
+    const getAvailablePets = (currentKey) => {
+        return pets.filter(
+            (pet) =>
+                pet.subscripcion_id === null &&
+                (!chosenPetIds.includes(pet.id))
+        );
+    };
 
     useEffect(() => {
         const newData = {};
@@ -88,7 +92,8 @@ export default function PetPlanAssociation() {
     }, [updatedData]);
 
     useEffect(() => {
-        if (step === 0 && pets.length < totalQuantity) {
+        const availablePets = getAvailablePets()
+        if (step === 0 && availablePets.length < totalQuantity || availablePets.length === 0) {
             setOpen(true)
             setTimeout(() => {
                 setOpen(false)
@@ -153,16 +158,7 @@ export default function PetPlanAssociation() {
                         }}
                         onClick={() => {
                             if (pets.length >= totalQuantity && allowContinue) {
-                                setShowModal(true)
-                                setTimeout(() => {
-                                    setLoadingModalStep(1)
-                                    setTimeout(() => {
-                                        setShowModal(false)
-                                        setLoadingModalStep(0)
-                                        navigate('/terms-conds', { state: { pets_plans: updatedData, back_info: plan_quantities } })
-                                    }, 2000);
-                                }, 2000);
-
+                                navigate('/terms-conds', { state: { pets_plans: updatedData, back_info: plan_quantities } })
                             } else {
                                 setOpen(true)
                             }
@@ -182,7 +178,6 @@ export default function PetPlanAssociation() {
                     Necesitas registrar nuevas mascotas antes de continuar.
                 </Alert>
             </Snackbar>
-            <LoadingModal text={'Cargando...'} open={showModal} setOpen={setShowModal} modalStep={loadingModalStep} />
 
         </Box>
     )
@@ -382,7 +377,6 @@ function AsignPlanToPet({ pets, plans, setStep, setUpdatedData }) {
             ...data
         }));
     }, [data]);
-
 
     const getAvailablePets = (currentKey) => {
         const chosenPetIds = Object.values(data).filter(
