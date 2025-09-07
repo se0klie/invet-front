@@ -152,11 +152,7 @@ export default function PetPlanAssociation() {
                             }
                         }}
                         onClick={() => {
-                            console.log(pets)
-                            console.log(totalQuantity)
-                            console.log(allowContinue)
                             if (pets.length >= totalQuantity && allowContinue) {
-                                console.log("entre")
                                 setShowModal(true)
                                 setTimeout(() => {
                                     setLoadingModalStep(1)
