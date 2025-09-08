@@ -20,9 +20,10 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
     const [modalText, setModalText] = useState('Generando cambios...')
     const [selectedPlan, setSelectedPlan] = useState(-1)
     const [isCanceled, setIsCanceled] = useState(false);
-    const [cardNumber, setCardNumber] = useState('9999')
+    const [cardProvider, setCardProvider] = useState('')
+    const [cardNumber, setCardNumber] = useState('')
 
-    async function fetchCardLastNumbers() {
+    async function fetchCardInfo() {
         try {
             const response = await axios_api.post(endpoints.fetch_card_data,
                 {
@@ -37,9 +38,15 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
             if (response.status === 200 || response.status === 201) {
                 const cards = response.data.data[0].cards
                 const cardData = cards.find(obj => obj.token === subData.token_tarjeta) || null;
-                const card_num = cardData.number.slice(-4)
-                setCardNumber(card_num)
-                return true
+                if (cardData){
+                    console.log(cardData)
+                    const card_num = cardData.number.slice(-4)
+                    const card_provider = cardData.card_brand
+                    setCardNumber(card_num)
+                    setCardProvider(card_provider)
+
+                    return true
+                }
             }
         } catch (err) {
             console.err('error fetching C token', err)
@@ -104,7 +111,7 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
     }, [subData])
 
     useEffect(() => {
-        fetchCardLastNumbers()
+        fetchCardInfo()
         function handleResize() {
             setIsMobile(window.innerWidth <= 1024);
         }
@@ -238,7 +245,8 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
                         <CancelButton action={() => {
                             setSelectedPlan(subData.id);
                             setCancelPlan(true);
-                        }} text={`${isMobile ? 'Cancelar' : 'Cancelar plan'}`} />
+                        }} text={`${isMobile ? 'Cancelar' : 'Cancelar plan'}`}
+                        className="bg-red-600 hover:bg-red-700 text-white font-bold" />
                     )}
                 </Box>
                 <Box sx={{ textAlign: 'left' }}>
@@ -322,10 +330,13 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
                             </Typography>
 
                             <TextField
-                                value={`**** **** **** ${cardNumber.slice(-4)}`}
+                                value={`${cardProvider.toUpperCase()} ****${cardNumber.slice(-4)}`}
                                 size="small"
-                                variant="outlined"
+                                variant="standard"
                                 disabled
+                                InputProps={{
+                                    disableUnderline: true,
+                                }}
                                 sx={{
                                     width: 200,
                                     "& .MuiInputBase-input.Mui-disabled": {

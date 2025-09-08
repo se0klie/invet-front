@@ -62,12 +62,15 @@ export function CancelPlanModal({ open, setOpen, petName, onCancel }) {
                     </Button>
                     <Button
                         sx={{
-                            backgroundColor: 'var(--error-fill-color)',
+                            backgroundColor: 'var(--error-color)', // solid red
                             color: 'white',
                             fontWeight: 600,
-                            paddingX: '2rem',
-                            paddingY: '0.5rem',
-                            borderRadius: '0.5rem'
+                            px: '2rem',
+                            py: '0.5rem',
+                            borderRadius: '0.5rem',
+                            '&:hover': {
+                                backgroundColor: 'rgba(200, 0, 0, 1)', // darker red on hover
+                            },
                         }}
                         onClick={() => {
                             onCancel()

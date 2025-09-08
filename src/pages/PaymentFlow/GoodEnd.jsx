@@ -63,7 +63,8 @@ export default function GoodEnd() {
 
                 <Box sx={{ display: 'flex', gap: 1, flexDirection: 'column', width: isMobile ? '90%' : '40%' }}>
                     <Typography variant="h6" sx={{ color: 'black' }}>
-                        Podrás acceder a información de
+                        ¡Estamos redireccionándote a tu perfil! <br/>
+                        Si no se muestra dentro de poco, podrás acceder a información de
                         tu suscripción <span style={{ fontWeight: 600, textDecoration: 'underline', cursor: 'pointer' }} onClick={() => navigate('/login')}>iniciando sesión</span>
                     </Typography>
                     <Box sx={{ backgroundColor: '#F8F8F8', display: 'flex', px: 3, py: 2, borderRadius: 3, gap: 2, alignItems: 'center', justifyContent: 'center', boxShadow: 1 }}>
