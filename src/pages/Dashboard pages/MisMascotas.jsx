@@ -32,12 +32,13 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
             const payload = {
                 email: localStorage.getItem('email'),
                 subscripcion_id: null,
-                nombre: newPetData.name,
-                raza: newPetData.breed,
-                fecha_nacimiento: newPetData.birthdate,
-                ciudad: newPetData.city,
+                nombre: newPetData.nombre,
+                raza: newPetData.raza,
+                fecha_nacimiento: newPetData.fecha_nacimiento,
+                ciudad: newPetData.ciudad,
                 url_foto: newPetData.image || ''
             }
+            console.log(payload)
             const response = await axios_api.post(
                 endpoints.add_pet,
                 payload,
@@ -225,7 +226,7 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
                                 setData={setNewPetData}
                                 value={newPetData.nombre}
                                 type={'text'}
-                                formLabel={'name'}
+                                formLabel={'nombre'}
                             />
                             <DataInput
                                 label={'Raza'}
@@ -233,22 +234,22 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
                                 setData={setNewPetData}
                                 value={newPetData.raza}
                                 type={'text'}
-                                formLabel={'breed'}
+                                formLabel={'raza'}
                             />
 
                             <DataInput
                                 label={'Fecha de nacimiento'}
                                 setData={setNewPetData}
                                 value={newPetData.fecha_nacimiento}
-                                formLabel={'birthdate'}
+                                formLabel={'fecha_nacimiento'}
                                 type={'date'}
                             />
 
                             <DataSelect
                                 label={'Ciudad'}
                                 setData={setNewPetData}
-                                value={newPetData.city}
-                                formLabel={'city'}
+                                value={newPetData.ciudad}
+                                formLabel={'ciudad'}
                             />
                         </Box>
 
@@ -266,7 +267,7 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
                                 Subir foto (opcional)
                             </Typography>
                             <Box
-                                sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '1rem' }}>
+                                sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '1rem', alignItems: 'center'}}>
                                 <Box>
                                     <input
                                         type="file"
@@ -310,7 +311,6 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
                                 </Box>
                                 <LightGreenButton text='Guardar mascota' action={
                                     async () => {
-                                        console.log(newPetData)
                                         if (newPetData.nombre && newPetData.raza && newPetData.fecha_nacimiento) {
                                             await addPet()
                                             setNewPetData({
