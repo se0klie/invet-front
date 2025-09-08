@@ -186,11 +186,12 @@ export default function Settings() {
                     }
                 }
             );
-
-            if (response.status === 202) {
+            console.log(response.status)
+            if ([200, 201, 202].includes(response.status)) {
                 setTimeout(() => {
                     setLoadingModalStep(1)
                     setTimeout(() => {
+                        console.log("entre")
                         setLoadingModal(false);
                         setLoadingModalStep(0);
                     }, 2500);
@@ -232,7 +233,7 @@ export default function Settings() {
 
             login({email: editableData.email, name:  editableData.firstNames.split(' ')[0] + ' ' + editableData.lastNames.split(' ')[0]})
             localStorage.setItem('nombre', editableData.firstNames.split(' ')[0] + ' ' + editableData.lastNames.split(' ')[0])
-            if (response.status === 202) {
+            if ([200, 201, 202].includes(response.status)) {
                 setTimeout(() => {
                     setIsEditable(false);
                     setLoadingModalStep(1);

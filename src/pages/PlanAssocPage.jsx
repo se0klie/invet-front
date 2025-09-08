@@ -307,7 +307,7 @@ function AddPet({ pets, plans, setStep, refresh }) {
                         </Box>
                     </label>
                     <Box sx={{ mt: 3 }}>
-                        <LightGreenButton text='Añadir' action={
+                        <LightGreenButton text='Guardar mascota' action={
                             async () => {
                                 const hasErrors = checkErrors()
                                 if (!hasErrors) {
