@@ -711,7 +711,6 @@ function Register({ setStep, currentStep }) {
                         ? registerFields.filter(field => groupedFields[formStep]?.includes(field.formData))
                         : registerFields
                     ).map((field, i) => {
-                        // Determine the input component
                         let InputComponent;
                         if (field.formData === 'city') {
                             InputComponent = (
@@ -835,7 +834,6 @@ function Register({ setStep, currentStep }) {
                         if (response === 201 || response === 200) {
                             if (fromCheckout) {
                                 const request = await loginHelper(formData.email, formData.password);
-
                                 if (request.response) {
                                     login({
                                         nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
@@ -844,11 +842,9 @@ function Register({ setStep, currentStep }) {
                                     })
                                     navigate('/identify-pet', { state: { plans } })
                                 }
-
                             } else {
                                 navigate('/welcomePage')
                             }
-
                         } else {
                             setSnackbar({
                                 open: true,

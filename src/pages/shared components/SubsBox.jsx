@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { CancelButton, LightGreenButton } from "../../pages/shared components/Buttons";
-import { Box, Button, Tooltip, Typography, Modal } from "@mui/material";
+import { Box, Button, Tooltip, Typography, Modal, TextField } from "@mui/material";
 import { CancelPlanModal, LoadingModal } from "./Modals";
 import { IoCardSharp } from "react-icons/io5";
 import axios_api from "../axios";
 import { endpoints } from "../endpoints";
 import Cookies from 'js-cookie'
 import { RxCross1 } from "react-icons/rx";
-import { BorderColor } from "@mui/icons-material";
 
 export default function SubsBox({ pet, subData, handleRefresh }) {
     const [price, setPrice] = useState('$11.00');
@@ -21,6 +20,32 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
     const [modalText, setModalText] = useState('Generando cambios...')
     const [selectedPlan, setSelectedPlan] = useState(-1)
     const [isCanceled, setIsCanceled] = useState(false);
+    const [cardNumber, setCardNumber] = useState('9999')
+
+    async function fetchCardLastNumbers() {
+        try {
+            const response = await axios_api.post(endpoints.fetch_card_data,
+                {
+                    email: localStorage.getItem('email')
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get('authToken')}`
+                    }
+                }
+            )
+            if (response.status === 200 || response.status === 201) {
+                const cards = response.data.data[0].cards
+                const cardData = cards.find(obj => obj.token === subData.token_tarjeta) || null;
+                const card_num = cardData.number.slice(-4)
+                setCardNumber(card_num)
+                return true
+            }
+        } catch (err) {
+            console.err('error fetching C token', err)
+            return err
+        }
+    }
 
     function getNextDateForDay() {
         const start_date = subData.fecha_inicio;
@@ -79,6 +104,7 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
     }, [subData])
 
     useEffect(() => {
+        fetchCardLastNumbers()
         function handleResize() {
             setIsMobile(window.innerWidth <= 1024);
         }
@@ -279,8 +305,39 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
                                 onClick={() => setChangePaymentMethod(false)}
                             />
                         </Box>
+
+                        <Box
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 2,
+                                mt: 2,
+                            }}
+                        >
+                            <Typography
+                                variant="body1"
+                                sx={{ fontWeight: 500, color: "text.secondary"}}
+                            >
+                                Método de pago registrado para {pet.nombre}:
+                            </Typography>
+
+                            <TextField
+                                value={`**** **** **** ${cardNumber.slice(-4)}`}
+                                size="small"
+                                variant="outlined"
+                                disabled
+                                sx={{
+                                    width: 200,
+                                    "& .MuiInputBase-input.Mui-disabled": {
+                                        WebkitTextFillColor: "var(--blackinput-color)", 
+                                    },
+                                }}
+                            />
+                        </Box>
+
+
                         <Typography variant="body2" sx={{ color: 'gray', textAlign: 'left' }}>
-                            Nosotros no almacenamos los datos de tu tarjeta, por lo que serás redirigido a un entorno seguro para cambiar tu método de pago. <strong>Por favor, no cierres esta ventana hasta terminar el proceso.</strong>
+                            Serás redirigido a un entorno seguro para cambiar tu método de pago. <strong>Por favor, no cierres esta ventana hasta terminar el proceso.</strong>
                         </Typography>
                         <Box sx={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', flexDirection: isMobile ? 'column' : "row" }}>
                             <Button
