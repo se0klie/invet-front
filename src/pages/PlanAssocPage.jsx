@@ -38,11 +38,10 @@ export default function PetPlanAssociation() {
     const [allowContinue, setAllowContinue] = useState(false)
     const [updatedData, setUpdatedData] = useState({})
 
-    const getAvailablePets = (currentKey) => {
+    const getAvailablePets = () => {
         return pets.filter(
             (pet) =>
-                pet.subscripcion_id === null &&
-                (!chosenPetIds.includes(pet.id))
+                pet.subscripcion_id === null
         );
     };
 
@@ -87,7 +86,7 @@ export default function PetPlanAssociation() {
     }, [plan_quantities]);
 
     useEffect(() => {
-        const allFilled = Object.values(updatedData).every(value => value !== "");
+        const allFilled = Object.values(updatedData).every(value => value !== "") && Object.keys(updatedData).length === totalQuantity;
         setAllowContinue(allFilled && Object.keys(updatedData).length > 0);
     }, [updatedData]);
 
@@ -186,6 +185,7 @@ export default function PetPlanAssociation() {
 function AddPet({ pets, plans, setStep, refresh }) {
     const totalQuantity = Object.values(plans)
         .reduce((sum, plan) => sum + plan.quantity, 0);
+    const [open, setOpen] = useState(false)
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     const [numMascotasNecesarias, setNumMascotasNecesarias] = useState(totalQuantity - pets.length)
     const [petData, setPetData] = useState({
@@ -265,7 +265,7 @@ function AddPet({ pets, plans, setStep, refresh }) {
                     <DataInput label="Fecha estimada de nacimiento" type="date" setData={setPetData} formLabel={'fecha_nacimiento'} value={petData.fecha_nacimiento || ''} errorMessage={errors['fecha_nacimiento']} />
                     <DataSelect label="Ciudad" value={petData.ciudad} setData={setPetData} errorMessage={errors['ciudad']} formLabel={'ciudad'} />
                 </Box>
-                <Box sx={{ mx: 1 }}>
+                <Box sx={{ mx: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <input
                         type="file"
                         accept="image/*"
@@ -312,31 +312,50 @@ function AddPet({ pets, plans, setStep, refresh }) {
                                 const hasErrors = checkErrors()
                                 if (!hasErrors) {
                                     if (numMascotasNecesarias <= 1) {
+                                        setShowModal(true)
                                         await addPet(localStorage.getItem('email'), petData.nombre, petData.raza, petData.fecha_nacimiento, petData.ciudad, petData.url)
                                         await refresh()
-                                        setShowModal(true)
                                         setTimeout(() => {
                                             setStep(0)
                                         }, 3000);
                                     } else {
                                         await addPet(localStorage.getItem('email'), petData.nombre, petData.raza, petData.fecha_nacimiento, petData.ciudad, petData.url)
-                                        await refresh()
-                                        setNumMascotas(numMascotasNecesarias - 1)
+                                        setShowModal(true)
+                                        setPetData({
+                                            nombre: '',
+                                            raza: '',
+                                            fecha_nacimiento: '',
+                                            ciudad: '',
+                                            url: undefined
+                                        })
+                                        setTimeout(() => {
+                                            setShowModal(false)
+                                        }, 2000);
+                                        setNumMascotasNecesarias(numMascotasNecesarias - 1)
+                                        setOpen(true)
                                     }
-
                                 }
                             }
                         } />
                     </Box>
                 </Box>
             </Box>
-            <LoadingModal text={numMascotasNecesarias === 1 ? 'Guardando registro(s)...' : 'Cargando siguiente mascota...'} open={showModal} setOpen={setShowModal} modalStep={loadingModalStep} />
+            <Snackbar open={open} onClose={() => setOpen(false)} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+                <Alert
+                    onClose={() => setOpen(false)}
+                    severity="success"
+                    sx={{ width: '100%' }}
+                >
+                    Mascota añadida correctamente.
+                </Alert>
+            </Snackbar>
+            <LoadingModal text={numMascotasNecesarias === 1 ? 'Guardando registro(s)...' : 'Cargando...'} open={showModal} setOpen={setShowModal} modalStep={loadingModalStep} />
         </Box>
     )
 }
-function AsignPlanToPet({ pets, plans, setStep, setUpdatedData }) {
+function AsignPlanToPet({ pets, plans, setStep, setUpdatedData, updatedData }) {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
-    const [data, setData] = useState(
+    const [data, setData] = useState(updatedData ||
         Object.values(plans)
             .filter(plan => plan.quantity > 0)
             .reduce((acc, plan) => {
@@ -366,17 +385,13 @@ function AsignPlanToPet({ pets, plans, setStep, setUpdatedData }) {
             });
 
             newData[planKey] = id;
+            setUpdatedData((prevUpdated) => ({
+                ...prevUpdated,
+                [planKey]: id
+            }));
             return newData;
         });
     };
-
-
-    useEffect(() => {
-        setUpdatedData(prev => ({
-            ...prev,
-            ...data
-        }));
-    }, [data]);
 
     const getAvailablePets = (currentKey) => {
         const chosenPetIds = Object.values(data).filter(
