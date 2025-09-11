@@ -33,7 +33,7 @@ export default function TermsAndConds() {
         }
     }, [])
 
-    async function handleSubscription(token) {
+    async function handleSubscription(id_tarjeta) {
         try {
             for (const [plan, pet_id] of Object.entries(data_received)) {
                 let plan_name = plan.split('-')[0]
@@ -42,7 +42,7 @@ export default function TermsAndConds() {
                     {
                         email: localStorage.getItem("email"),
                         plan_id: plan_name === "basic" ? 1 : plan_name === "premium" ? 2 : 3,
-                        token_tarjeta: token,
+                        id_tarjeta: id_tarjeta,
                     },
                     {
                         headers: {
@@ -97,8 +97,9 @@ export default function TermsAndConds() {
 
                 if (data?.data?.url) {
                     window.open(data.data.url, "_blank", "noopener,noreferrer");
-                } else if (data.authorizationCode) {
-                    const card_data = data.cardToken;
+                } else if (data.id) {
+                    const card_data = data.id;
+                    console.log(data)
                     handleSubscription(card_data);
                     ws.close();
                 }

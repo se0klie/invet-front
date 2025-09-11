@@ -186,12 +186,10 @@ export default function Settings() {
                     }
                 }
             );
-            console.log(response.status)
             if ([200, 201, 202].includes(response.status)) {
                 setTimeout(() => {
                     setLoadingModalStep(1)
                     setTimeout(() => {
-                        console.log("entre")
                         setLoadingModal(false);
                         setLoadingModalStep(0);
                     }, 2500);

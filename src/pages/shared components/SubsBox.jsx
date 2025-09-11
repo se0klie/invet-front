@@ -22,6 +22,7 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
     const [isCanceled, setIsCanceled] = useState(false);
     const [cardProvider, setCardProvider] = useState('')
     const [cardNumber, setCardNumber] = useState('')
+    const [cardHolder, setCardHolder] = useState('')
 
     async function fetchCardInfo() {
         try {
@@ -36,20 +37,21 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
                 }
             )
             if (response.status === 200 || response.status === 201) {
-                const cards = response.data.data[0].cards
-                const cardData = cards.find(obj => obj.token === subData.token_tarjeta) || null;
-                if (cardData){
-                    console.log(cardData)
+                const cards = response.data.results
+                const cardData = cards.find(obj => obj.id === subData.tarjeta_id) || null;
+                if (cardData) {
                     const card_num = cardData.number.slice(-4)
-                    const card_provider = cardData.card_brand
+                    const card_provider = cardData.provider
+                    const card_holder = cardData.holder
                     setCardNumber(card_num)
                     setCardProvider(card_provider)
+                    setCardHolder(card_holder)
 
                     return true
                 }
             }
         } catch (err) {
-            console.err('error fetching C token', err)
+            console.log('error fetching C token', err)
             return err
         }
     }
@@ -104,6 +106,7 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
     }, [planName])
 
     useEffect(() => {
+        fetchCardInfo()
         if (!nextPayDate) {
             const pay_date = getNextDateForDay()
             setNextPayDate(pay_date)
@@ -133,8 +136,8 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
             if (data?.data?.url) {
                 window.open(data.data.url, "_blank", "noopener,noreferrer");
             } else {
-                if (data.authorizationCode) {
-                    const card_data = data.cardToken;
+                if (data.id) {
+                    const card_data = data.id;
                     handlePaymentMethodChange(card_data)
                     ws.close()
                 }
@@ -154,7 +157,7 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
                 {
                     email: localStorage.getItem('email'),
                     subscripcion_id: subData.id,
-                    token_tarjeta: card
+                    id_tarjeta: card
                 },
                 {
                     headers: {
@@ -246,7 +249,7 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
                             setSelectedPlan(subData.id);
                             setCancelPlan(true);
                         }} text={`${isMobile ? 'Cancelar' : 'Cancelar plan'}`}
-                        className="bg-red-600 hover:bg-red-700 text-white font-bold" />
+                            className="bg-red-600 hover:bg-red-700 text-white font-bold" />
                     )}
                 </Box>
                 <Box sx={{ textAlign: 'left' }}>
@@ -324,26 +327,25 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
                         >
                             <Typography
                                 variant="body1"
-                                sx={{ fontWeight: 500, color: "text.secondary"}}
+                                sx={{ fontWeight: 500, color: "text.secondary" }}
                             >
                                 Método de pago registrado para {pet.nombre}:
                             </Typography>
 
-                            <TextField
-                                value={`${cardProvider.toUpperCase()} ****${cardNumber.slice(-4)}`}
-                                size="small"
-                                variant="standard"
-                                disabled
-                                InputProps={{
-                                    disableUnderline: true,
-                                }}
+                            <Box
                                 sx={{
-                                    width: 200,
-                                    "& .MuiInputBase-input.Mui-disabled": {
-                                        WebkitTextFillColor: "var(--blackinput-color)", 
-                                    },
+                                    width: 'auto',
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    fontFamily: '"Roboto Mono", monospace', // good, modern monospace
+                                    fontSize: "1rem",
+                                    letterSpacing: "0.1em", 
+                                    color: "var(--blackinput-color)",
                                 }}
-                            />
+                            >
+                                {`${cardHolder.toUpperCase()} ****${cardNumber.slice(-4)} ${cardProvider.toUpperCase()}`}
+                            </Box>
                         </Box>
 
 

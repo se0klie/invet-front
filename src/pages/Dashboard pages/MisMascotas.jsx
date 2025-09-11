@@ -38,7 +38,6 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
                 ciudad: newPetData.ciudad,
                 url_foto: newPetData.image || ''
             }
-            console.log(payload)
             const response = await axios_api.post(
                 endpoints.add_pet,
                 payload,
