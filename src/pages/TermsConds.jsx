@@ -27,12 +27,6 @@ export default function TermsAndConds() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    useEffect(() => {
-        for (const [plan, pet_id] of Object.entries(data_received)) {
-            console.log(plan.split('-')[0], data_received[plan])
-        }
-    }, [])
-
     async function handleSubscription(id_tarjeta) {
         try {
             for (const [plan, pet_id] of Object.entries(data_received)) {
@@ -50,7 +44,7 @@ export default function TermsAndConds() {
                         },
                     }
                 );
-                if (response.status === 201) {
+                if (response.status === 201 || response.status === 200) {
                     const req_petUpd = await axios_api.patch(endpoints.edit_pet,
                         {
                             email: localStorage.getItem('email'),
@@ -81,7 +75,6 @@ export default function TermsAndConds() {
         }
     }
 
-
     function openSocket() {
         const ws = new WebSocket("wss://backendinvet.com/ws/notifications/");
         ws.onopen = () => {
@@ -99,7 +92,6 @@ export default function TermsAndConds() {
                     window.open(data.data.url, "_blank", "noopener,noreferrer");
                 } else if (data.id) {
                     const card_data = data.id;
-                    console.log(data)
                     handleSubscription(card_data);
                     ws.close();
                 }

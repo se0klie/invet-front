@@ -51,7 +51,7 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
                 }
             }
         } catch (err) {
-            console.log('error fetching C token', err)
+            console.error('error fetching C token', err)
             return err
         }
     }
