@@ -12,7 +12,6 @@ import { endpoints } from '../endpoints'
 import { useAuth } from '../../context/AuthContext';
 export default function Settings() {
     const [formData, setFormData] = useState({})
-    const [editableData, setEditableData] = useState(formData)
     const [passwords, setPasswords] = useState({
         newpassword: '',
         oldpassword: ''
@@ -25,9 +24,11 @@ export default function Settings() {
     const [loadingModalStep, setLoadingModalStep] = useState(0)
     const [passwordErrors, setPasswordErrors] = useState({})
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+    const [settingsFields, setSettingsFields] = useState([])
     const [showErrorModal, setShowErrorModal] = useState(false)
     const { login } = useAuth()
     useEffect(() => {
+        fetchUserData()
         function handleResize() {
             setIsMobile(window.innerWidth <= 1024);
         }
@@ -35,57 +36,52 @@ export default function Settings() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const settingsFields = [
-        {
-            label: 'Nombres completos',
-            placeholder: 'Maria Alejandra',
-            formData: 'firstNames',
-            type: 'text'
-        },
-        {
-            label: 'Apellidos completos',
-            placeholder: 'Lopez Diaz',
-            formData: 'lastNames',
-            type: 'text'
-        },
-        {
-            label: 'E-mail',
-            placeholder: 'maalejandra@gmail.com',
-            formData: 'email',
-            type: 'text'
-
-        },
-        {
-            label: 'Celular',
-            placeholder: '0975537486',
-            formData: 'phone',
-            type: 'number'
-        },
-        {
-            label: 'Cédula',
-            placeholder: '06394653748',
-            formData: 'idnumber',
-            type: 'number'
-        },
-        {
-            label: 'Dirección',
-            placeholder: 'Ej. Samanes 5 Mz. 2 villa 3',
-            formData: 'address'
-        },
-    ]
+    useEffect(() => {
+        console.log(formData)
+        let settings = [
+            {
+                label: 'Nombres completos',
+                value: formData.firstNames,
+                formData: 'firstNames',
+                type: 'text'
+            },
+            {
+                label: 'Apellidos completos',
+                value: formData.lastNames,
+                formData: 'lastNames',
+                type: 'text'
+            },
+            {
+                label: 'Celular',
+                value: formData.phone,
+                formData: 'phone',
+                type: 'text'
+            },
+            {
+                label: 'Cédula',
+                value: formData.idnumber,
+                formData: 'idnumber',
+                type: 'text'
+            },
+            {
+                label: 'Dirección',
+                value: formData.address,
+                formData: 'address',
+                type: 'text'
+            },
+        ]
+        setSettingsFields(settings)
+    }, [formData])
 
     function verifyFields() {
         let hasErrors = false;
         const newErrors = {};
         const cleanedData = {}
-        Object.entries(editableData).forEach(([key, value]) => {
+        Object.entries(formData).forEach(([key, value]) => {
             if (value === '') {
                 return
             }
-            else if (key === 'email' && !value.includes('@')) {
-                newErrors[key] = 'Correo inválido.';
-                hasErrors = true;
-            } else if (key === 'idnumber' && value.length !== 10) {
+            else if (key === 'idnumber' && value.length !== 10) {
                 newErrors[key] = 'Cédula no válida.';
                 hasErrors = true;
             } else if (key === 'phone' && value.length < 10) {
@@ -114,39 +110,30 @@ export default function Settings() {
             cleanedData[key] = value;
         });
 
-        setEditableData(cleanedData);
+        setFormData(cleanedData);
         setErrors(newErrors);
         return !hasErrors;
     }
 
     async function fetchUserData() {
+        console.log("xd")
         try {
             const response = await axios.get(
-                `${import.meta.env.VITE_BACKEND_URL}db/clientes/?email=${localStorage.getItem('email')}`,
+                `${import.meta.env.VITE_BACKEND_URL}api/account-data/`,
                 {
                     headers: {
                         Authorization: `Bearer ${Cookies.get('authToken')}`
                     }
                 }
             );
-            const userData = response.data[0];
+            const userData = response.data;
             if (userData) {
                 setFormData({
                     firstNames: userData.nombres,
                     lastNames: userData.apellidos,
-                    email: userData.email,
                     phone: userData.celular,
                     idnumber: userData.cedula,
-                    address: userData.direccion_facturacion,
-                    password: userData.password
-                })
-                setEditableData({
-                    firstNames: userData.nombres,
-                    lastNames: userData.apellidos,
-                    email: userData.email,
-                    phone: userData.celular,
-                    idnumber: userData.cedula,
-                    address: userData.direccion_facturacion,
+                    address: userData.direccion_facturacion
                 })
                 return 200;
             } else {
@@ -159,14 +146,8 @@ export default function Settings() {
         }
     }
 
-    useEffect(() => {
-        if (formData && Object.keys(formData).length === 0) {
-            fetchUserData()
-        }
-    }, [formData, editableData]);
-
-
     async function handleEditPassword() {
+        const newErrors = {}
         try {
             setSavePassword(false)
             setLoadingModal(true)
@@ -175,10 +156,8 @@ export default function Settings() {
                 endpoints.update_data,
                 {
                     cedula: formData.idnumber,
-                    email: formData.email,
-                    celular: formData.phone,
-                    direccion_facturacion: formData.address,
-                    password: passwords.newpassword
+                    new_password: passwords.newpassword,
+                    current_password: passwords.oldpassword
                 },
                 {
                     headers: {
@@ -186,15 +165,17 @@ export default function Settings() {
                     }
                 }
             );
-            if ([200, 201, 202].includes(response.status)) {
+            setTimeout(() => {
+                setLoadingModalStep(1)
                 setTimeout(() => {
-                    setLoadingModalStep(1)
-                    setTimeout(() => {
-                        setLoadingModal(false);
-                        setLoadingModalStep(0);
-                    }, 2500);
-                }, 2000);
-            }
+                    setLoadingModal(false);
+                    setLoadingModalStep(0);
+                }, 2500);
+            }, 2000);
+            setPasswords({
+                newpassword: '',
+                oldpassword: ''
+            })
         } catch (err) {
             console.error('Error in POST API', err)
             setTimeout(() => {
@@ -204,6 +185,10 @@ export default function Settings() {
                     setLoadingModalStep(0);
                 }, 2500);
             }, 2000);
+            if (err.response.status == 422) {
+                newErrors['oldpassword'] = 'La contraseña es incorrecta.';
+                setPasswordErrors(newErrors);
+            }
             return
         }
     }
@@ -215,12 +200,11 @@ export default function Settings() {
             const response = await axios_api.patch(
                 endpoints.update_data,
                 {
-                    cedula: editableData.idnumber,
-                    email: editableData.email,
-                    celular: editableData.phone,
-                    direccion_facturacion: editableData.address,
-                    nombres: editableData.firstNames,
-                    apellidos: editableData.lastNames
+                    cedula: formData.idnumber,
+                    celular: formData.phone,
+                    direccion_facturacion: formData.address,
+                    nombres: formData.firstNames,
+                    apellidos: formData.lastNames
                 },
                 {
                     headers: {
@@ -229,8 +213,8 @@ export default function Settings() {
                 }
             );
 
-            login({email: editableData.email, name:  editableData.firstNames.split(' ')[0] + ' ' + editableData.lastNames.split(' ')[0]})
-            localStorage.setItem('nombre', editableData.firstNames.split(' ')[0] + ' ' + editableData.lastNames.split(' ')[0])
+            login({ email: localStorage.getItem('email'), name: formData.firstNames.split(' ')[0] + ' ' + formData.lastNames.split(' ')[0] })
+            localStorage.setItem('nombre', formData.firstNames.split(' ')[0] + ' ' + formData.lastNames.split(' ')[0])
             if ([200, 201, 202].includes(response.status)) {
                 setTimeout(() => {
                     setIsEditable(false);
@@ -277,9 +261,6 @@ export default function Settings() {
                     newErrors[key] = 'La contraseña debe tener al menos un número.';
                     hasErrors = true;
                 }
-            } else if (key === 'oldpassword' && passwords.oldpassword !== formData.password) {
-                newErrors[key] = 'La contraseña es incorrecta.';
-                hasErrors = true;
             }
         })
 
@@ -334,27 +315,32 @@ export default function Settings() {
                                 gap: '1rem',
                             }}
                         >
+                            <Box>
+                                <Typography fontWeight="bold">Correo electrónico</Typography>
+                                <Typography>{localStorage.getItem('email')}</Typography>
+                            </Box>
+
+
                             {settingsFields.map((field, i) => (
                                 field.formData === 'city' ? (
                                     <DataSelect
                                         key={i}
                                         label="Ciudad"
-                                        setData={setEditableData}
+                                        setData={setFormData}
                                         formLabel="city"
-                                        value={editableData.city}
-                                        errorMessage={errors.city}
+                                        value={formData.city ?? ""}
+                                        errorMessage={errors.city ?? ""}
                                         isDisabled={!isEditable}
                                     />
                                 ) : (
                                     <DataInput
                                         key={i}
-                                        label={field.label}
-                                        placeholder={field.placeholder}
-                                        setData={setEditableData}
-                                        formLabel={field.formData}
-                                        type={field.type}
-                                        errorMessage={errors[field.formData]}
-                                        value={editableData[field.formData]}
+                                        label={field.label ?? ""}
+                                        setData={setFormData}
+                                        formLabel={field.formData ?? ""}
+                                        type={field.type ?? ""}
+                                        errorMessage={errors[field.formData] ?? ""}
+                                        value={formData[field.formData] ?? ""}
                                         disabled={!isEditable}
                                     />
                                 )
@@ -365,7 +351,7 @@ export default function Settings() {
                             {isEditable && (
                                 <Box sx={{ width: '40%' }}>
                                     <GrayButton text="Cancelar" action={() => {
-                                        setEditableData(formData)
+                                        setFormData(formData)
                                         setIsEditable(false)
                                     }} />
                                 </Box>
@@ -493,7 +479,7 @@ export default function Settings() {
                             variant="outlined"
                             onClick={() => {
                                 setSaveChanges(false)
-                                setEditableData(formData)
+                                setFormData(formData)
                             }}
                             sx={{
                                 borderColor: 'var(--dark-gray-color)',
@@ -515,7 +501,7 @@ export default function Settings() {
                             }}
                             onClick={() => {
                                 handleSaveFields()
-                                setFormData(editableData)
+                                setFormData(formData)
                             }}
                         >
                             Guardar

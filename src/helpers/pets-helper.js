@@ -2,13 +2,10 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import axios_api from "../pages/axios";
 import { endpoints } from '../pages/endpoints.js'
-export async function getPets(email) {
+export async function getPets() {
     try {
-        const response = await axios_api.post(
+        const response = await axios_api.get(
             endpoints.get_pets,
-            {
-                email: localStorage.getItem('email')
-            },
             {
                 headers: {
                     Authorization: `Bearer ${Cookies.get('authToken')}`
@@ -26,10 +23,9 @@ export async function getPets(email) {
     }
 }
 
-export async function addPet(email, nombre, raza, fecha, ciudad, url) {
+export async function addPet(nombre, raza, fecha, ciudad, url) {
     try {
         const payload = {
-            email: localStorage.getItem('email') || email,
             subscripcion_id: null,
             nombre: nombre,
             raza: raza,

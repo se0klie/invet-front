@@ -26,10 +26,7 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
 
     async function fetchCardInfo() {
         try {
-            const response = await axios_api.post(endpoints.fetch_card_data,
-                {
-                    email: localStorage.getItem('email')
-                },
+            const response = await axios_api.get(endpoints.fetch_card_data,
                 {
                     headers: {
                         Authorization: `Bearer ${Cookies.get('authToken')}`
@@ -126,8 +123,7 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
         const ws = new WebSocket("wss://backendinvet.com/ws/notifications/");
         ws.onopen = () => {
             const payload = {
-                session_token: Cookies.get('authToken'),
-                email: localStorage.getItem('email')
+                session_token: Cookies.get('authToken')
             };
             ws.send(JSON.stringify(payload));
         };
@@ -155,9 +151,8 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
         try {
             const response = await axios_api.patch(endpoints.change_method,
                 {
-                    email: localStorage.getItem('email'),
                     subscripcion_id: subData.id,
-                    id_tarjeta: card
+                    tarjeta_id: card
                 },
                 {
                     headers: {
@@ -193,7 +188,6 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
         setLoadingModal(true)
         try {
             const response = await axios_api.patch(endpoints.cancel_sub, {
-                email: localStorage.getItem('email'),
                 subscripcion_id: selectedPlan
             }, {
                 headers: {

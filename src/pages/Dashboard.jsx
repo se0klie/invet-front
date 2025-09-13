@@ -28,10 +28,7 @@ export default function Dashboard() {
 
     async function fetchSubs() {
         try {
-            const response = await axios_api.post(endpoints.get_subs,
-                {
-                    email: localStorage.getItem('email')
-                },
+            const response = await axios_api.get(endpoints.get_subs,
                 {
                     headers: {
                         Authorization: `Bearer ${Cookies.get('authToken')}`
@@ -69,11 +66,8 @@ export default function Dashboard() {
 
     async function getPets() {
         try {
-            const response = await axios_api.post(
+            const response = await axios_api.get(
                 endpoints.get_pets,
-                {
-                    email: localStorage.getItem('email')
-                },
                 {
                     headers: {
                         Authorization: `Bearer ${Cookies.get('authToken')}`

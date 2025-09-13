@@ -42,7 +42,6 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
         setLoadingModal(true)
         try {
             const response = await axios_api.patch(endpoints.cancel_sub, {
-                email: localStorage.getItem('email'),
                 subscripcion_id: sub.id
             }, {
                 headers: {
@@ -79,7 +78,6 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
         try {
             const response = await axios_api.post(endpoints.exchange_plans,
                 {
-                    email: localStorage.getItem('email'),
                     mascota_1_id: pet.id,
                     mascota_2_id: selectedPet.id
                 },

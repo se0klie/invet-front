@@ -59,7 +59,7 @@ export default function PetPlanAssociation() {
 
     async function fetchPets() {
         try {
-            const response = await getPets(localStorage.getItem('email'))
+            const response = await getPets()
             if (response.length > 0) {
                 setPets(response)
             }
@@ -313,13 +313,13 @@ function AddPet({ pets, plans, setStep, refresh }) {
                                 if (!hasErrors) {
                                     if (numMascotasNecesarias <= 1) {
                                         setShowModal(true)
-                                        await addPet(localStorage.getItem('email'), petData.nombre, petData.raza, petData.fecha_nacimiento, petData.ciudad, petData.url)
+                                        await addPet(petData.nombre, petData.raza, petData.fecha_nacimiento, petData.ciudad, petData.url)
                                         await refresh()
                                         setTimeout(() => {
                                             setStep(0)
                                         }, 3000);
                                     } else {
-                                        await addPet(localStorage.getItem('email'), petData.nombre, petData.raza, petData.fecha_nacimiento, petData.ciudad, petData.url)
+                                        await addPet(petData.nombre, petData.raza, petData.fecha_nacimiento, petData.ciudad, petData.url)
                                         setShowModal(true)
                                         setPetData({
                                             nombre: '',

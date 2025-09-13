@@ -30,7 +30,6 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
         setLoadingModal(true)
         try {
             const payload = {
-                email: localStorage.getItem('email'),
                 subscripcion_id: null,
                 nombre: newPetData.nombre,
                 raza: newPetData.raza,

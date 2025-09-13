@@ -27,16 +27,15 @@ export default function TermsAndConds() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    async function handleSubscription(id_tarjeta) {
+    async function handleSubscription(tarjeta_id) {
         try {
             for (const [plan, pet_id] of Object.entries(data_received)) {
                 let plan_name = plan.split('-')[0]
                 const response = await axios_api.post(
                     endpoints.create_sub,
                     {
-                        email: localStorage.getItem("email"),
                         plan_id: plan_name === "basic" ? 1 : plan_name === "premium" ? 2 : 3,
-                        id_tarjeta: id_tarjeta,
+                        tarjeta_id: tarjeta_id,
                     },
                     {
                         headers: {
@@ -47,7 +46,6 @@ export default function TermsAndConds() {
                 if (response.status === 201 || response.status === 200) {
                     const req_petUpd = await axios_api.patch(endpoints.edit_pet,
                         {
-                            email: localStorage.getItem('email'),
                             mascota_id: pet_id,
                             subscripcion_id: response.data.id
                         },
@@ -79,8 +77,7 @@ export default function TermsAndConds() {
         const ws = new WebSocket("wss://backendinvet.com/ws/notifications/");
         ws.onopen = () => {
             const payload = {
-                session_token: Cookies.get('authToken'),
-                email: localStorage.getItem('email')
+                session_token: Cookies.get('authToken')
             };
             ws.send(JSON.stringify(payload));
         };
