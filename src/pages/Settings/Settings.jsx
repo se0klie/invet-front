@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Divider, Button, Typography, Modal } from '@mui/material';
+import { Box, Divider, Button, Typography, Modal, TextField, Tooltip } from '@mui/material';
 import { DataInput, PasswordLabelWithTooltip, DataSelect } from '../shared components/Inputs';
 import { FaPencilAlt, FaRegSave } from "react-icons/fa";
 import { CancelButton, GrayButton, LightGreenButton } from '../shared components/Buttons';
@@ -25,7 +25,7 @@ export default function Settings() {
     const [passwordErrors, setPasswordErrors] = useState({})
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     const [settingsFields, setSettingsFields] = useState([])
-    const [showErrorModal, setShowErrorModal] = useState(false)
+
     const { login } = useAuth()
     useEffect(() => {
         fetchUserData()
@@ -37,7 +37,6 @@ export default function Settings() {
     }, []);
 
     useEffect(() => {
-        console.log(formData)
         let settings = [
             {
                 label: 'Nombres completos',
@@ -116,7 +115,6 @@ export default function Settings() {
     }
 
     async function fetchUserData() {
-        console.log("xd")
         try {
             const response = await axios.get(
                 `${import.meta.env.VITE_BACKEND_URL}api/account-data/`,
@@ -145,7 +143,7 @@ export default function Settings() {
             return err.status || 500;
         }
     }
-
+    
     async function handleEditPassword() {
         const newErrors = {}
         try {
@@ -317,7 +315,22 @@ export default function Settings() {
                         >
                             <Box>
                                 <Typography fontWeight="bold">Correo electrónico</Typography>
-                                <Typography>{localStorage.getItem('email')}</Typography>
+                                <Tooltip title={'No puedes realizar cambios a tu correo electrónico.'} placement="top" arrow>
+                                    <TextField
+                                        fullWidth
+                                        sx={{
+                                            "& .MuiInputBase-root": {
+                                                padding: "4px 8px",
+                                                fontSize: "0.875rem",
+                                            },
+                                            "& input": {
+                                                padding: "6px 8px",
+                                            },
+                                        }}
+                                        placeholder={localStorage.getItem('email')}
+                                        disabled
+                                    />
+                                </Tooltip>
                             </Box>
 
 
@@ -350,9 +363,10 @@ export default function Settings() {
                         <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: 2, marginLeft: 'auto' }}>
                             {isEditable && (
                                 <Box sx={{ width: '40%' }}>
-                                    <GrayButton text="Cancelar" action={() => {
+                                    <GrayButton text="Cancelar" action={async () => {
                                         setFormData(formData)
                                         setIsEditable(false)
+                                        await fetchUserData();
                                     }} />
                                 </Box>
                             )}
@@ -478,8 +492,7 @@ export default function Settings() {
                         <Button
                             variant="outlined"
                             onClick={() => {
-                                setSaveChanges(false)
-                                setFormData(formData)
+                                setSaveChanges(false);
                             }}
                             sx={{
                                 borderColor: 'var(--dark-gray-color)',
