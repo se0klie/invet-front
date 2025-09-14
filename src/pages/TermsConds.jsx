@@ -1,4 +1,4 @@
-import { Box, Typography, Checkbox, FormControl, FormHelperText, FormControlLabel, Divider, Button } from "@mui/material";
+import { Box, Typography, Checkbox, FormControl, Link, FormHelperText, Modal, Divider, Button } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useRef } from "react";
 import { useNavigate, useLocation, data } from "react-router-dom";
@@ -6,11 +6,12 @@ import { LoadingModal } from "./shared components/Modals";
 import Cookies from "js-cookie";
 import axios_api from "./axios";
 import { endpoints } from "./endpoints.js";
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 export default function TermsAndConds() {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     const location = useLocation()
-    const data_received = location?.state?.pets_plans; //has pets id and new plans
+    const data_received = location?.state?.pets_plans;
     const [openModal, setOpenModal] = useState(false)
     const [stepModal, setStepModal] = useState(0)
     const [canAccept, setCanAccept] = useState(false);
@@ -18,6 +19,7 @@ export default function TermsAndConds() {
     const termsRef = useRef(null);
     const navigate = useNavigate()
     const [buttonStep, setButtonStep] = useState(0)
+    const [paymentURL, setPaymentURL] = useState('')
 
     useEffect(() => {
         function handleResize() {
@@ -86,6 +88,7 @@ export default function TermsAndConds() {
                 const data = JSON.parse(event.data);
 
                 if (data?.data?.url) {
+                    setPaymentURL(data?.data?.url)
                     window.open(data.data.url, "_blank", "noopener,noreferrer");
                 } else if (data.id) {
                     const card_data = data.id;
@@ -348,7 +351,57 @@ export default function TermsAndConds() {
                     </Button>
                 </Box>
             </Box>
-            <LoadingModal text={'Esperando OK para registro... ¡No cierres esta ventana!'} open={openModal} setOpen={setOpenModal} modalStep={stepModal} />
+
+            <Modal
+                open={openModal}
+                onClose={(event, reason) => {
+                    if (reason === "backdropClick") return;
+                    setOpenModal(false);
+                }}
+            >
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        bgcolor: 'background.paper',
+                        boxShadow: 24,
+                        p: 4,
+                        borderRadius: 2,
+                        width: { xs: '70%', md: 650, lg: 700 },
+                    }}
+                >
+                    <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '1.5rem', textAlign: 'center' }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                            <Typography
+                                variant="h5"
+                                sx={{ fontWeight: "bold", color: "black" }}
+                            >
+                                Esperando OK para continuar... Por favor, no cierres esta ventana.
+                            </Typography>
+
+                            <Typography variant="body1" sx={{ color: "black" }}>
+                                Si no se abre una pestaña nueva, haz click aquí:{" "}
+                                {!paymentURL &&
+                                    <Typography sx={{color: 'var(--gray-color)', fontWeight: 600}}>
+                                        Cargando URL
+                                    </Typography>
+                                }
+                                <Link href={paymentURL} target="_blank" rel="noopener noreferrer">
+                                    {paymentURL}
+                                </Link>
+                            </Typography>
+                        </Box>
+                        <DotLottieReact
+                            src="https://lottie.host/93f00827-07f6-4b9d-baa2-798cc4138b2c/v252HHvfL0.lottie"
+                            loop
+                            autoplay
+                            style={{ width: 200 }}
+                        />
+                    </Box>
+                </Box>
+            </Modal>
         </Box>
     )
 }

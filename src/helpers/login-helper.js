@@ -7,7 +7,6 @@ export async function loginHelper(email, password) {
         const response = await axios_api.post(endpoints.session_token,
             { email: email, password: password }
         )
-
         if (response.status === 200) {
             Cookies.set('authToken', response.data.bearer_token)
             const data = await axios_api.get(endpoints.account_data,
@@ -17,7 +16,7 @@ export async function loginHelper(email, password) {
                     }
                 }
             )
-            if (data.status === 201) {
+            if (data.status === 201 || data.status === 200) {
                 return { response: true, token: response.data.bearer_token, data: data.data }
             }
         }
