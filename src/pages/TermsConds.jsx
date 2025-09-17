@@ -88,9 +88,12 @@ export default function TermsAndConds() {
                 if (data?.data?.url) {
                     setPaymentURL(data?.data?.url)
                     window.open(data.data.url, "_blank", "noopener,noreferrer");
-                } else if (data.id) {
+                } else if (data?.id) {
                     const card_data = data.id;
                     handleSubscription(card_data);
+                    ws.close();
+                } else if (!data?.success){
+                    console.error("Error de Pagomedios:", data);
                     ws.close();
                 }
             } catch (err) {
@@ -98,10 +101,10 @@ export default function TermsAndConds() {
             }
         };
         ws.onerror = (error) => {
-            console.error("❌ WebSocket error:", error);
+            console.error("WebSocket error:", error);
         };
         ws.onclose = (e) => {
-            console.warn("⚠️ WebSocket closed:", e.code, e.reason);
+            console.warn("WebSocket closed:", e.code, e.reason);
         };
         setOpenModal(true)
     }

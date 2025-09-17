@@ -13,7 +13,7 @@ const plans = {
     {
         name: 'Básico',
         price: '$11.00'
-    }, 
+    },
     2: {
         name: 'Premium',
         price: '$18.30'
@@ -125,12 +125,14 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
             const data = JSON.parse(event.data)
             if (data?.data?.url) {
                 window.open(data.data.url, "_blank", "noopener,noreferrer");
-            } else {
-                if (data?.id) {
-                    const card_data = data.id;
-                    handlePaymentMethodChange(card_data)
-                    ws.close()
-                }
+            } else if (data?.id) {
+                const card_data = data.id;
+                handlePaymentMethodChange(card_data)
+                ws.close()
+            }
+            else if (!data?.success) {
+                console.error("Error de Pagomedios:", data);
+                ws.close();
             }
         };
         ws.onerror = (error) => {
