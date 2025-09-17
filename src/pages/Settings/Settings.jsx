@@ -25,8 +25,9 @@ export default function Settings() {
     const [passwordErrors, setPasswordErrors] = useState({})
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     const [settingsFields, setSettingsFields] = useState([])
-
+    const [showPswdErrorModal, setShowPswdErrorModal] = useState(false)
     const { login } = useAuth()
+
     useEffect(() => {
         fetchUserData()
         function handleResize() {
@@ -54,12 +55,6 @@ export default function Settings() {
                 label: 'Celular',
                 value: formData.phone,
                 formData: 'phone',
-                type: 'text'
-            },
-            {
-                label: 'Cédula',
-                value: formData.idnumber,
-                formData: 'idnumber',
                 type: 'text'
             },
             {
@@ -130,7 +125,6 @@ export default function Settings() {
                     firstNames: userData.nombres,
                     lastNames: userData.apellidos,
                     phone: userData.celular,
-                    idnumber: userData.cedula,
                     address: userData.direccion_facturacion
                 })
                 return 200;
@@ -143,37 +137,63 @@ export default function Settings() {
             return err.status || 500;
         }
     }
-    
+
     async function handleEditPassword() {
         const newErrors = {}
         try {
             setSavePassword(false)
             setLoadingModal(true)
 
-            const response = await axios_api.patch(
-                endpoints.update_data,
+            const passwordCheck = await axios_api.post(
+                endpoints.check_password,
                 {
-                    cedula: formData.idnumber,
-                    new_password: passwords.newpassword,
-                    current_password: passwords.oldpassword
+                    password: passwords.oldpassword
                 },
                 {
                     headers: {
                         Authorization: `Bearer ${Cookies.get('authToken')}`
                     }
                 }
-            );
-            setTimeout(() => {
-                setLoadingModalStep(1)
+            )
+            if (passwordCheck.data.verification) {
+                const response = await axios_api.patch(
+                    endpoints.update_data,
+                    {
+                        cedula: formData.idnumber,
+                        new_password: passwords.newpassword,
+                        current_password: passwords.oldpassword
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${Cookies.get('authToken')}`
+                        }
+                    }
+                );
                 setTimeout(() => {
-                    setLoadingModal(false);
-                    setLoadingModalStep(0);
-                }, 2500);
-            }, 2000);
-            setPasswords({
-                newpassword: '',
-                oldpassword: ''
-            })
+                    setLoadingModalStep(1)
+                    setTimeout(() => {
+                        setLoadingModal(false);
+                        setLoadingModalStep(0);
+                    }, 2500);
+                }, 2000);
+                setPasswords({
+                    newpassword: '',
+                    oldpassword: ''
+                })
+            } else {
+                setTimeout(() => {
+                    setLoadingModalStep(-1)
+                    setTimeout(() => {
+                        setLoadingModal(false);
+                        setLoadingModalStep(0);
+                    }, 2500);
+                }, 2000);
+                setPasswordErrors((prev) => ({
+                    ...prev,
+                    oldpassword: 'La contraseña es incorrecta.'
+                }))
+            }
+
         } catch (err) {
             console.error('Error in POST API', err)
             setTimeout(() => {
@@ -183,10 +203,6 @@ export default function Settings() {
                     setLoadingModalStep(0);
                 }, 2500);
             }, 2000);
-            if (err.response.status == 422) {
-                newErrors['oldpassword'] = 'La contraseña es incorrecta.';
-                setPasswordErrors(newErrors);
-            }
             return
         }
     }
@@ -333,6 +349,25 @@ export default function Settings() {
                                 </Tooltip>
                             </Box>
 
+                            <Box>
+                                <Typography fontWeight="bold">Cédula</Typography>
+                                <Tooltip title={'No puedes realizar cambios a tu cédula.'} placement="top" arrow>
+                                    <TextField
+                                        fullWidth
+                                        sx={{
+                                            "& .MuiInputBase-root": {
+                                                padding: "4px 8px",
+                                                fontSize: "0.875rem",
+                                            },
+                                            "& input": {
+                                                padding: "6px 8px",
+                                            },
+                                        }}
+                                        placeholder={localStorage.getItem('cedula') || formData.cedula}
+                                        disabled
+                                    />
+                                </Tooltip>
+                            </Box>
 
                             {settingsFields.map((field, i) => (
                                 field.formData === 'city' ? (
@@ -406,7 +441,8 @@ export default function Settings() {
                             variant='h5'
                             sx={{
                                 color: 'var(--blackinput-color)',
-                                fontWeight: 600
+                                fontWeight: 600,
+                                paddingTop: 1
                             }}>
                             Editar contraseña
                         </Typography>

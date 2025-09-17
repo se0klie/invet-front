@@ -8,9 +8,23 @@ import { endpoints } from "../endpoints";
 import Cookies from 'js-cookie'
 import { RxCross1 } from "react-icons/rx";
 
+const plans = {
+    1:
+    {
+        name: 'Básico',
+        price: '$11.00'
+    }, 
+    2: {
+        name: 'Premium',
+        price: '$18.30'
+    },
+    3: {
+        name: 'Presencial',
+        price: '$24.15'
+    }
+}
+
 export default function SubsBox({ pet, subData, handleRefresh }) {
-    const [price, setPrice] = useState('$11.00');
-    const [planName, setPlan] = useState('Básico')
     const [nextPayDate, setNextPayDate] = useState("")
     const [cancelPlan, setCancelPlan] = useState(false)
     const [loadingModal, setLoadingModal] = useState(false)
@@ -83,26 +97,6 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
     }
 
     useEffect(() => {
-        const plan = subData.plan_id
-        switch (plan) {
-            case 2:
-                setPlan('Premium')
-            case 3:
-                setPlan('Presencial')
-        }
-    }, []);
-
-    useEffect(() => {
-        if (planName === 'Básico') {
-            setPrice('$11.00');
-        } else if (planName === 'Premium') {
-            setPrice('$18.30');
-        } else if (planName === 'Presencial') {
-            setPrice('$24.15');
-        }
-    }, [planName])
-
-    useEffect(() => {
         fetchCardInfo()
         if (!nextPayDate) {
             const pay_date = getNextDateForDay()
@@ -132,7 +126,7 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
             if (data?.data?.url) {
                 window.open(data.data.url, "_blank", "noopener,noreferrer");
             } else {
-                if (data.id) {
+                if (data?.id) {
                     const card_data = data.id;
                     handlePaymentMethodChange(card_data)
                     ws.close()
@@ -226,7 +220,7 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
                     {pet.nombre}
                 </Typography>
                 <Typography variant="body1" sx={{ color: 'black', fontWeight: 'bold' }}>
-                    {price}
+                    {plans[subData.plan_id].price}
                     <Typography component="span" sx={{ color: '#A0A0A0', fontWeight: 'normal', marginLeft: '4px' }}>
                         /mes
                     </Typography>
@@ -260,7 +254,7 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
                         Plan:
                     </Typography>
                     <Typography variant="body2" sx={{ color: 'gray' }}>
-                        {planName}
+                        {plans[subData.plan_id].name}
                     </Typography>
                 </Box>
 
@@ -334,7 +328,7 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
                                     textOverflow: "ellipsis",
                                     fontFamily: '"Roboto Mono", monospace', // good, modern monospace
                                     fontSize: "1rem",
-                                    letterSpacing: "0.1em", 
+                                    letterSpacing: "0.1em",
                                     color: "var(--blackinput-color)",
                                 }}
                             >

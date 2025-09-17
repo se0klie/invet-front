@@ -2,7 +2,6 @@ import { Box, Typography, Checkbox, FormControl, Link, FormHelperText, Modal, Di
 import { useState, useEffect } from "react";
 import { useRef } from "react";
 import { useNavigate, useLocation, data } from "react-router-dom";
-import { LoadingModal } from "./shared components/Modals";
 import Cookies from "js-cookie";
 import axios_api from "./axios";
 import { endpoints } from "./endpoints.js";
@@ -18,7 +17,6 @@ export default function TermsAndConds() {
     const [accepted, setAccepted] = useState(false);
     const termsRef = useRef(null);
     const navigate = useNavigate()
-    const [buttonStep, setButtonStep] = useState(0)
     const [paymentURL, setPaymentURL] = useState('')
 
     useEffect(() => {
@@ -342,12 +340,10 @@ export default function TermsAndConds() {
                         disabled={!accepted}
                         sx={{ minWidth: 120, background: 'var(--darkgreen-color)', fontWeight: 600 }}
                         onClick={() => {
-                            if (buttonStep === 0) {
-                                openSocket()
-                            }
+                            openSocket()
                         }}
                     >
-                        {buttonStep === 0 ? 'Registrar método de pago' : 'Finalizar proceso'}
+                        Registrar método de pago
                     </Button>
                 </Box>
             </Box>
@@ -384,7 +380,7 @@ export default function TermsAndConds() {
                             <Typography variant="body1" sx={{ color: "black" }}>
                                 Si no se abre una pestaña nueva, haz click aquí:{" "}
                                 {!paymentURL &&
-                                    <Typography sx={{color: 'var(--gray-color)', fontWeight: 600}}>
+                                    <Typography sx={{ color: 'var(--gray-color)', fontWeight: 600 }}>
                                         Cargando URL
                                     </Typography>
                                 }

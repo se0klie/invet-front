@@ -1,9 +1,15 @@
-import { Box, Divider, Typography } from "@mui/material"
+import { Box, Divider, Typography, Button, Link, Modal, Tooltip, TextField, Stack, IconButton } from "@mui/material"
 import { useState, useEffect } from "react";
 import SubsBox from "../shared components/SubsBox";
 import { FacturasTable, FacturasList } from "../shared components/BillTable";
 import { MdOutlinePets } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
+import axios_api from "../axios";
+import { endpoints } from "../endpoints";
+import Cookies from "js-cookie";
+import { IoIosRemove } from "react-icons/io";
+import { RxCross1 } from "react-icons/rx";
+import { LoadingModal } from "../shared components/Modals";
 
 export default function MisPagos({ pets, subscriptions, handleRefresh }) {
     const [invoices, setInvoices] = useState([]);
@@ -15,6 +21,12 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
     })
     const navigate = useNavigate()
     const [validSubs, setValidSubs] = useState(subscriptions)
+    const [showCards, setShowCards] = useState(false)
+    const [cards, setCards] = useState([])
+    const [deletePaymentMethod, setDeletePaymentMethod] = useState(false)
+    const [selectedCard, setSelectedCard] = useState('')
+    const [showLoadingModal, setShowLoadingModal] = useState(false)
+    const [loadingStep, setLoadingStep] = useState(0)
 
     useEffect(() => {
         if (pets) {
@@ -25,7 +37,7 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
         }
         if (subscriptions) {
             const validData = Object.fromEntries(
-                Object.entries(subscriptions).filter(([_, subObj]) => subObj.subscripcion?.estado < 2)
+                Object.entries(subscriptions).filter(([_, subObj]) => subObj.subscripcion?.estado === 0)
             );
             setValidSubs(validData)
             setLoadingInfo((prev) => ({
@@ -44,12 +56,96 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    useEffect(() => {
+        getCards()
+    }, [])
+
+    async function getCards() {
+        try {
+            const cardsInfo = await axios_api.get(endpoints.registered_cards,
+                {
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get('authToken')}`
+                    }
+                }
+            )
+            const cards = cardsInfo?.data?.results?.map(card => {
+                const matchedSubs = Object.values(subscriptions || {}).filter(
+                    s => s.subscripcion.tarjeta_id === card.id
+                );
+
+                const enrichedSubs = matchedSubs.map(s => ({
+                    ...s.subscripcion,
+                    pet: pets.find(p => p.subscripcion_id === s.subscripcion.id) || null,
+                }));
+
+                return {
+                    ...card,
+                    subscriptions: enrichedSubs,
+                };
+            });
+            setCards(cards)
+        } catch (err) {
+            console.error('Error getting registered cards', err)
+            return err
+        }
+    }
+
+    async function handleRemovePaymentMehod() {
+        setShowLoadingModal(true)
+        setDeletePaymentMethod(false)
+        try {
+            const response = await axios_api.delete(endpoints.remove_card, {
+                headers: {
+                    Authorization: `Bearer ${Cookies.get('authToken')}`
+                },
+                data: {
+                    email: localStorage.getItem('email'),
+                    tarjeta_id: selectedCard.id
+                }
+            });
+
+            if (response.status === 200) {
+                getCards()
+                setTimeout(() => {
+                    setLoadingStep(1)
+                    setTimeout(() => {
+                        setShowLoadingModal(false)
+                        setLoadingStep(0)
+                    }, 1000);
+                }, 2000);
+            }
+        } catch (err) {
+            console.error(err)
+            setTimeout(() => {
+                setLoadingStep(-1)
+                setTimeout(() => {
+                    setShowLoadingModal(false)
+                    setLoadingStep(0)
+                }, 1000);
+            }, 2000);
+        }
+    }
+
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'flex-start', height: '100%', padding: '1.5em' }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', height: 'min-content', width: '100%' }}>
-                <Typography variant="h5" sx={{ color: 'var(--blackinput-color)', fontWeight: 'bold' }}>
-                    Suscripciones activas
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="h5" sx={{ color: 'var(--blackinput-color)', fontWeight: 'bold' }}>
+                        Suscripciones activas
+                    </Typography>
+                    <Button sx={{
+                        background: 'var(--secondary-color)', color: 'white', px: 2, fontWeight: 600,
+                        '&:hover': {
+                            background: 'var(--darkgreen-color)'
+                        }
+                    }}
+                        onClick={() => {
+                            handleRefresh()
+                            getCards()
+                            setShowCards(true)
+                        }}>Mis métodos de pago</Button>
+                </Box>
                 <Box>
                     {!loadingInfo.subs || !loadingInfo.pets ? (
                         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200, flexDirection: 'column', gap: '0.5rem' }}>
@@ -96,15 +192,16 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
                             }}
                         >
                             {Object.entries(validSubs)
-                                .filter(([_, subObj]) => subObj.pet.subscripcion !== null && subObj.subscripcion.estado === 0)
                                 .map(([key, subObj]) => (
                                     <Box key={key} sx={{ scrollSnapAlign: 'start', flex: '0 0 auto' }}>
-                                        <SubsBox pet={subObj.pet} subData={subObj.subscripcion} handleRefresh={handleRefresh} />
+                                        <SubsBox pet={subObj.pet} subData={subObj.subscripcion} handleRefresh={async () => {
+                                            await handleRefresh()
+                                            await getCards()
+                                        }} />
                                     </Box>
                                 ))}
                         </Box>
                     )}
-
                 </Box>
             </Box>
             <Divider
@@ -138,13 +235,13 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
                         justifyContent: invoices.length === 0 ? 'center' : 'flex-start',
                         alignItems: invoices.length === 0 ? 'center' : 'flex-start',
                         width: '100%',
-                        py: 2, 
+                        py: 2,
                     }}
                 >
                     {invoices.length === 0 ? (
                         <Box
                             sx={{
-                                width: { xs: '50%', sm: '30%', md: '20%' }, 
+                                width: { xs: '50%', sm: '30%', md: '20%' },
                                 display: 'flex',
                                 flexDirection: 'column',
                                 gap: 1.5,
@@ -179,7 +276,195 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
                     )}
                 </Box>
             </Box>
+            <Modal
+                open={showCards}
+                onClose={() => setShowCards(false)}
+            >
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        bgcolor: 'background.paper',
+                        boxShadow: 24,
+                        p: 4,
+                        borderRadius: 2,
+                        width: { xs: '70%', md: 650, lg: 700 },
+                    }}
+                >
+                    <Box sx={{ display: 'flex', width: '100%', alignItems: 'flex-start', justifyContent: 'center', flexDirection: 'column', gap: '1.5rem' }}>
+                        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                            <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'var(--darkgreen-color)' }}>
+                                    Tus métodos de pago
+                                </Typography>
+                                <RxCross1
+                                    style={{ color: 'black', cursor: 'pointer' }}
+                                    onClick={() => setShowCards(false)}
+                                />
+                            </Box>
 
+                            <Typography variant="body1" sx={{ color: "black" }}>
+                                Aquí podrás gestionar los métodos de pago utilizados para las suscripciones de tus mascotas.
+                            </Typography>
+                        </Box>
+                        <Box sx={{ width: '100%' }}>
+                            {cards.map((card, index) => (
+                                <Stack
+                                    direction="row"
+                                    alignItems="center"
+                                    spacing={2}
+                                    sx={{ width: "100%", my: 1 }}
+                                >
+                                    <TextField
+                                        key={index}
+                                        value={`${card.holder.toUpperCase()} ****${card.number.slice(-4)} ${card.provider.toUpperCase()}`}
+                                        disabled
+                                        fullWidth
+                                    />
+
+                                    <Stack direction="row" spacing={1}>
+                                        {card.subscriptions.length > 0 ? (
+                                            <Tooltip
+                                                title={
+                                                    <Box className="tooltip-content">
+                                                        Para eliminar esta tarjeta debe cambiar su método de pago para las suscripciones de la(s) siguiente(s) mascota(s):
+                                                        <ul>
+                                                            {card?.subscriptions.map((sub, index) => (
+                                                                <li key={index}>
+                                                                    {sub.pet?.nombre}
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </Box>
+                                                }
+                                                arrow
+                                                placement="right"
+                                            >
+                                                <span>
+                                                    <IconButton
+                                                        sx={{
+                                                            bgcolor: 'gray',
+                                                            color: 'white',
+                                                            cursor: 'not-allowed',
+                                                            '&:hover': {
+                                                                bgcolor: 'gray',
+                                                            }
+                                                        }}
+
+                                                    >
+                                                        <IoIosRemove />
+                                                    </IconButton>
+                                                </span>
+                                            </Tooltip>
+                                        ) : (
+                                            <IconButton
+                                                sx={{
+                                                    bgcolor: "error.main",
+                                                    color: "white",
+                                                    cursor: 'pointer',
+                                                    "&:hover": { bgcolor: "error.dark" }
+                                                }}
+                                                onClick={() => {
+                                                    setSelectedCard(card)
+                                                    setShowCards(false)
+                                                    setDeletePaymentMethod(true)
+                                                }}
+                                            >
+                                                <IoIosRemove />
+                                            </IconButton>
+                                        )}
+                                    </Stack>
+                                </Stack>
+                            ))}
+                        </Box>
+
+                    </Box>
+                </Box>
+            </Modal>
+            <Modal
+                open={deletePaymentMethod}
+                onClose={() => setDeletePaymentMethod(false)}
+            >
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        bgcolor: 'background.paper',
+                        boxShadow: 24,
+                        p: 4,
+                        borderRadius: 2,
+                        width: { xs: '70%', md: 650, lg: 700 },
+                    }}
+                >
+                    <Box sx={{ display: 'flex', width: '100%', flexDirection: 'column', gap: '1rem', textAlign: 'center' }}>
+                        <Box sx={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Typography variant="h5" sx={{ fontWeight: 'bold', color: 'var(--error-color)' }}>
+                                Eliminar método de pago
+                            </Typography>
+                            <RxCross1
+                                style={{ color: 'black', cursor: 'pointer' }}
+                                onClick={() => setDeletePaymentMethod(false)}
+                            />
+                        </Box>
+
+                        <Box
+                            sx={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 2,
+                                mt: 2,
+                            }}
+                        >
+                            <Typography
+                                variant="body1"
+                                sx={{ fontWeight: 500, color: "text.secondary" }}
+                            >
+                                Eliminar método de pago
+                            </Typography>
+
+                            <Box
+                                sx={{
+                                    width: 'auto',
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    fontFamily: '"Roboto Mono", monospace',
+                                    fontSize: "1rem",
+                                    letterSpacing: "0.1em",
+                                    color: "var(--blackinput-color)",
+                                }}
+                            >
+                                {selectedCard?.id ? `${selectedCard.holder.toUpperCase() || ''} ****${selectedCard.number.slice(-4) || ''} ${selectedCard.provider.toUpperCase()}` || '' : ''}
+                            </Box>
+                        </Box>
+
+
+                        <Typography variant="body2" sx={{ color: 'gray', textAlign: 'left' }}>
+                            Se eliminará de manera segura el método de pago seleccionado, {' '}
+                            <strong>esta acción no es reversible, ¿desea continuar?</strong>
+                        </Typography>
+                        <Box sx={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', flexDirection: isMobile ? 'column' : "row" }}>
+                            <Button
+                                sx={{
+                                    color: 'white', minWidth: 120, background: 'var(--error-fill-color)', fontWeight: 600, boxShadow: 0, cursor: 'pointer', px: '1rem',
+                                    '&:hover': {
+                                        background: 'var(--error-fill-hover-color)'
+                                    }
+                                }}
+                                onClick={() => handleRemovePaymentMehod()}
+                            >
+                                Eliminar
+                            </Button>
+                        </Box>
+                    </Box>
+                </Box>
+            </Modal>
+
+            <LoadingModal text="Generando cambios..." open={showLoadingModal} modalStep={loadingStep} setOpen={setShowLoadingModal} />
         </Box>
     )
 }
