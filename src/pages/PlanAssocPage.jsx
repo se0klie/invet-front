@@ -8,6 +8,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { FiPlus } from "react-icons/fi";
 import { LoadingModal } from "./shared components/Modals";
 import { getPets, addPet } from "../helpers/pets-helper";
+import axios_api from "./axios";
+import { endpoints } from "./endpoints";
+import Cookies from "js-cookie";
 
 export default function PetPlanAssociation() {
     const navigate = useNavigate();
@@ -355,6 +358,7 @@ function AddPet({ pets, plans, setStep, refresh }) {
 }
 function AsignPlanToPet({ pets, plans, setStep, setUpdatedData, updatedData }) {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+    const [subscriptionsClient, setSubscriptionsClient] = useState([])
     const [data, setData] = useState(updatedData ||
         Object.values(plans)
             .filter(plan => plan.quantity > 0)
@@ -365,6 +369,7 @@ function AsignPlanToPet({ pets, plans, setStep, setUpdatedData, updatedData }) {
                 return acc;
             }, {})
     );
+    const [subscriptions, setSubscriptions] = useState([])
 
     useEffect(() => {
         function handleResize() {
@@ -393,14 +398,58 @@ function AsignPlanToPet({ pets, plans, setStep, setUpdatedData, updatedData }) {
         });
     };
 
+    useEffect(() => {
+        if (subscriptionsClient && pets) {
+            const subscriptionsById = {};
+            subscriptionsClient.forEach(sub => {
+                subscriptionsById[sub.id] = sub;
+            });
+
+            const petsWithSubsObj = {};
+            pets.forEach(pet => {
+                const sub = pet.subscripcion_id ? subscriptionsById[pet.subscripcion_id] : undefined;
+                if (sub) {
+                    petsWithSubsObj[pet.id] = {
+                        pet,
+                        subscripcion: sub
+                    };
+                }
+            });
+            setSubscriptions(petsWithSubsObj)
+        }
+    }, [subscriptionsClient, pets]);
+
+
+    async function fetchSubs() {
+        try {
+            const response = await axios_api.get(endpoints.get_subs,
+                {
+                    headers: {
+                        Authorization: `Bearer ${Cookies.get('authToken')}`
+                    }
+                });
+            if (response.status === 200) {
+
+                setSubscriptionsClient(response.data.results)
+            }
+        } catch (err) {
+            console.error('GET subs', err)
+            return err
+        }
+    }
+
+    useEffect(() => {
+        fetchSubs()
+    }, [])
+
     const getAvailablePets = (currentKey) => {
         const chosenPetIds = Object.values(data).filter(
-            (id) => id !== null && id !== ""
+            (id) => id !== null || id !== ""
         );
 
         return pets.filter(
             (pet) =>
-                pet.subscripcion_id === null &&
+                (pet.subscripcion_id === null || subscriptions[pet.id]?.subscripcion?.estado !== 0) &&
                 (!chosenPetIds.includes(pet.id) || data[currentKey] === pet.id)
         );
     };
