@@ -68,8 +68,8 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
     }
 
     function getNextDateForDay() {
-        const start_date = subData.fecha_inicio;
-        const date = new Date(start_date + "T00:00:00");
+        const next_charge = subData.proximo_cobro;
+        const date = new Date(next_charge + "T00:00:00");
 
         const parts = new Intl.DateTimeFormat("en-US", {
             timeZone: "America/New_York",
