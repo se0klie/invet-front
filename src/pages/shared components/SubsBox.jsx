@@ -67,39 +67,10 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
         }
     }
 
-    function getNextDateForDay() {
-        const next_charge = subData.proximo_cobro;
-        const date = new Date(next_charge + "T00:00:00");
-
-        const parts = new Intl.DateTimeFormat("en-US", {
-            timeZone: "America/New_York",
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit"
-        }).formatToParts(date);
-
-        const dd = parseInt(parts.find(p => p.type === "day").value, 10);
-
-        const now = new Date();
-        const year = now.getFullYear();
-        let month = now.getMonth();
-
-        if (dd <= now.getDate()) {
-            month += 1;
-        }
-
-        const result = new Date(year, month, dd);
-
-        const yyyy = result.getFullYear();
-        const mm = String(result.getMonth() + 1).padStart(2, "0");
-
-        return `${yyyy}-${mm}-${dd}`;
-    }
-
     useEffect(() => {
         fetchCardInfo()
         if (!nextPayDate) {
-            const pay_date = getNextDateForDay()
+            const pay_date = subData.proximo_cobro
             setNextPayDate(pay_date)
         }
     }, [subData])

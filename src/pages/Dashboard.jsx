@@ -34,6 +34,7 @@ export default function Dashboard() {
                         Authorization: `Bearer ${Cookies.get('authToken')}`
                     }
                 });
+            console.log(response)
             if (response.status) {
                 setSubscriptionsClient(response.data.results)
             }
