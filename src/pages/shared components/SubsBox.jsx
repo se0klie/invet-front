@@ -84,26 +84,48 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    function openSocket() {
+    function openSocket(function_name) {
         const ws = new WebSocket("wss://backendinvet.com/ws/notifications/");
         ws.onopen = () => {
             const payload = {
-                session_token: Cookies.get('authToken')
+                session_token: Cookies.get('authToken'),
+                function: function_name
             };
             ws.send(JSON.stringify(payload));
         };
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data)
-            if (data?.data?.url) {
-                window.open(data.data.url, "_blank", "noopener,noreferrer");
-            } else if (data?.id) {
-                const card_data = data.id;
-                handlePaymentMethodChange(card_data)
-                ws.close()
+            console.log(data)
+            if (function_name === "card_registration") {
+                if (data?.function != "card_registration_callback"){
+                    ws.close();
+                    return;
+                }
+                if (data?.data?.url) {
+                    window.open(data.data.url, "_blank", "noopener,noreferrer");
+                } else if (data?.id) {
+                    const card_data = data.id;
+                    handlePaymentMethodChange(card_data)
+                    ws.close()
+                }
+                else if (!data?.success) {
+                    console.error("Error de Pagomedios:", data);
+                    ws.close();
+                }
             }
-            else if (!data?.success) {
-                console.error("Error de Pagomedios:", data);
-                ws.close();
+            else if (function_name === "email_verification") {
+                if (data?.function != "email_verification_callback"){
+                    ws.close();
+                    return;
+                }
+                if (data?.success){
+                    ws.close();
+                    // CORREO VERIFICADO, PUEDE CONTINUAR
+                }
+                else {
+                    console.error("Error en la verificación de email:", data);
+                    ws.close();
+                }
             }
         };
         ws.onerror = (error) => {
@@ -113,6 +135,7 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
         setChangePaymentMethod(false)
         setLoadingModal(true)
     }
+
 
     async function handlePaymentMethodChange(card) {
         try {
@@ -316,7 +339,7 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
                         <Box sx={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', flexDirection: isMobile ? 'column' : "row" }}>
                             <Button
                                 sx={{ color: 'white', minWidth: 120, background: 'var(--darkgreen-color)', fontWeight: 600, boxShadow: 0, cursor: 'pointer', px: '1rem' }}
-                                onClick={() => openSocket()}
+                                onClick={() => openSocket("card_registration")}
                             >
                                 Cambiar método de pago
                             </Button>

@@ -73,31 +73,48 @@ export default function TermsAndConds() {
         }
     }
 
-    function openSocket() {
+    function openSocket(function_name) {
         const ws = new WebSocket("wss://backendinvet.com/ws/notifications/");
         ws.onopen = () => {
             const payload = {
-                session_token: Cookies.get('authToken')
+                session_token: Cookies.get('authToken'),
+                function: function_name
             };
             ws.send(JSON.stringify(payload));
         };
         ws.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
+            const data = JSON.parse(event.data)
 
+            if (function_name === "card_registration") {
+                if (data?.function != "card_registration_callback") {
+                    ws.close();
+                    return;
+                }
                 if (data?.data?.url) {
-                    setPaymentURL(data?.data?.url)
                     window.open(data.data.url, "_blank", "noopener,noreferrer");
                 } else if (data?.id) {
                     const card_data = data.id;
-                    handleSubscription(card_data);
-                    ws.close();
-                } else if (!data?.success){
+                    handlePaymentMethodChange(card_data)
+                    ws.close()
+                }
+                else if (!data?.success) {
                     console.error("Error de Pagomedios:", data);
                     ws.close();
                 }
-            } catch (err) {
-                console.error("Error parsing message:", err);
+            }
+            else if (function_name === "email_verification") {
+                if (data?.function != "email_verification_callback") {
+                    ws.close();
+                    return;
+                }
+                if (data?.success) {
+                    ws.close();
+                    // CORREO VERIFICADO, PUEDE CONTINUAR
+                }
+                else {
+                    console.error("Error en la verificación de email:", data);
+                    ws.close();
+                }
             }
         };
         ws.onerror = (error) => {
@@ -343,7 +360,7 @@ export default function TermsAndConds() {
                         disabled={!accepted}
                         sx={{ minWidth: 120, background: 'var(--darkgreen-color)', fontWeight: 600 }}
                         onClick={() => {
-                            openSocket()
+                            openSocket("card_registration")
                         }}
                     >
                         Registrar método de pago
