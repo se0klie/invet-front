@@ -84,15 +84,39 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    function openSocket() {
-        openSocket('card_registration', {
-            onCardRegistration: (cardId, ws) => {
-                handlePaymentMethodChange(cardId)
-            },
-            onError: (data, ws) => {
-                
+    function openSocket(function_name) {
+        const ws = new WebSocket("wss://backendinvet.com/ws/notifications/");
+        ws.onopen = () => {
+            const payload = {
+                session_token: Cookies.get('authToken'),
+                function: function_name
+            };
+            ws.send(JSON.stringify(payload));
+        };
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data)
+            console.log(data)
+            if (function_name === "card_registration") {
+                if (data?.function != "card_registration_callback"){
+                    ws.close();
+                    return;
+                }
+                if (data?.data?.url) {
+                    window.open(data.data.url, "_blank", "noopener,noreferrer");
+                } else if (data?.id) {
+                    const card_data = data.id;
+                    handlePaymentMethodChange(card_data)
+                    ws.close()
+                }
+                else if (!data?.success) {
+                    console.error("Error de Pagomedios:", data);
+                    ws.close();
+                }
             }
-        })
+        };
+        ws.onerror = (error) => {
+            console.error("WebSocket error:", error);
+        };
         setModalText('Esperando respuesta...')
         setChangePaymentMethod(false)
         setLoadingModal(true)
