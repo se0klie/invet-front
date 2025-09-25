@@ -18,11 +18,13 @@ import Cookies from 'js-cookie';
 import { loginHelper } from '../../helpers/login-helper';
 import { ErrorModal } from '../shared components/Modals';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { openSocket } from '../shared components/socket';
 
 export default function InitialState() {
     const location = useLocation()
     const [currentStep, setCurrentStep] = useState(location?.state?.step || 1) //1: login, 2: reset psswd, 3: confirm code, 4: changepassword, 5: register
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+    const [userData, setUserData] = useState({})
 
     useEffect(() => {
         function handleResize() {
@@ -45,8 +47,9 @@ export default function InitialState() {
             {currentStep === 2 && <ChangePassword setStep={setCurrentStep} currentStep={currentStep} />}
             {currentStep === 3 && <VerifyCode setStep={setCurrentStep} currentStep={currentStep} />}
             {currentStep === 4 && <UpdatePasswordForm setStep={setCurrentStep} currentStep={currentStep} />}
-            {currentStep === 5 && <Register setStep={setCurrentStep} currentStep={currentStep} />}
+            {currentStep === 5 && <Register setStep={setCurrentStep} setUserData={setUserData} userData={userData} />}
             {currentStep === 6 && <SuccessPasswordPage setStep={setCurrentStep} />}
+            {currentStep === 7 && <VerifyEmail setStep={setCurrentStep} formData={userData} />}
 
         </Box>
     )
@@ -437,20 +440,86 @@ function SuccessPasswordPage({ setStep, currentStep }) {
     )
 }
 
-function Register({ setStep, currentStep }) {
+function VerifyEmail({ setStep, formData }) {
+    const isMobile = window.innerWidth <= 1000
+
+    async function registerUser() {
+        try {
+            const response = await axios_api.post(
+                endpoints.create_user,
+                {
+                    cedula: formData.idnumber,
+                    nombres: formData.firstNames,
+                    apellidos: formData.lastNames,
+                    password: formData.password,
+                    email: formData.email,
+                    celular: formData.phone,
+                    direccion_facturacion: formData.address,
+
+                },
+            );
+            return response.status;
+        } catch (err) {
+            console.error("API call failed:", err);
+            return err.status || 500;
+        }
+    }
+    return (
+        <Box
+            className='content-box1'
+        >
+            <Box
+                className='content-box2'
+            >
+                <Box className="title-box">
+                    <Typography className="title">Verificación de email</Typography>
+                </Box>
+
+                <Box>
+                    <Typography>
+                        Hemos enviado un enlace de verificación a tu correo electrónico. Por favor, revisa tu bandeja de entrada y haz clic en el enlace para verificar tu cuenta.
+                    </Typography>
+                    <Typography
+                        sx={{
+                            marginTop: '1rem',
+                            textDecoration: 'underline',
+                            color: 'var(--darkgreen-color)',
+                            cursor: 'pointer',
+                            '&:hover': {
+                                fontWeight: 600,
+                            }
+                        }}>
+                        Reenviar enlace
+                    </Typography>
+                </Box>
+
+
+            </Box>
+            <Box className="buttons-container">
+                <PreviousButton text="Regresar a registro" isBrighter={true} action={() => { setStep(5) }} />
+                <NextButton action={async () => {
+
+                }}
+
+                />
+            </Box>
+        </Box>
+    )
+}
+
+function Register({ setStep, setUserData, userData }) {
     const [formData, setFormData] = useState({
-        firstNames: '',
-        lastNames: '',
-        idnumber: '',
-        email: '',
-        phone: '',
-        city: '',
-        password: '',
-        repeatedpassword: '',
-        address: ''
+        firstNames: userData.firstNames || '',
+        lastNames: userData.lastNames || '',
+        idnumber: userData.idnumber || '',
+        email: userData.email || '',
+        phone: userData.phone || '',
+        city: userData.city || '',
+        password: userData.password || '',
+        repeatedpassword: userData.repeatedpassword || '',
+        address: userData.address || '',
     })
     const isMobile = window.innerWidth <= 1000
-    const navigate = useNavigate()
     const location = useLocation()
     const [formStep, setFormStep] = useState(0);
     const [errors, setErrors] = useState({})
@@ -468,6 +537,7 @@ function Register({ setStep, currentStep }) {
         ['password', 'repeatedpassword'],
     ]
     const plans = location?.state?.plans
+   
 
     const registerFields = [
         {
@@ -528,27 +598,6 @@ function Register({ setStep, currentStep }) {
         setHasErrors(hasErrors)
     }, [errors])
 
-    async function registerUser() {
-        try {
-            const response = await axios_api.post(
-                endpoints.create_user,
-                {
-                    cedula: formData.idnumber,
-                    nombres: formData.firstNames,
-                    apellidos: formData.lastNames,
-                    password: formData.password,
-                    email: formData.email,
-                    celular: formData.phone,
-                    direccion_facturacion: formData.address,
-
-                },
-            );
-            return response.status;
-        } catch (err) {
-            console.error("API call failed:", err);
-            return err.status || 500;
-        }
-    }
 
     function verifyFields() {
         let hasErrors = false;
@@ -830,28 +879,37 @@ function Register({ setStep, currentStep }) {
                         isValid = verifyFieldsPhone(formStep)
                     }
                     if (isValid) {
-                        const response = await registerUser()
-                        if (response === 201 || response === 200) {
-                            if (fromCheckout) {
-                                const request = await loginHelper(formData.email, formData.password);
-                                if (request.response) {
-                                    login({
-                                        nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
-                                        email: request.data.email,
-                                        cedula: request.data.cedula
-                                    })
-                                    navigate('/identify-pet', { state: { plans } })
-                                }
-                            } else {
-                                navigate('/welcomePage')
+                        setUserData(formData)
+                        openSocket('email_verification', {
+                            onEmailVerification: (data, ws) => {
+                                console.log('Email verificado:', data);
+                                ws.close();
                             }
-                        } else {
-                            setSnackbar({
-                                open: true,
-                                message: 'Hubo un error al registrar el usuario. Por favor, inténtalo de nuevo.',
-                                severity: 'error'
-                            })
-                        }
+                        })
+                        setStep(7)
+
+                        // const response = await registerUser()
+                        // if (response === 201 || response === 200) {
+                        //     if (fromCheckout) {
+                        //         const request = await loginHelper(formData.email, formData.password);
+                        //         if (request.response) {
+                        //             login({
+                        //                 nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
+                        //                 email: request.data.email,
+                        //                 cedula: request.data.cedula
+                        //             })
+                        //             navigate('/identify-pet', { state: { plans } })
+                        //         }
+                        //     } else {
+                        //         navigate('/welcomePage')
+                        //     }
+                        // } else {
+                        //     setSnackbar({
+                        //         open: true,
+                        //         message: 'Hubo un error al registrar el usuario. Por favor, inténtalo de nuevo.',
+                        //         severity: 'error'
+                        //     })
+                        // }
                     }
                 }}
                     disabled={isMobile && formStep !== groupedFields.length - 1} />
