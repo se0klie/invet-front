@@ -113,20 +113,6 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
                     ws.close();
                 }
             }
-            else if (function_name === "email_verification") {
-                if (data?.function != "email_verification_callback"){
-                    ws.close();
-                    return;
-                }
-                if (data?.success){
-                    ws.close();
-                    // CORREO VERIFICADO, PUEDE CONTINUAR
-                }
-                else {
-                    console.error("Error en la verificación de email:", data);
-                    ws.close();
-                }
-            }
         };
         ws.onerror = (error) => {
             console.error("WebSocket error:", error);
