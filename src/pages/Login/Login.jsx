@@ -216,6 +216,52 @@ function Login({ setStep }) {
 }
 
 function ChangePassword({ setStep, currentStep }) {
+    const [email, setEmail] = useState('')
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'success',
+    });
+
+    async function sendEmail() {
+        try {
+            if (!email || !email.includes('@')) {
+                setSnackbar({
+                    open: true,
+                    message: `Correo no válido.`,
+                    severity: 'error'
+                })
+                return;
+            }
+
+            const response = await axios_api.post(endpoints.send_password_reset,
+                {
+                    email: email
+                }
+            )
+            if (response.status === 200 || response.status === 201) {
+                setSnackbar({
+                    open: true,
+                    message: `Correo enviado, revise su bandeja de entrada.`,
+                    severity: 'success'
+                })
+                setTimeout(() => {
+                    setStep(1);
+                }, 3000);
+            }
+        } catch (err) {
+            console.error('API POST ERROR, send-email-pswd', err)
+            if (err.status === 404) {
+                setSnackbar({
+                    open: true,
+                    message: `No existe una cuenta con ese correo.`,
+                    severity: 'error'
+                })
+            }
+            return err
+        }
+    }
+
     return (
         <Box
             className='content-box1'
@@ -235,19 +281,31 @@ function ChangePassword({ setStep, currentStep }) {
                             Correo electrónico
                         </Typography>
                         <Typography className="email-description">
-                            Ingresa tu correo electrónico para enviar un código de confirmación.
+                            Ingresa tu correo electrónico para enviar una contraseña temporal. Con esta, podrás iniciar sesión y luego cambiar tu contraseña.
                         </Typography>
-                        <TextField fullWidth placeholder="Correo electrónico" />
+                        <TextField fullWidth placeholder="Correo electrónico" onChange={(e) => { setEmail(e.target.value) }} />
                     </Box>
-
-
                 </Box>
 
             </Box>
             <Box className="buttons-container">
                 <PreviousButton action={() => { setStep(currentStep - 1) }} />
-                <NextButton action={() => { setStep(currentStep + 1) }} isSend={true} />
+                <NextButton action={async () => { await sendEmail() }} isSend={true} />
             </Box>
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+                <Alert
+                    onClose={() => setSnackbar({ ...snackbar, open: false })}
+                    severity={snackbar.severity}
+                    sx={{ width: '100%' }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Box>
     )
 }
