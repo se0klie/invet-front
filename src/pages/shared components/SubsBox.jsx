@@ -95,7 +95,6 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
         };
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data)
-            console.log(data)
             if (function_name === "card_registration") {
                 if (data?.function != "card_registration_callback"){
                     ws.close();

@@ -94,7 +94,7 @@ export default function TermsAndConds() {
                     window.open(data.data.url, "_blank", "noopener,noreferrer");
                 } else if (data?.id) {
                     const card_data = data.id;
-                    handlePaymentMethodChange(card_data)
+                    handleSubscription(card_data)
                     ws.close()
                 }
                 else if (!data?.success) {

@@ -23,6 +23,7 @@ export default function InitialState() {
     const location = useLocation()
     const [currentStep, setCurrentStep] = useState(location?.state?.step || 1) //1: login, 2: reset psswd, 3: confirm code, 4: changepassword, 5: register
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+    const [userData, setUserData] = useState({})
 
     useEffect(() => {
         function handleResize() {
@@ -31,7 +32,6 @@ export default function InitialState() {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
-
 
     return (
         <Box
@@ -45,9 +45,9 @@ export default function InitialState() {
             {currentStep === 2 && <ChangePassword setStep={setCurrentStep} currentStep={currentStep} />}
             {currentStep === 3 && <VerifyCode setStep={setCurrentStep} currentStep={currentStep} />}
             {currentStep === 4 && <UpdatePasswordForm setStep={setCurrentStep} currentStep={currentStep} />}
-            {currentStep === 5 && <Register setStep={setCurrentStep} currentStep={currentStep} />}
+            {currentStep === 5 && <Register setStep={setCurrentStep} setUserData={setUserData} userData={userData} />}
             {currentStep === 6 && <SuccessPasswordPage setStep={setCurrentStep} />}
-
+            {currentStep === 7 && <CheckEmail formData={userData} setStep={setCurrentStep} />}
         </Box>
     )
 }
@@ -406,7 +406,8 @@ function UpdatePasswordForm({ setStep, currentStep }) {
 }
 
 
-function SuccessPasswordPage({ setStep, currentStep }) {
+function SuccessPasswordPage({ setStep, formData }) {
+
     return (
         <Box
             className='content-box1'
@@ -437,21 +438,231 @@ function SuccessPasswordPage({ setStep, currentStep }) {
     )
 }
 
-function Register({ setStep, currentStep }) {
+function CheckEmail({ formData, setStep }) {
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'success',
+    });
+    const [counter, setCounter] = useState(40);
+    const [values, setValues] = useState(Array(6).fill(""));
+    const location = useLocation();
+    const [fromCheckout, setFromCheckout] = useState(location?.state?.from === 'checkout' || false)
+    const plans = location?.state?.plans
+    const { login } = useAuth()
+    const navigate = useNavigate()
+    useEffect(() => {
+        if (counter > 0) {
+            const timer = setTimeout(() => setCounter(counter - 1), 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [counter]);
+
+    async function handleResendCode() {
+        if (counter === 0) {
+            setCounter(40);
+        } else {
+            setSnackbar({
+                open: true,
+                message: `Por favor espera ${counter} segundos antes de reenviar el código.`,
+                severity: 'info'
+            })
+            return;
+        }
+
+        try {
+            await axios_api.post(endpoints.send_email,
+                {
+                    email: formData.email
+                }
+            )
+            setSnackbar({
+                open: true,
+                message: `Código reenviado correctamente a ${formData.email}.`,
+                severity: 'success'
+            })
+        } catch (err) {
+            console.error(err)
+            return err;
+        }
+    };
+
+    async function handleRegister() {
+        try {
+            const response = await axios_api.post(
+                endpoints.create_user,
+                {
+                    cedula: formData.idnumber,
+                    nombres: formData.firstNames
+                        .toLowerCase()
+                        .split(" ")
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(" "),
+                    apellidos: formData.lastNames
+                        .toLowerCase()
+                        .split(" ")
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(" "),
+                    password: formData.password,
+                    email: formData.email,
+                    celular: formData.phone,
+                    direccion_facturacion: formData.address,
+                    verification_code: values.join('')
+                },
+            );
+            if (response.status === 201 || response.status === 200) {
+                if (fromCheckout) {
+                    const request = await loginHelper(formData.email, formData.password);
+                    if (request.response) {
+                        login({
+                            nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
+                            email: request.data.email,
+                            cedula: request.data.cedula
+                        })
+                        navigate('/identify-pet', { state: { plans } })
+                    }
+                } else {
+                    navigate('/welcomePage')
+                }
+            }
+            return true;
+        } catch (err) {
+            if (err.status === 422) {
+                setSnackbar({
+                    open: true,
+                    message: `Código incorrecto, por favor verifica e intenta nuevamente.`,
+                    severity: 'error'
+                })
+                return;
+            }
+            setSnackbar({
+                open: true,
+                message: `Hubo un error en su registro, intente más tarde.`,
+                severity: 'error'
+            })
+            console.error('API CALL failed, /post register', err)
+            return err
+        }
+    }
+
+    useEffect(() => {
+        if (location.state?.from === 'checkout') {
+            setFromCheckout(true)
+        }
+    }, [])
+
+    const handleChange = (e, index) => {
+        const val = e.target.value.replace(/[^0-9]/g, "");
+        if (val.length > 1) return;
+
+        const newValues = [...values];
+        newValues[index] = val;
+        setValues(newValues);
+
+        if (val && index < 5) {
+            const nextInput = document.getElementById(`code-input-${index + 1}`);
+            if (nextInput) nextInput.focus();
+        }
+    };
+
+    const handleKeyDown = (e, index) => {
+        if (e.key === "Backspace" && !values[index] && index > 0) {
+            const prevInput = document.getElementById(`code-input-${index - 1}`);
+            if (prevInput) prevInput.focus();
+        }
+    };
+    return (
+        <Box
+            className='content-box1'
+        >
+            <Box
+                className='content-box2'
+            >
+                <Box className="title-box">
+                    <Typography className="title">
+                        Verificación de correo
+                    </Typography>
+                </Box>
+
+                <Box className="update-password-form">
+                    <Box className="password-label-tooltip">
+                        <Typography className="success-message">
+                            ¡Te hemos enviado un correo electrónico para verificar tu cuenta! Por
+                            favor, revisa tu bandeja de entrada e ingresa{" "}
+                            <strong>el código de 6 dígitos</strong>.
+                        </Typography>
+                    </Box>
+
+                    <Box display="flex" justifyContent="center" gap={2} >
+                        {values.map((digit, i) => (
+                            <TextField
+                                key={i}
+                                id={`code-input-${i}`}
+                                value={digit}
+                                onChange={(e) => handleChange(e, i)}
+                                onKeyDown={(e) => handleKeyDown(e, i)}
+                                inputProps={{
+                                    maxLength: 1,
+                                    style: { textAlign: "center", fontSize: "1.5rem" },
+                                }}
+                            />
+                        ))}
+                    </Box>
+                    <Typography
+                        component="span"
+                        sx={{
+                            color: 'var(--darkgreen-color)',
+                            cursor: 'pointer',
+                            textDecoration: 'underline',
+                            display: 'inline-block',
+                            alignSelf: 'flex-start',
+
+                        }}
+                        onClick={() => handleResendCode()}
+                    >
+                        ¿No lo has recibido? Reenviar
+                    </Typography>
+
+                </Box>
+            </Box>
+            <Box className="buttons-container">
+                <PreviousButton text="Regresar al registro" isBrighter={true} action={() => { setStep(5) }} />
+                <NextButton action={async () => {
+                    await handleRegister()
+
+                }} />
+            </Box>
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+                <Alert
+                    onClose={() => setSnackbar({ ...snackbar, open: false })}
+                    severity={snackbar.severity}
+                    sx={{ width: '100%' }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
+        </Box>
+    )
+}
+
+function Register({ setStep, setUserData, userData }) {
     const [formData, setFormData] = useState({
-        firstNames: '',
-        lastNames: '',
-        idnumber: '',
-        email: '',
-        phone: '',
-        city: '',
-        password: '',
-        repeatedpassword: '',
-        address: ''
+        firstNames: userData.firstNames || '',
+        lastNames: userData.lastNames || '',
+        idnumber: userData.idnumber || '',
+        email: userData.email || '',
+        phone: userData.phone || '',
+        city: userData.city || '',
+        password: userData.password || '',
+        repeatedpassword: userData.repeatedpassword || '',
+        address: userData.address || '',
     })
     const isMobile = window.innerWidth <= 1000
-    const navigate = useNavigate()
-    const location = useLocation()
     const [formStep, setFormStep] = useState(0);
     const [errors, setErrors] = useState({})
     const [hasErrors, setHasErrors] = useState(false)
@@ -460,14 +671,12 @@ function Register({ setStep, currentStep }) {
         message: '',
         severity: 'success',
     });
-    const { login } = useAuth()
-    const [fromCheckout, setFromCheckout] = useState(location?.state?.from === 'checkout' || false)
+
     const groupedFields = [
         ['idnumber', 'firstNames', 'lastNames', 'email', 'phone'],
         ['city', 'address'],
         ['password', 'repeatedpassword'],
     ]
-    const plans = location?.state?.plans
 
     const registerFields = [
         {
@@ -527,28 +736,6 @@ function Register({ setStep, currentStep }) {
         const hasErrors = Object.values(errors).some(error => error);
         setHasErrors(hasErrors)
     }, [errors])
-
-    async function registerUser() {
-        try {
-            const response = await axios_api.post(
-                endpoints.create_user,
-                {
-                    cedula: formData.idnumber,
-                    nombres: formData.firstNames,
-                    apellidos: formData.lastNames,
-                    password: formData.password,
-                    email: formData.email,
-                    celular: formData.phone,
-                    direccion_facturacion: formData.address,
-
-                },
-            );
-            return response.status;
-        } catch (err) {
-            console.error("API call failed:", err);
-            return err.status || 500;
-        }
-    }
 
     function verifyFields() {
         let hasErrors = false;
@@ -671,11 +858,18 @@ function Register({ setStep, currentStep }) {
         return !hasErrors;
     }
 
-    useEffect(() => {
-        if (location.state?.from === 'checkout') {
-            setFromCheckout(true)
+    async function handleSendEmail() {
+        try {
+            const email = await axios_api.post(endpoints.send_email,
+                {
+                    email: formData.email
+                }
+            )
+        } catch (err) {
+            console.error("API call failed:", err);
+            return err
         }
-    }, [])
+    }
 
     return (
         <Box
@@ -830,28 +1024,9 @@ function Register({ setStep, currentStep }) {
                         isValid = verifyFieldsPhone(formStep)
                     }
                     if (isValid) {
-                        const response = await registerUser()
-                        if (response === 201 || response === 200) {
-                            if (fromCheckout) {
-                                const request = await loginHelper(formData.email, formData.password);
-                                if (request.response) {
-                                    login({
-                                        nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
-                                        email: request.data.email,
-                                        cedula: request.data.cedula
-                                    })
-                                    navigate('/identify-pet', { state: { plans } })
-                                }
-                            } else {
-                                navigate('/welcomePage')
-                            }
-                        } else {
-                            setSnackbar({
-                                open: true,
-                                message: 'Hubo un error al registrar el usuario. Por favor, inténtalo de nuevo.',
-                                severity: 'error'
-                            })
-                        }
+                        setUserData(formData)
+                        setStep(7)
+                        handleSendEmail()
                     }
                 }}
                     disabled={isMobile && formStep !== groupedFields.length - 1} />

@@ -18,5 +18,6 @@ export const endpoints = {
     account_data: urlJoin(API_ROOT, 'account-data/'),
     edit_pet: urlJoin(API_ROOT, 'modify-mascota/'),
     fetch_card_data: urlJoin(API_ROOT, 'registered-cards/'),
-    check_password: urlJoin(API_ROOT, 'verify-password/')
+    check_password: urlJoin(API_ROOT, 'verify-password/'),
+    send_email: urlJoin(API_ROOT,'send-verification-email/')
 };
