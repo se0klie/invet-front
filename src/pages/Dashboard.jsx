@@ -28,12 +28,7 @@ export default function Dashboard() {
 
     async function fetchSubs() {
         try {
-            const response = await axios_api.get(endpoints.get_subs,
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookies.get('authToken')}`
-                    }
-                });
+            const response = await axios_api.get(endpoints.get_subs);
             if (response.status) {
                 setSubscriptionsClient(response.data.results)
             }
@@ -66,14 +61,7 @@ export default function Dashboard() {
 
     async function getPets() {
         try {
-            const response = await axios_api.get(
-                endpoints.get_pets,
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookies.get('authToken')}`
-                    }
-                }
-            );
+            const response = await axios_api.get(endpoints.get_pets);
             if (response.status === 200) {
                 const data = response.data.results;
                 setPets(data)

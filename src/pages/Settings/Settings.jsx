@@ -111,14 +111,7 @@ export default function Settings() {
 
     async function fetchUserData() {
         try {
-            const response = await axios.get(
-                `${import.meta.env.VITE_BACKEND_URL}api/account-data/`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookies.get('authToken')}`
-                    }
-                }
-            );
+            const response = await axios_api.get(endpoints.account_data);
             const userData = response.data;
             if (userData) {
                 setFormData({
@@ -148,11 +141,6 @@ export default function Settings() {
                 endpoints.check_password,
                 {
                     password: passwords.oldpassword
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookies.get('authToken')}`
-                    }
                 }
             )
             if (passwordCheck.data.verification) {
@@ -162,11 +150,6 @@ export default function Settings() {
                         cedula: formData.idnumber,
                         new_password: passwords.newpassword,
                         current_password: passwords.oldpassword
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${Cookies.get('authToken')}`
-                        }
                     }
                 );
                 setTimeout(() => {
@@ -219,11 +202,6 @@ export default function Settings() {
                     direccion_facturacion: formData.address,
                     nombres: formData.firstNames,
                     apellidos: formData.lastNames
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookies.get('authToken')}`
-                    }
                 }
             );
 

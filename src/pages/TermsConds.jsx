@@ -36,11 +36,6 @@ export default function TermsAndConds() {
                     {
                         plan_id: plan_name === "basic" ? 1 : plan_name === "premium" ? 2 : 3,
                         tarjeta_id: tarjeta_id,
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${Cookies.get("authToken")}`,
-                        },
                     }
                 );
                 if (response.status === 201 || response.status === 200) {
@@ -48,11 +43,6 @@ export default function TermsAndConds() {
                         {
                             mascota_id: pet_id,
                             subscripcion_id: response.data.id
-                        },
-                        {
-                            headers: {
-                                Authorization: `Bearer ${Cookies.get('authToken')}`
-                            }
                         }
                     )
                 }
@@ -77,7 +67,6 @@ export default function TermsAndConds() {
         const ws = new WebSocket("wss://backendinvet.com/ws/notifications/");
         ws.onopen = () => {
             const payload = {
-                session_token: Cookies.get('authToken'),
                 function: function_name
             };
             ws.send(JSON.stringify(payload));

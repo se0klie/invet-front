@@ -40,13 +40,7 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
 
     async function fetchCardInfo() {
         try {
-            const response = await axios_api.get(endpoints.fetch_card_data,
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookies.get('authToken')}`
-                    }
-                }
-            )
+            const response = await axios_api.get(endpoints.fetch_card_data);
             if (response.status === 200 || response.status === 201) {
                 const cards = response.data.results
                 const cardData = cards.find(obj => obj.id === subData.tarjeta_id) || null;
@@ -88,7 +82,6 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
         const ws = new WebSocket("wss://backendinvet.com/ws/notifications/");
         ws.onopen = () => {
             const payload = {
-                session_token: Cookies.get('authToken'),
                 function: function_name
             };
             ws.send(JSON.stringify(payload));
@@ -96,7 +89,7 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data)
             if (function_name === "card_registration") {
-                if (data?.function != "card_registration_callback"){
+                if (data?.function != "card_registration_callback") {
                     ws.close();
                     return;
                 }
@@ -128,11 +121,6 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
                 {
                     subscripcion_id: subData.id,
                     tarjeta_id: card
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookies.get('authToken')}`
-                    }
                 }
             )
             if (response.status === 200) {
@@ -162,13 +150,11 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
         setCancelPlan(false)
         setLoadingModal(true)
         try {
-            const response = await axios_api.patch(endpoints.cancel_sub, {
-                subscripcion_id: selectedPlan
-            }, {
-                headers: {
-                    Authorization: `Bearer ${Cookies.get('authToken')}`
+            const response = await axios_api.patch(endpoints.cancel_sub,
+                {
+                    subscripcion_id: selectedPlan
                 }
-            })
+            )
             if (response.status === 200) {
                 setIsCanceled(true);
                 handleRefresh()

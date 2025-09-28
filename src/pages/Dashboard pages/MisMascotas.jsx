@@ -37,15 +37,7 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
                 ciudad: newPetData.ciudad,
                 url_foto: newPetData.image || ''
             }
-            const response = await axios_api.post(
-                endpoints.add_pet,
-                payload,
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookies.get('authToken')}`
-                    }
-                }
-            );
+            const response = await axios_api.post(endpoints.add_pet, payload);
 
             if (response.status === 201) {
                 await handleRefresh()

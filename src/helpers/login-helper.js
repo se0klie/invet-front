@@ -1,6 +1,5 @@
 import axios_api from '../pages/axios';
 import { endpoints } from '../pages/endpoints.js';
-import Cookies from 'js-cookie';
 
 export async function loginHelper(email, password) {
     try {
@@ -8,16 +7,9 @@ export async function loginHelper(email, password) {
             { email: email, password: password }
         )
         if (response.status === 200) {
-            Cookies.set('authToken', response.data.bearer_token)
-            const data = await axios_api.get(endpoints.account_data,
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookies.get('authToken')}`
-                    }
-                }
-            )
+            const data = await axios_api.get(endpoints.account_data)
             if (data.status === 201 || data.status === 200) {
-                return { response: true, token: response.data.bearer_token, data: data.data }
+                return { response: true, data: data.data }
             }
         }
         return { response: false, message: 'Credenciales incorrectas.' }
