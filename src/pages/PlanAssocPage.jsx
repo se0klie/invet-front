@@ -422,12 +422,7 @@ function AsignPlanToPet({ pets, plans, setStep, setUpdatedData, updatedData }) {
 
     async function fetchSubs() {
         try {
-            const response = await axios_api.get(endpoints.get_subs,
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookies.get('authToken')}`
-                    }
-                });
+            const response = await axios_api.get(endpoints.get_subs);
             if (response.status === 200) {
 
                 setSubscriptionsClient(response.data.results)

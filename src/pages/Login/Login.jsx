@@ -34,7 +34,6 @@ export default function InitialState() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-
     return (
         <Box
             sx={{
@@ -47,6 +46,7 @@ export default function InitialState() {
             {currentStep === 2 && <ChangePassword setStep={setCurrentStep} currentStep={currentStep} />}
             {currentStep === 3 && <VerifyCode setStep={setCurrentStep} currentStep={currentStep} />}
             {currentStep === 4 && <UpdatePasswordForm setStep={setCurrentStep} currentStep={currentStep} />}
+            {currentStep === 5 && <Register setStep={setCurrentStep} setUserData={setUserData} userData={userData} />}
             {currentStep === 5 && <Register setStep={setCurrentStep} setUserData={setUserData} userData={userData} />}
             {currentStep === 6 && <SuccessPasswordPage setStep={setCurrentStep} />}
             {currentStep === 7 && <VerifyEmail setStep={setCurrentStep} formData={userData} />}
@@ -219,6 +219,52 @@ function Login({ setStep }) {
 }
 
 function ChangePassword({ setStep, currentStep }) {
+    const [email, setEmail] = useState('')
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'success',
+    });
+
+    async function sendEmail() {
+        try {
+            if (!email || !email.includes('@')) {
+                setSnackbar({
+                    open: true,
+                    message: `Correo no válido.`,
+                    severity: 'error'
+                })
+                return;
+            }
+
+            const response = await axios_api.post(endpoints.send_password_reset,
+                {
+                    email: email
+                }
+            )
+            if (response.status === 200 || response.status === 201) {
+                setSnackbar({
+                    open: true,
+                    message: `Correo enviado, revise su bandeja de entrada.`,
+                    severity: 'success'
+                })
+                setTimeout(() => {
+                    setStep(1);
+                }, 3000);
+            }
+        } catch (err) {
+            console.error('API POST ERROR, send-email-pswd', err)
+            if (err.status === 404) {
+                setSnackbar({
+                    open: true,
+                    message: `No existe una cuenta con ese correo.`,
+                    severity: 'error'
+                })
+            }
+            return err
+        }
+    }
+
     return (
         <Box
             className='content-box1'
@@ -238,19 +284,31 @@ function ChangePassword({ setStep, currentStep }) {
                             Correo electrónico
                         </Typography>
                         <Typography className="email-description">
-                            Ingresa tu correo electrónico para enviar un código de confirmación.
+                            Ingresa tu correo electrónico para enviar una contraseña temporal. Con esta, podrás iniciar sesión y luego cambiar tu contraseña.
                         </Typography>
-                        <TextField fullWidth placeholder="Correo electrónico" />
+                        <TextField fullWidth placeholder="Correo electrónico" onChange={(e) => { setEmail(e.target.value) }} />
                     </Box>
-
-
                 </Box>
 
             </Box>
             <Box className="buttons-container">
                 <PreviousButton action={() => { setStep(currentStep - 1) }} />
-                <NextButton action={() => { setStep(currentStep + 1) }} isSend={true} />
+                <NextButton action={async () => { await sendEmail() }} isSend={true} />
             </Box>
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+                <Alert
+                    onClose={() => setSnackbar({ ...snackbar, open: false })}
+                    severity={snackbar.severity}
+                    sx={{ width: '100%' }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Box>
     )
 }
@@ -409,7 +467,8 @@ function UpdatePasswordForm({ setStep, currentStep }) {
 }
 
 
-function SuccessPasswordPage({ setStep, currentStep }) {
+function SuccessPasswordPage({ setStep, formData }) {
+
     return (
         <Box
             className='content-box1'
@@ -509,7 +568,6 @@ function VerifyEmail({ setStep, formData }) {
 
 function Register({ setStep, setUserData, userData }) {
     const [formData, setFormData] = useState({
-        firstNames: userData.firstNames || '',
         lastNames: userData.lastNames || '',
         idnumber: userData.idnumber || '',
         email: userData.email || '',
@@ -529,8 +587,7 @@ function Register({ setStep, setUserData, userData }) {
         message: '',
         severity: 'success',
     });
-    const { login } = useAuth()
-    const [fromCheckout, setFromCheckout] = useState(location?.state?.from === 'checkout' || false)
+
     const groupedFields = [
         ['idnumber', 'firstNames', 'lastNames', 'email', 'phone'],
         ['city', 'address'],
@@ -720,11 +777,18 @@ function Register({ setStep, setUserData, userData }) {
         return !hasErrors;
     }
 
-    useEffect(() => {
-        if (location.state?.from === 'checkout') {
-            setFromCheckout(true)
+    async function handleSendEmail() {
+        try {
+            const email = await axios_api.post(endpoints.send_email,
+                {
+                    email: formData.email
+                }
+            )
+        } catch (err) {
+            console.error("API call failed:", err);
+            return err
         }
-    }, [])
+    }
 
     return (
         <Box

@@ -62,13 +62,7 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
 
     async function getCards() {
         try {
-            const cardsInfo = await axios_api.get(endpoints.registered_cards,
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookies.get('authToken')}`
-                    }
-                }
-            )
+            const cardsInfo = await axios_api.get(endpoints.registered_cards);
             const cards = cardsInfo?.data?.results?.map(card => {
                 const matchedSubs = Object.values(subscriptions || {}).filter(
                     s => s.subscripcion.tarjeta_id === card.id
@@ -96,9 +90,6 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
         setDeletePaymentMethod(false)
         try {
             const response = await axios_api.delete(endpoints.remove_card, {
-                headers: {
-                    Authorization: `Bearer ${Cookies.get('authToken')}`
-                },
                 data: {
                     email: localStorage.getItem('email'),
                     tarjeta_id: selectedCard.id

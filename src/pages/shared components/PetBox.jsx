@@ -41,13 +41,12 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
         setCancelPlan(false)
         setLoadingModal(true)
         try {
-            const response = await axios_api.patch(endpoints.cancel_sub, {
-                subscripcion_id: sub.id
-            }, {
-                headers: {
-                    Authorization: `Bearer ${Cookies.get('authToken')}`
+            const response = await axios_api.patch(
+                endpoints.cancel_sub,
+                {
+                    subscripcion_id: sub.id
                 }
-            })
+            )
             refreshDashboard()
             if (response.status === 200) {
                 setTimeout(() => {
@@ -80,11 +79,6 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
                 {
                     mascota_1_id: pet.id,
                     mascota_2_id: selectedPet.id
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookies.get('authToken')}`
-                    }
                 }
             )
             if (response.status === 200) {
@@ -156,7 +150,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
                     {pet?.nombre}
                 </Typography>
 
-                <Box sx={{paddingTop: '1rem', paddingBottom: '1rem'}}>
+                <Box sx={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
                     {(!sub || sub?.estado === 3) ? (
                         <YellowAlert message={`${pet?.nombre} no tiene un plan asociado, ¡Contrata uno!`} fromDashboard={true} />
                     ) : (

@@ -4,14 +4,7 @@ import axios_api from "../pages/axios";
 import { endpoints } from '../pages/endpoints.js'
 export async function getPets() {
     try {
-        const response = await axios_api.get(
-            endpoints.get_pets,
-            {
-                headers: {
-                    Authorization: `Bearer ${Cookies.get('authToken')}`
-                }
-            }
-        );
+        const response = await axios_api.get(endpoints.get_pets);
         if (response.status === 200) {
             const data = response.data.results;
             return data
@@ -33,15 +26,7 @@ export async function addPet(nombre, raza, fecha, ciudad, url) {
             ciudad: ciudad,
             url_foto: url || ''
         }
-        const response = await axios_api.post(
-            endpoints.add_pet,
-            payload,
-            {
-                headers: {
-                    Authorization: `Bearer ${Cookies.get('authToken')}`
-                }
-            }
-        );
+        const response = await axios_api.post(endpoints.add_pet, payload);
 
         if (response.status === 201) {
             return 201
