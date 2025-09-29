@@ -133,7 +133,7 @@ export default function MainflowNavbar() {
             >
               Nuestros servicios
             </Button>
-            {localStorage.getItem('email') && Cookies.get('authToken') ? (
+            {localStorage.getItem('email') ? (
               <Button
                 variant="contained"
                 sx={{
@@ -191,7 +191,7 @@ export default function MainflowNavbar() {
             <Button variant="contained" sx={{ backgroundColor: "#2C7A7B" }} onClick={() => { navigate('/ourService') }}>
               Nuestros servicios
             </Button>
-            {localStorage.getItem('email') && Cookies.get('authToken') ? (
+            {localStorage.getItem('email') ? (
               <Button
                 variant="contained"
                 sx={{
