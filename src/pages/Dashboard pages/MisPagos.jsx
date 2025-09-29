@@ -241,7 +241,7 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
                             }}
                         >
                             <img
-                                src="/images/common/no_data.svg"
+                                src={`${import.meta.env.BASE_URL}/images/common/no_data.svg`}
                                 alt="No data"
                                 style={{
                                     width: '100%',

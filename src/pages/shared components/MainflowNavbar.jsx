@@ -79,7 +79,7 @@ export default function MainflowNavbar() {
           setClicked('Inicio')
         }}>
           <img
-            src="images/logo-invet.png"
+            src={`${import.meta.env.BASE_URL}/images/logo-invet.png`}
             alt="Logo"
             style={{ height: 40, marginRight: 8 }}
           />
@@ -147,7 +147,7 @@ export default function MainflowNavbar() {
                 onClick={() => { navigate('/dashboard') }}
               >
                 <Box sx={{ borderRadius: '100%', backgroundColor: 'var(--darkgreen-color)', width: '30px', height: '30px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                  <img src="/images/user-avatar.png" alt="User Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
+                  <img src={`${import.meta.env.BASE_URL}/images/user-avatar.png`} alt="User Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
                 </Box>
                 <Typography sx={{ fontWeight: 600, fontSize: '0.9rem' }}>Mi perfil</Typography>
               </Button>
@@ -205,7 +205,7 @@ export default function MainflowNavbar() {
                 onClick={() => { navigate('/dashboard') }}
               >
                 <Box sx={{ borderRadius: '100%', backgroundColor: 'var(--darkgreen-color)', width: '30px', height: '30px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                  <img src="/images/user-avatar.png" alt="User Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
+                  <img src={`${import.meta.env.BASE_URL}/images/user-avatar.png`} alt="User Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
                 </Box>
                 <Typography sx={{ fontSize: '0.9rem', textTransform: 'uppercase' }}>Mi perfil</Typography>
               </Button>

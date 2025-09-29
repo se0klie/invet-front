@@ -76,7 +76,7 @@ export default function AboutPage() {
                         bottom: 0,
                         height: { xs: 400, md: 600 },
                         aspectRatio: '4 / 3',
-                        backgroundImage: `url(/images/about/dog-about.png)`,
+                        backgroundImage: `url(${import.meta.env.BASE_URL}/images/about/dog-about.png)`,
                         backgroundSize: "contain",
                         backgroundRepeat: "no-repeat",
                         backgroundPosition: "right bottom",
@@ -263,7 +263,7 @@ export default function AboutPage() {
 
                 <Box sx={{ width: '100%', maxWidth: 700 }}>
                     <img
-                        src="/images/about/doc-about.jpg"
+                        src={`${import.meta.env.BASE_URL}/images/about/doc-about.jpg`}
                         alt="About Invet"
                         style={{
                             width: '100%',

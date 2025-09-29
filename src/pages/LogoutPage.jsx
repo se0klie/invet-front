@@ -38,7 +38,7 @@ export default function LogoutPage() {
         >
             <Box
                 component="img"
-                src="/images/logout.png"
+                src={`${import.meta.env.BASE_URL}/images/logout.png1`}
                 alt="Welcome illustration"
                 sx={{
                     maxWidth: '300px',

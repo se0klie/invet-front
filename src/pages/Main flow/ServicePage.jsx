@@ -169,7 +169,7 @@ export default function ServicePage() {
                 >
                     <Box
                         component="img"
-                        src="/images/services/pet1-services.jpg"
+                        src={`${import.meta.env.BASE_URL}/images/services/pet1-services.jpg`}
                         alt="Perro"
                         sx={{
                             width: { xs: 200, md: 300 },
@@ -182,7 +182,7 @@ export default function ServicePage() {
                     {!isMobile &&
                         <Box
                             component="img"
-                            src="/images/services/cat1-services.jpg"
+                            src={`${import.meta.env.BASE_URL}/images/services/cat1-services.jpg`}
                             alt="Gato"
                             sx={{
                                 width: { xs: 200, md: 250 },
@@ -351,7 +351,7 @@ export default function ServicePage() {
                         sx={{
                             flex: 1,
                             minHeight: { xs: 200, md: 400 },
-                            backgroundImage: "url('/images/services/doc-servicio.jpg')",
+                            backgroundImage: `url('${import.meta.env.BASE_URL}/images/services/doc-servicio.jpg')`,
                             backgroundSize: "cover",
                             backgroundPosition: "center",
                             borderRadius: 2,

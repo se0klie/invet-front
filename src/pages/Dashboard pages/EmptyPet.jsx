@@ -5,7 +5,7 @@ export default function EmptyPet() {
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <Box
                 component="img"
-                src="/images/Dog.png"
+                src={`${import.meta.env.BASE_URL}/images/Dog.png`}
                 alt="Welcome illustration"
                 sx={{
                     maxWidth: '200px',

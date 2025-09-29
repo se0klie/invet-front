@@ -9,12 +9,10 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const storedToken = Cookies.get("authToken");
     const storedUser = localStorage.getItem("email");
     const storedUserID = localStorage.getItem("cedula");
     const storedName = localStorage.getItem("nombre");
-    if (storedToken && storedUser) {
-      setAuthToken(storedToken);
+    if (storedUser) {
       setUser({
         email: storedUser,
         cedula: storedUserID,

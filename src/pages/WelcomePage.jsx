@@ -28,7 +28,7 @@ export default function WelcomePage() {
         >
             <Box
                 component="img"
-                src="/images/welcome-img.webp"
+                src={`${import.meta.env.BASE_URL}/images/welcome-img.webp`}
                 alt="Welcome illustration"
                 sx={{
                     maxWidth: '300px',
