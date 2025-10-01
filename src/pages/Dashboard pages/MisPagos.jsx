@@ -6,7 +6,6 @@ import { MdOutlinePets } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 import axios_api from "../axios";
 import { endpoints } from "../endpoints";
-import Cookies from "js-cookie";
 import { IoIosRemove } from "react-icons/io";
 import { RxCross1 } from "react-icons/rx";
 import { LoadingModal } from "../shared components/Modals";
@@ -28,6 +27,20 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
     const [showLoadingModal, setShowLoadingModal] = useState(false)
     const [loadingStep, setLoadingStep] = useState(0)
 
+    async function fetchBills() {
+        try {
+            const response = await axios_api.get(endpoints.get_bills)
+            setInvoices(response?.data?.results || [])
+        } catch (err) {
+            console.error(err)
+            return err
+        }
+    }
+
+    useEffect(() => {
+        fetchBills()
+    }, [])
+    
     useEffect(() => {
         if (pets) {
             setLoadingInfo((prev) => ({
@@ -267,6 +280,7 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
                     )}
                 </Box>
             </Box>
+            <Button onClick={async () => await fetchBills()}>sdasd</Button>
             <Modal
                 open={showCards}
                 onClose={() => setShowCards(false)}

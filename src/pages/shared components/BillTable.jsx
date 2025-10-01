@@ -5,10 +5,13 @@ import {
 } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
 import { LoadingModal } from './Modals';
+//TODO: A;ADIR DECRIPSION
 export const FacturasTable = ({ rows }) => {
     const [showLoadingModal, setShowLoadingModal] = useState(false)
     const [loadingModalStep, setLoadingModalStep] = useState(0)
-
+    useEffect(() => {
+        console.log(rows)
+    })
     useEffect(() => {
         setTimeout(() => {
             setLoadingModalStep(1)
@@ -91,6 +94,10 @@ export const FacturasList = ({ rows }) => {
     const [loadingModalStep, setLoadingModalStep] = useState(0)
 
     useEffect(() => {
+        console.log(rows)
+    })
+
+    useEffect(() => {
         setTimeout(() => {
             setLoadingModalStep(1)
             setTimeout(() => {
@@ -122,30 +129,17 @@ export const FacturasList = ({ rows }) => {
                     <Box key={i} sx={{ display: 'flex', flexDirection: 'column', padding: '1rem', backgroundColor: 'white', marginY: '1rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                             <   Typography variant="body1" sx={{ fontWeight: 'bold', color: 'var(--darkgreen-color)' }}>
-                                {row.fecha}
+                                {row.fecha_emision}
                             </Typography>
                             <Typography variant="body1" sx={{ color: 'black', fontWeight: 600 }}>
-                                ${row.monto}
+                                ${row.total}
                             </Typography>
                         </Box>
                         <Box sx={{ display: 'flex', marginTop: '0.5rem', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Typography variant="body2" sx={{ color: 'gray' }}>
-                                {row.plan} - {row.mascota}
+                            PLACEHOLDER DESC
                             </Typography>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem', gap: '1rem' }}>
-                                <DownloadIcon style={{ color: 'mediumseagreen' }} onClick={() => setShowLoadingModal(true)}/>
-                                <Box sx={{
-                                    display: 'flex',
-                                    alignItems: 'center'
-                                }}>
-                                    <Typography
-                                        component="span"
-                                        sx={{ color: 'mediumseagreen', fontWeight: 'bold', fontSize: '0.875rem', cursor: 'pointer' }}
-                                    >
-                                        Ver
-                                    </Typography>
-                                </Box>
-                            </Box>
+                            
                         </Box>
                     </Box>
 

@@ -7,7 +7,6 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { DarkGreenButton } from "../shared components/Buttons";
 import { YellowAlert } from "../shared components/Alerts";
-import Cookies from "js-cookie";
 
 export default function PaymentPage() {
     const [bill, setBill] = useState({
@@ -257,7 +256,7 @@ export default function PaymentPage() {
                                  Asigne los planes a sus mascotas
                             </Typography>
 
-                            {localStorage.getItem('email') && Cookies.get('authToken') ? (
+                            {localStorage.getItem('email') ? (
                                 <Box
                                     sx={{
                                         width: '50%',
@@ -321,7 +320,7 @@ export default function PaymentPage() {
                             Asigne los planes a sus mascotas
                         </Typography>
 
-                        {localStorage.getItem('email') && Cookies.get('authToken') ? (
+                        {localStorage.getItem('email')? (
                             <Box
                                 sx={{
                                     flex: 1,

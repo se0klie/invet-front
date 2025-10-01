@@ -47,9 +47,8 @@ export default function InitialState() {
             {currentStep === 3 && <VerifyCode setStep={setCurrentStep} currentStep={currentStep} />}
             {currentStep === 4 && <UpdatePasswordForm setStep={setCurrentStep} currentStep={currentStep} />}
             {currentStep === 5 && <Register setStep={setCurrentStep} setUserData={setUserData} userData={userData} />}
-            {currentStep === 5 && <Register setStep={setCurrentStep} setUserData={setUserData} userData={userData} />}
             {currentStep === 6 && <SuccessPasswordPage setStep={setCurrentStep} />}
-            {currentStep === 7 && <VerifyEmail setStep={setCurrentStep} formData={userData} />}
+            {currentStep === 7 && <VerifyCode setStep={setCurrentStep} formData={userData} />}
 
         </Box>
     )
@@ -313,85 +312,6 @@ function ChangePassword({ setStep, currentStep }) {
     )
 }
 
-function VerifyCode({ setStep, currentStep }) {
-    const [code, setCode] = useState(['', '', '', '']);
-    const inputsRef = useRef([]);
-    const { enqueueSnackbar } = useSnackbar();
-
-    const handleResendCode = () => {
-        enqueueSnackbar('Código reenviado correctamente.', { variant: 'success' });
-    };
-
-    const handleChange = (index, value) => {
-        if (!/^[0-9]?$/.test(value)) return;
-
-        const newCode = [...code];
-        newCode[index] = value;
-        setCode(newCode);
-
-        if (value && index < 3) {
-            inputsRef.current[index + 1].focus();
-        }
-    };
-
-    const handleKeyDown = (e, index) => {
-        if (e.key === 'Backspace' && !code[index] && index > 0) {
-            inputsRef.current[index - 1].focus();
-        }
-    };
-
-    return (
-        <Box
-            className='content-box1'
-        >
-            <Box
-                className='content-box2'
-            >
-
-
-                <Box className="verification-title-container">
-                    <Typography className="title">
-                        Verificación de código
-                    </Typography>
-                </Box>
-
-                <Box className="verification-content">
-                    <Box>
-                        <Typography className="code-description">
-                            Ingresa el código que fue enviado a tu correo para poder reestablecer tu contraseña.
-                        </Typography>
-
-                        <Box className="code-inputs">
-                            {[0, 1, 2, 3].map((i) => (
-                                <TextField
-                                    key={i}
-                                    inputRef={(el) => inputsRef.current[i] = el}
-                                    value={code[i]}
-                                    onChange={(e) => handleChange(i, e.target.value)}
-                                    onKeyDown={(e) => handleKeyDown(e, i)}
-                                    inputProps={{
-                                        style: { textAlign: 'center', fontSize: '1rem' },
-                                    }}
-                                />
-                            ))}
-                        </Box>
-
-                        <Typography className="resend-code" onClick={handleResendCode} >
-                            ¿No recibiste el código? Click para reenviar
-                        </Typography>
-                    </Box>
-                </Box>
-            </Box>
-            <Box>
-                <Box className="buttons-container">
-                    <PreviousButton action={() => { setStep(currentStep - 1) }} />
-                    <NextButton action={() => { setStep(currentStep + 1) }} />
-                </Box>
-            </Box>
-        </Box>
-    )
-}
-
 function UpdatePasswordForm({ setStep, currentStep }) {
     const [passwords, setPasswords] = useState({})
 
@@ -499,30 +419,107 @@ function SuccessPasswordPage({ setStep, formData }) {
     )
 }
 
-function VerifyEmail({ setStep, formData }) {
-    const isMobile = window.innerWidth <= 1000
 
-    async function registerUser() {
+function VerifyCode({ setStep, formData }) {
+    const [code, setCode] = useState(['', '', '', '', '', '']);
+    const inputsRef = useRef([]);
+    const { enqueueSnackbar } = useSnackbar();
+    const location = useLocation()
+    const plans = location?.state?.plans
+    const navigate = useNavigate()
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'success',
+    });
+    const handleResendCode = () => {
+        enqueueSnackbar('Código reenviado correctamente.', { variant: 'success' });
+    };
+    const [fromCheckout, setFromCheckout] = useState(location?.state?.from === 'checkout' || false)
+    const { login } = useAuth()
+
+    useEffect(() => {
+        if (location.state?.from === 'checkout') {
+            setFromCheckout(true)
+        }
+    }, [])
+
+    async function handleRegister() {
         try {
             const response = await axios_api.post(
                 endpoints.create_user,
                 {
                     cedula: formData.idnumber,
-                    nombres: formData.firstNames,
-                    apellidos: formData.lastNames,
+                    nombres: formData.firstNames
+                        .toLowerCase()
+                        .split(" ")
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(" "),
+                    apellidos: formData.lastNames
+                        .toLowerCase()
+                        .split(" ")
+                        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(" "),
                     password: formData.password,
                     email: formData.email,
                     celular: formData.phone,
                     direccion_facturacion: formData.address,
-
+                    verification_code: code.join('')
                 },
             );
-            return response.status;
+            if (response.status === 201 || response.status === 200) {
+                if (fromCheckout) {
+                    const request = await loginHelper(formData.email, formData.password);
+                    if (request.response) {
+                        login({
+                            nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
+                            email: request.data.email,
+                            cedula: request.data.cedula
+                        })
+                        navigate('/identify-pet', { state: { plans } })
+                    }
+                } else {
+                    navigate('/welcomePage')
+                }
+            }
+            return true;
         } catch (err) {
-            console.error("API call failed:", err);
-            return err.status || 500;
+            if (err.status === 422) {
+                setSnackbar({
+                    open: true,
+                    message: `Código incorrecto, por favor verifica e intenta nuevamente.`,
+                    severity: 'error'
+                })
+                return;
+            }
+            setSnackbar({
+                open: true,
+                message: `Hubo un error en su registro, intente más tarde.`,
+                severity: 'error'
+            })
+            console.error('API CALL failed, /post register', err)
+            return err
         }
     }
+
+    const handleChange = (index, value) => {
+        if (!/^[0-9]?$/.test(value)) return;
+
+        const newCode = [...code];
+        newCode[index] = value;
+        setCode(newCode);
+
+        if (value && index < 5) {
+            inputsRef.current[index + 1].focus();
+        }
+    };
+
+    const handleKeyDown = (e, index) => {
+        if (e.key === 'Backspace' && !code[index] && index > 0) {
+            inputsRef.current[index - 1].focus();
+        }
+    };
+
     return (
         <Box
             className='content-box1'
@@ -530,37 +527,71 @@ function VerifyEmail({ setStep, formData }) {
             <Box
                 className='content-box2'
             >
-                <Box className="title-box">
-                    <Typography className="title">Verificación de email</Typography>
-                </Box>
 
-                <Box>
-                    <Typography>
-                        Hemos enviado un enlace de verificación a tu correo electrónico. Por favor, revisa tu bandeja de entrada y haz clic en el enlace para verificar tu cuenta.
-                    </Typography>
-                    <Typography
-                        sx={{
-                            marginTop: '1rem',
-                            textDecoration: 'underline',
-                            color: 'var(--darkgreen-color)',
-                            cursor: 'pointer',
-                            '&:hover': {
-                                fontWeight: 600,
-                            }
-                        }}>
-                        Reenviar enlace
+
+                <Box className="verification-title-container">
+                    <Typography className="title">
+                        Verificación de código
                     </Typography>
                 </Box>
 
+                <Box className="verification-content">
+                    <Box>
+                        <Typography className="code-description">
+                            Ingresa el código que fue enviado a tu correo para poder reestablecer tu contraseña.
+                        </Typography>
 
+                        <Box className="code-inputs">
+                            {[0, 1, 2, 3, 4, 5].map((i) => (
+                                <TextField
+                                    key={i}
+                                    inputRef={(el) => inputsRef.current[i] = el}
+                                    value={code[i]}
+                                    onChange={(e) => handleChange(i, e.target.value)}
+                                    onKeyDown={(e) => handleKeyDown(e, i)}
+                                    inputProps={{
+                                        style: { textAlign: 'center', fontSize: '1rem' },
+                                    }}
+                                />
+                            ))}
+                        </Box>
+
+                        <Typography className="resend-code" onClick={handleResendCode} >
+                            ¿No recibiste el código? Click para reenviar
+                        </Typography>
+                    </Box>
+                </Box>
             </Box>
-            <Box className="buttons-container">
-                <PreviousButton text="Regresar a registro" isBrighter={true} action={() => { setStep(5) }} />
-                <NextButton action={async () => {
-
-                }}
-
-                />
+            <Box>
+                <Box className="buttons-container">
+                    <PreviousButton action={() => {
+                        setStep(5)
+                    }} />
+                    <NextButton action={async () => {
+                        const response = await handleRegister()
+                        if (response === 201 || response === 200) {
+                            if (fromCheckout) {
+                                const request = await loginHelper(formData.email, formData.password);
+                                if (request.response) {
+                                    login({
+                                        nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
+                                        email: request.data.email,
+                                        cedula: request.data.cedula
+                                    })
+                                    navigate('/identify-pet', { state: { plans } })
+                                }
+                            } else {
+                                navigate('/welcomePage')
+                            }
+                        } else {
+                            setSnackbar({
+                                open: true,
+                                message: 'Hubo un error al registrar el usuario. Por favor, inténtalo de nuevo.',
+                                severity: 'error'
+                            })
+                        }
+                    }} />
+                </Box>
             </Box>
         </Box>
     )
@@ -568,6 +599,7 @@ function VerifyEmail({ setStep, formData }) {
 
 function Register({ setStep, setUserData, userData }) {
     const [formData, setFormData] = useState({
+        firstNames: userData.firstNames || '',
         lastNames: userData.lastNames || '',
         idnumber: userData.idnumber || '',
         email: userData.email || '',
@@ -578,7 +610,6 @@ function Register({ setStep, setUserData, userData }) {
         address: userData.address || '',
     })
     const isMobile = window.innerWidth <= 1000
-    const location = useLocation()
     const [formStep, setFormStep] = useState(0);
     const [errors, setErrors] = useState({})
     const [hasErrors, setHasErrors] = useState(false)
@@ -593,8 +624,7 @@ function Register({ setStep, setUserData, userData }) {
         ['city', 'address'],
         ['password', 'repeatedpassword'],
     ]
-    const plans = location?.state?.plans
-   
+
 
     const registerFields = [
         {
@@ -944,36 +974,8 @@ function Register({ setStep, setUserData, userData }) {
                     }
                     if (isValid) {
                         setUserData(formData)
-                        openSocket('email_verification', {
-                            onEmailVerification: (data, ws) => {
-                                console.log('Email verificado:', data);
-                                ws.close();
-                            }
-                        })
+                        handleSendEmail()
                         setStep(7)
-
-                        // const response = await registerUser()
-                        // if (response === 201 || response === 200) {
-                        //     if (fromCheckout) {
-                        //         const request = await loginHelper(formData.email, formData.password);
-                        //         if (request.response) {
-                        //             login({
-                        //                 nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
-                        //                 email: request.data.email,
-                        //                 cedula: request.data.cedula
-                        //             })
-                        //             navigate('/identify-pet', { state: { plans } })
-                        //         }
-                        //     } else {
-                        //         navigate('/welcomePage')
-                        //     }
-                        // } else {
-                        //     setSnackbar({
-                        //         open: true,
-                        //         message: 'Hubo un error al registrar el usuario. Por favor, inténtalo de nuevo.',
-                        //         severity: 'error'
-                        //     })
-                        // }
                     }
                 }}
                     disabled={isMobile && formStep !== groupedFields.length - 1} />

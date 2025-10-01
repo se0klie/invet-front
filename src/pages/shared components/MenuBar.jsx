@@ -4,7 +4,6 @@ import { IoMdSettings } from "react-icons/io";
 import { MdLogout } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { CiCircleMore } from "react-icons/ci";
 
 export default function MenuBar() {
     const { user, login } = useAuth()

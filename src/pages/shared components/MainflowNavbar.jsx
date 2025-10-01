@@ -15,7 +15,6 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate, useLocation } from "react-router-dom";
-import Cookies from "js-cookie";
 
 export default function MainflowNavbar() {
   const location = useLocation()
