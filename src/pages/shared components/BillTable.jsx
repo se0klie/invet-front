@@ -3,15 +3,13 @@ import {
     Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Paper, Button, IconButton, Typography, Box
 } from '@mui/material';
-import DownloadIcon from '@mui/icons-material/Download';
 import { LoadingModal } from './Modals';
+
 //TODO: A;ADIR DECRIPSION
+
 export const FacturasTable = ({ rows }) => {
     const [showLoadingModal, setShowLoadingModal] = useState(false)
     const [loadingModalStep, setLoadingModalStep] = useState(0)
-    useEffect(() => {
-        console.log(rows)
-    })
     useEffect(() => {
         setTimeout(() => {
             setLoadingModalStep(1)
@@ -32,52 +30,17 @@ export const FacturasTable = ({ rows }) => {
                         <TableCell><strong>Plan</strong></TableCell>
                         <TableCell><strong>Mascota</strong></TableCell>
                         <TableCell><strong>Monto</strong></TableCell>
-                        <TableCell align="center">
-                            <Button
-                                variant="contained"
-                                sx={{
-                                    textTransform: 'none',
-                                    backgroundColor: '#2B7C85',
-                                    borderRadius: '6px',
-                                    fontWeight: 'bold',
-                                    fontSize: '0.8rem',
-                                    paddingX: 2,
-                                    '&:hover': { backgroundColor: '#256a71' }
-                                }}
-                                onClick={() => setShowLoadingModal(true)}
-                            >
-                                Descargar todo
-                            </Button>
-                        </TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {rows.map((row, i) => (
                         <TableRow key={i}>
                             <TableCell>{row.id}</TableCell>
-                            <TableCell>{row.fecha}</TableCell>
+                            <TableCell>{row.fecha_emision}</TableCell>
                             <TableCell><strong>{row.plan}</strong></TableCell>
                             <TableCell>{row.mascota}</TableCell>
                             <TableCell>
-                                <Typography fontWeight="bold">${row.monto}</Typography>
-                            </TableCell>
-                            <TableCell align="right" sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
-                                <Box sx={{
-                                    display: 'flex',
-                                    alignItems: 'center'
-                                }}>
-                                    <Typography
-                                        component="span"
-                                        sx={{ color: 'mediumseagreen', fontWeight: 'bold', fontSize: '0.875rem', cursor: 'pointer' }}
-                                    >
-                                        Ver
-                                    </Typography>
-                                </Box>
-                                <IconButton size="small">
-                                    <DownloadIcon
-                                        onClick={() => setShowLoadingModal(true)}
-                                    />
-                                </IconButton>
+                                <Typography fontWeight="bold">${row.total}</Typography>
                             </TableCell>
                         </TableRow>
                     ))}
@@ -109,21 +72,6 @@ export const FacturasList = ({ rows }) => {
 
     return (
         <Box sx={{ width: '100%' }}>
-            <Button
-                variant="contained"
-                sx={{
-                    textTransform: 'none',
-                    backgroundColor: '#2B7C85',
-                    borderRadius: '6px',
-                    fontWeight: 'bold',
-                    fontSize: '0.8rem',
-                    paddingX: 2,
-                    '&:hover': { backgroundColor: '#256a71' }
-                }}
-                onClick={() => setShowLoadingModal(true)}
-            >
-                Descargar todo
-            </Button>
             {rows.map((row, i) => (
                 <Box key={i}>
                     <Box key={i} sx={{ display: 'flex', flexDirection: 'column', padding: '1rem', backgroundColor: 'white', marginY: '1rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>

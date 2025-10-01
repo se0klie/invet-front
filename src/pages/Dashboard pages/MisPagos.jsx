@@ -9,14 +9,28 @@ import { endpoints } from "../endpoints";
 import { IoIosRemove } from "react-icons/io";
 import { RxCross1 } from "react-icons/rx";
 import { LoadingModal } from "../shared components/Modals";
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
+import React from "react";
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import ClearIcon from '@mui/icons-material/Clear';
+
+dayjs.extend(isSameOrAfter);
+dayjs.extend(isSameOrBefore);
+dayjs.extend(customParseFormat);
 
 export default function MisPagos({ pets, subscriptions, handleRefresh }) {
     const [invoices, setInvoices] = useState([]);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+    const [startDate, setStartDate] = React.useState(null);
+    const [endDate, setEndDate] = React.useState(null);
     const [loadingInfo, setLoadingInfo] = useState({
         pets: false,
         subs: false,
-        invoices: true
+        invoices: false
     })
     const navigate = useNavigate()
     const [validSubs, setValidSubs] = useState(subscriptions)
@@ -26,11 +40,17 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
     const [selectedCard, setSelectedCard] = useState('')
     const [showLoadingModal, setShowLoadingModal] = useState(false)
     const [loadingStep, setLoadingStep] = useState(0)
+    const [filteredInvoices, setFilteredInvoices] = useState(invoices || [])
 
     async function fetchBills() {
         try {
             const response = await axios_api.get(endpoints.get_bills)
             setInvoices(response?.data?.results || [])
+            setFilteredInvoices(response?.data?.results || [])
+            setLoadingInfo((prev) => ({
+                ...prev,
+                invoices: true
+            }))
         } catch (err) {
             console.error(err)
             return err
@@ -40,7 +60,7 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
     useEffect(() => {
         fetchBills()
     }, [])
-    
+
     useEffect(() => {
         if (pets) {
             setLoadingInfo((prev) => ({
@@ -61,6 +81,22 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
 
     }, [pets, subscriptions])
 
+    function handleFilterInvoices() {
+        if (!startDate || !endDate) {
+            setFilteredInvoices(invoices);
+            return;
+        }
+
+        const filtered = invoices.filter((invoice) => {
+            const invoiceDate = dayjs(invoice.fecha_emision, 'DD/MM/YYYY');
+            const start = dayjs(startDate);
+            const end = dayjs(endDate);
+
+            return invoiceDate.isSameOrAfter(start, 'day') && invoiceDate.isSameOrBefore(end, 'day');
+        });
+
+        setFilteredInvoices(filtered);
+    }
     useEffect(() => {
         function handleResize() {
             setIsMobile(window.innerWidth <= 1024);
@@ -212,7 +248,7 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
                 sx={{
                     borderBottom: '2px solid var(--gray-color)',
                     width: '100%',
-                    my: 2
+                    my: 1
                 }}
             />
 
@@ -222,27 +258,129 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
                     flexDirection: 'column',
                     height: '50%',
                     width: '100%',
-                    px: 2,
+                    py: 1,
+                    gap: 1,
                 }}
             >
-                <Typography
-                    variant="h5"
-                    sx={{ color: 'var(--blackinput-color)', fontWeight: 'bold', mb: 2 }}
+                <Box
+                    sx={{
+                        display: 'flex',
+                        gap: 2,
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                    }}
                 >
-                    Historial de facturas
-                </Typography>
+                    <Typography
+                        variant="h5"
+                        sx={{
+                            color: 'var(--blackinput-color)',
+                            fontWeight: 'bold',
+                            mb: 1,
+                            textWrap: 'nowrap',
+                            flexShrink: 1,
+                            minWidth: 0,
+                        }}
+                    >
+                        Historial de facturas
+                    </Typography>
 
+
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            gap: 1,
+                            alignItems: 'center',
+                        }}
+                    >
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <Box sx={{ gap: 1, display: 'flex', alignItems: 'center' }}>
+                                <DatePicker
+                                    label="Desde"
+                                    value={startDate}
+                                    onChange={(newValue) => setStartDate(newValue)}
+                                    slotProps={{
+                                        textField: {
+                                            size: 'small',
+                                            sx: {
+                                                width: { xs: '100px', sm: '120px', md: '150px' },
+                                                '& .MuiInputBase-root': { height: 30, fontSize: '0.8rem' },
+                                                '& .MuiInputLabel-root': { fontSize: '0.75rem' },
+                                            },
+                                        },
+                                    }}
+                                />
+                                <DatePicker
+                                    label="Hasta"
+                                    value={endDate}
+                                    onChange={(newValue) => setEndDate(newValue)}
+                                    slotProps={{
+                                        textField: {
+                                            size: 'small',
+                                            sx: {
+                                                width: { xs: '100px', sm: '120px', md: '150px' },
+                                                '& .MuiInputBase-root': { height: 30, fontSize: '0.8rem' },
+                                                '& .MuiInputLabel-root': { fontSize: '0.75rem' },
+                                            },
+                                        },
+                                    }}
+                                />
+
+                                {startDate && endDate && (
+                                    <IconButton
+                                        size="small"
+                                        onClick={() => {
+                                            setStartDate(null);
+                                            setEndDate(null);
+                                            setFilteredInvoices(invoices); // mostrar todas
+                                        }}
+                                    >
+                                        <ClearIcon fontSize="small" />
+                                    </IconButton>
+                                )}
+                            </Box>
+                        </LocalizationProvider>
+
+                        <Button
+                            variant="contained"
+                            size="small"
+                            sx={{
+                                background: 'var(--secondary-color)',
+                                color: 'white',
+                                fontWeight: 600,
+                                boxShadow: 0,
+                                minWidth: { xs: 60, sm: 80 },
+                                '&:hover': { background: 'var(--darkgreen-color)' },
+                            }}
+                            onClick={() => {
+                                if (startDate && endDate) {
+                                    if (startDate.isAfter(endDate)) {
+                                        alert('La fecha "Desde" no puede ser posterior a la fecha "Hasta".');
+                                        return;
+                                    }
+                                    handleFilterInvoices();
+                                } else {
+                                    setFilteredInvoices(invoices);
+                                }
+                            }}
+                        >
+                            Filtrar
+                        </Button>
+                    </Box>
+                </Box>
+
+                <Typography variant="body2" sx={{ color: 'gray' }}>
+                    Para encontrar el PDF de alguna factura en específico, por favor revisa la bandeja de entrada de tu correo electrónico.
+                </Typography>
                 <Box
                     sx={{
                         flex: 1,
                         display: 'flex',
-                        justifyContent: invoices.length === 0 ? 'center' : 'flex-start',
-                        alignItems: invoices.length === 0 ? 'center' : 'flex-start',
+                        justifyContent: filteredInvoices.length === 0 ? 'center' : 'flex-start',
+                        alignItems: filteredInvoices.length === 0 ? 'center' : 'flex-start',
                         width: '100%',
-                        py: 2,
                     }}
                 >
-                    {invoices.length === 0 ? (
+                    {filteredInvoices.length === 0 ? (
                         <Box
                             sx={{
                                 width: { xs: '50%', sm: '30%', md: '20%' },
@@ -275,12 +413,14 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
                         </Box>
                     ) : (
                         <Box sx={{ width: '100%' }}>
-                            {!isMobile ? <FacturasTable rows={invoices} /> : <FacturasList rows={invoices} />}
+                            {!isMobile ?
+                                <FacturasTable rows={filteredInvoices} />
+                                :
+                                <FacturasList rows={filteredInvoices} />}
                         </Box>
                     )}
                 </Box>
             </Box>
-            <Button onClick={async () => await fetchBills()}>sdasd</Button>
             <Modal
                 open={showCards}
                 onClose={() => setShowCards(false)}

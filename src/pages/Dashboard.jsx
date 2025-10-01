@@ -83,7 +83,7 @@ export default function Dashboard() {
             <Typography variant="h4" sx={{ marginBottom: '20px', color: 'var(--blackinput-color)', fontWeight: 'bold' }}>
                 Hola, {user ? (user.nombre || localStorage.getItem('nombre')) : "Invitado"}
             </Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column',}}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }} >
                     <Box sx={{ display: 'flex' }}>
                         <Box sx={{ borderTopLeftRadius: '1rem', borderTopRightRadius: '1rem', backgroundColor: divisionSelected === 'Mis mascotas' ? 'var(--extra-light-gray-color)' : 'var(--disabled-color)', paddingX: '1rem', cursor: 'pointer' }}

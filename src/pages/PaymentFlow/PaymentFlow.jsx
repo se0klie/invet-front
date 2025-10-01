@@ -23,7 +23,6 @@ export default function PaymentPage() {
 
     const [latePrice, setLatePrice] = useState({
         subtotal: 0,
-        iva: 0,
     })
     const location = useLocation()
     const open = Boolean(anchorEl);
@@ -69,7 +68,6 @@ export default function PaymentPage() {
 
         setLatePrice({
             subtotal: totalToBill.toFixed(2),
-            iva: (totalToBill * 0.15 + totalToBill).toFixed(2),
         });
     }, [quantities]);
 
@@ -150,7 +148,7 @@ export default function PaymentPage() {
                         }}
                     >
                         <Typography variant="subtitle1" gutterBottom fontWeight="bold">
-                            Factura #{bill.number}
+                            Desglose de productos
                         </Typography>
 
                         <Box
@@ -172,7 +170,7 @@ export default function PaymentPage() {
                                 <React.Fragment key={index}>
                                     <Box sx={{ gridColumn: 'span 2' }}>
                                         <Typography >Plan {item.label} (x{item.quantity})</Typography>
-                                        <Typography sx={{ color: 'var(--dark-gray-color)' }}>(Precio por {item.subtext})</Typography>
+                                        <Typography sx={{ color: 'var(--dark-gray-color)' }}>(Precio mensual. Pago por {item.subtext})</Typography>
                                     </Box>
                                     <Typography sx={{ textAlign: 'right' }}>
                                         ${item.value * item.quantity}
@@ -227,19 +225,8 @@ export default function PaymentPage() {
                                 </Menu>
                             </Box>
                             <Divider sx={{ gridColumn: 'span 3' }} />
-                            <Typography sx={{ gridColumn: 'span 2' }}>Subtotal ({bill.items.length} productos)</Typography>
+                            <Typography sx={{ gridColumn: 'span 2', fontWeight: 600 }}>Precio final mensual</Typography>
                             <Typography>  ${latePrice.subtotal} </Typography>
-                            <Typography sx={{ gridColumn: 'span 2' }}>IVA 15%</Typography>
-                            <Typography>  ${latePrice.iva} </Typography>
-                            <Typography sx={{ gridColumn: 'span 2', fontWeight: 600 }}>Precio final </Typography>
-                            <Typography>  ${latePrice.iva} </Typography>
-                            {quantities.basic > 0 && (quantities.premium > 0 || quantities.onsite > 0) &&
-                                <Box sx={{ gridColumn: 'span 3' }}>
-                                    <YellowAlert
-                                        message={`Mensualmente, se cobrará alrededor de $${(latePrice.iva / 12).toFixed(2)}, cifra que se reducirá a $${((latePrice.iva - bill.items.basic.value * bill.items.basic.quantity) / 12).toFixed(2)} luego de 10 meses.`}
-                                    />
-                                </Box>
-                            }
                         </Box>
                     </Box>
 
