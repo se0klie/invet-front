@@ -392,7 +392,7 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
                             }}
                         >
                             <img
-                                src={`${import.meta.env.BASE_URL}/images/common/no_data.svg`}
+                                src={`${import.meta.env.VITE_BASE_URL}/images/common/no_data.svg`}
                                 alt="No data"
                                 style={{
                                     width: '100%',
@@ -414,9 +414,9 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
                     ) : (
                         <Box sx={{ width: '100%' }}>
                             {!isMobile ?
-                                <FacturasTable rows={filteredInvoices} />
+                                <FacturasTable rows={filteredInvoices} pets={pets} subs={subscriptions} />
                                 :
-                                <FacturasList rows={filteredInvoices} />}
+                                <FacturasList rows={filteredInvoices} pets={pets}  subs={subscriptions} />}
                         </Box>
                     )}
                 </Box>

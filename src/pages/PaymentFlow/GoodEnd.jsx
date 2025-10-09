@@ -52,7 +52,7 @@ export default function GoodEnd() {
             >
                 <Box
                     component="img"
-                    src={`${import.meta.env.BASE_URL}/images/endPay.png`}
+                    src={`${import.meta.env.VITE_BASE_URL}/images/endPay.png`}
                     alt="Welcome illustration"
                     sx={{
                         maxWidth: isMobile ? '150px' : '250px',

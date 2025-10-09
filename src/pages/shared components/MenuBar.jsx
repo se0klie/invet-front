@@ -23,12 +23,12 @@ export default function MenuBar() {
             <Toolbar sx={{ background: 'var(--secondary-color)' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', paddingX: '16px', paddingY: '8px' }}>
                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2 }}>
-                        <Box component="img" src={`${import.meta.env.BASE_URL}/images/logo-invet.png`} sx={{ height: '2.5rem', '&:hover': { cursor: 'pointer' } }} onClick={() => navigate('/dashboard')} />
+                        <Box component="img" src={`${import.meta.env.VITE_BASE_URL}/images/logo-invet.png`} sx={{ height: '2.5rem', '&:hover': { cursor: 'pointer' } }} onClick={() => navigate('/dashboard')} />
 
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px', justifyContent: 'center' }}>
                         {!isMobile && <Box sx={{ borderRadius: '100%', backgroundColor: 'var(--darkgreen-color)', width: '40px', height: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                            <img src={`${import.meta.env.BASE_URL}/images/user-avatar.png`} alt="User Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
+                            <img src={`${import.meta.env.VITE_BASE_URL}/images/user-avatar.png`} alt="User Avatar" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
                         </Box>
                         }
                         <Typography variant="span" sx={{ flexGrow: 1, color: 'white', display: 'flex' }}>

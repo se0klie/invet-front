@@ -23,7 +23,7 @@ export function PlanCard({ name, value, text, img, alt }) {
                 >
                     <Box
                         component="img"
-                        src={`${import.meta.env.BASE_URL}/images/plan-${img}`}
+                        src={`${import.meta.env.VITE_BASE_URL}/images/plan-${img}`}
                         alt={alt}
                         sx={{
                             width: '100%',
@@ -119,7 +119,7 @@ export function PlanCardServices({ name, value, points, img, alt, buttonText = "
                 >
                     <Box
                         component="img"
-                        src={`${import.meta.env.BASE_URL}/images/${img}`}
+                        src={`${import.meta.env.VITE_BASE_URL}/images/${img}`}
                         alt={alt}
                         sx={{
                             width: '100%',

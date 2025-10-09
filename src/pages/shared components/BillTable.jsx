@@ -5,11 +5,29 @@ import {
 } from '@mui/material';
 import { LoadingModal } from './Modals';
 
-//TODO: A;ADIR DECRIPSION
+const plans = { 1: 'Basico', 2: 'Premium', 3: 'Presencial' }
 
-export const FacturasTable = ({ rows }) => {
+function processDescription(description, isMobile, pets, subs) {
+    const match = description.match(/ID\s*#(\d+)/i);
+    const planId = match ? parseInt(match[1], 10) : null;
+    const matched = pets.find(item => item.subscripcion_id === planId);
+    const planID = subs[matched?.id]?.subscripcion?.plan_id
+
+
+    if (matched) {
+        if (isMobile) {
+            return `Plan: ${plans[planID]} - Mascota: ${matched.nombre}`;
+        } else {
+            return { plan: plans[planID], pet: matched.nombre }
+        }
+    }
+}
+
+export const FacturasTable = ({ rows, pets, subs }) => {
     const [showLoadingModal, setShowLoadingModal] = useState(false)
     const [loadingModalStep, setLoadingModalStep] = useState(0)
+
+
     useEffect(() => {
         setTimeout(() => {
             setLoadingModalStep(1)
@@ -37,8 +55,8 @@ export const FacturasTable = ({ rows }) => {
                         <TableRow key={i}>
                             <TableCell>{row.id}</TableCell>
                             <TableCell>{row.fecha_emision}</TableCell>
-                            <TableCell><strong>{row.plan}</strong></TableCell>
-                            <TableCell>{row.mascota}</TableCell>
+                            <TableCell><strong>{processDescription(row.descripcion, false, pets, subs)?.plan || '-'}</strong></TableCell>
+                            <TableCell>{processDescription(row.descripcion, false, pets, subs)?.pet || '-'}</TableCell>
                             <TableCell>
                                 <Typography fontWeight="bold">${row.total}</Typography>
                             </TableCell>
@@ -52,13 +70,9 @@ export const FacturasTable = ({ rows }) => {
 };
 
 
-export const FacturasList = ({ rows }) => {
+export const FacturasList = ({ rows, pets, subs }) => {
     const [showLoadingModal, setShowLoadingModal] = useState(false)
     const [loadingModalStep, setLoadingModalStep] = useState(0)
-
-    useEffect(() => {
-        console.log(rows)
-    })
 
     useEffect(() => {
         setTimeout(() => {
@@ -69,6 +83,7 @@ export const FacturasList = ({ rows }) => {
             }, 2000);
         }, 3000);
     }, [showLoadingModal])
+
 
     return (
         <Box sx={{ width: '100%' }}>
@@ -85,9 +100,9 @@ export const FacturasList = ({ rows }) => {
                         </Box>
                         <Box sx={{ display: 'flex', marginTop: '0.5rem', alignItems: 'center', justifyContent: 'space-between' }}>
                             <Typography variant="body2" sx={{ color: 'gray' }}>
-                            PLACEHOLDER DESC
+                                {processDescription(row.descripcion, true, pets, subs)}
                             </Typography>
-                            
+
                         </Box>
                     </Box>
 
