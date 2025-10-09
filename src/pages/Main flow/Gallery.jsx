@@ -78,7 +78,7 @@ export default function GalleryPage() {
                                     width: '100%',
                                     aspectRatio: '4 / 3',
                                     borderRadius: 1,
-                                    backgroundImage: `url(${import.meta.env.BASE_URL}/images/gallery/gallery${i + 1}.png)`,
+                                    backgroundImage: `url(${import.meta.env.VITE_BASE_URL}/images/gallery/gallery${i + 1}.png)`,
                                     backgroundSize: 'cover',
                                     backgroundPosition: 'center',
                                 }}
@@ -170,7 +170,7 @@ export default function GalleryPage() {
                                     width: '100%',
                                     aspectRatio: '4 / 3',
                                     borderRadius: 1,
-                                    backgroundImage: `url(${import.meta.env.BASE_URL}/images/gallery/plan${i + 1}.png)`,
+                                    backgroundImage: `url(${import.meta.env.VITE_BASE_URL}/images/gallery/plan${i + 1}.png)`,
                                     backgroundSize: 'cover',
                                     backgroundPosition: 'center',
                                 }}

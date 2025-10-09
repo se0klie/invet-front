@@ -19,7 +19,7 @@ import { loginHelper } from '../../helpers/login-helper';
 import { ErrorModal } from '../shared components/Modals';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { openSocket } from '../shared components/socket';
-
+import { LoadingModal } from '../shared components/Modals';
 export default function InitialState() {
     const location = useLocation()
     const [currentStep, setCurrentStep] = useState(location?.state?.step || 1) //1: login, 2: reset psswd, 3: confirm code, 4: changepassword, 5: register
@@ -68,6 +68,7 @@ function Login({ setStep }) {
     const [openErrorModal, setOpenErrorModal] = useState(false)
     const [loginErrorMessage, setLoginErrorMessage] = useState('')
     const { login, user } = useAuth()
+    const [showLoadingModal, setShowLoadingModal] = useState(false)
 
     useEffect(() => {
         if (location.state?.from === 'checkout') {
@@ -83,6 +84,7 @@ function Login({ setStep }) {
     }, [])
 
     async function handleLogin() {
+        setShowLoadingModal(true)
         try {
             if (!data.email || !data.password) {
                 setLoginErrorMessage('Se requieren el correo y contraseña para continuar')
@@ -96,17 +98,19 @@ function Login({ setStep }) {
                     email: data.email,
                     cedula: request.data.cedula
                 })
-
+                setShowLoadingModal(false)
                 if (fromCheckout) {
                     navigate('/identify-pet', { state: { plans } })
                 } else {
                     navigate('/dashboard')
                 }
             } else {
+                setShowLoadingModal(false)
                 setLoginErrorMessage(request.message)
                 setOpenErrorModal(true)
             }
         } catch (err) {
+            setShowLoadingModal(false)
             console.error("API call failed:", err);
             return err.status || 500;
         }
@@ -212,6 +216,7 @@ function Login({ setStep }) {
                     </Box>
                 </Box>
             </Box>
+            <LoadingModal text={'Iniciando sesión...'} open={showLoadingModal} setOpen={setShowLoadingModal} modalStep={0} />
             <ErrorModal open={openErrorModal} onClose={() => setOpenErrorModal(false)} message={loginErrorMessage} />
         </Box>
     )

@@ -102,7 +102,7 @@ export function ImageCarousel({ images, elementsToShow = 3 }) {
                                     md: `${100 / elementsToShow}%`,
                                 },
                                 aspectRatio: '4 / 3',
-                                backgroundImage: `url(${import.meta.env.BASE_URL}/images/${src})`,
+                                backgroundImage: `url(${import.meta.env.VITE_BASE_URL}/images/${src})`,
                                 backgroundSize: 'cover',
                                 backgroundPosition: 'center',
                             }}
@@ -220,7 +220,7 @@ export function ImageCarouselWithArrowsIn({ images, elementsToShow = 3 }) {
                                     md: `${100 / elementsToShow}%`,
                                 },
                                 aspectRatio: '20 / 19',
-                                backgroundImage: `url(${import.meta.env.BASE_URL}/images/${src})`,
+                                backgroundImage: `url(${import.meta.env.VITE_BASE_URL}/images/${src})`,
                                 backgroundSize: 'cover',
                                 backgroundPosition: 'center',
                             }}
@@ -338,7 +338,7 @@ export function ProductCarousel() {
                                     md: '33.33%',
                                 },
                                 aspectRatio: '20 / 19',
-                                backgroundImage: `url(${import.meta.env.BASE_URL}/images/${src}.png)`,
+                                backgroundImage: `url(${import.meta.env.VITE_BASE_URL}/images/${src}.png)`,
                                 backgroundSize: 'cover',
                                 backgroundPosition: 'center',
                             }}

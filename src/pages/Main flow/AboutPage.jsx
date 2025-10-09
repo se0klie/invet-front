@@ -263,7 +263,7 @@ export default function AboutPage() {
 
                 <Box sx={{ width: '100%', maxWidth: 700 }}>
                     <img
-                        src={`${import.meta.env.BASE_URL}/images/about/doc-about.jpg`}
+                        src={`${import.meta.env.VITE_BASE_URL}/images/about/doc-about.jpg`}
                         alt="About Invet"
                         style={{
                             width: '100%',

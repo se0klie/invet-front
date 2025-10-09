@@ -12,7 +12,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         maxSnack={3}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <BrowserRouter basename="/invet-front/">
+        <BrowserRouter>
           <App />
         </BrowserRouter>
       </SnackbarProvider>
