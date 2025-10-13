@@ -27,7 +27,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
     });
     const navigate = useNavigate();
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
-    const planState = sub?.estado === 0 ? 'Activo' : sub?.estado === 1 ? 'Completado' : sub?.estado === 2 ? 'Suspendido' : 'Cancelado'
+    const planState = sub?.estado === 0 ? 'Activo' : sub?.estado === 1 ? 'Pagado' : sub?.estado === 2 ? 'Suspendido' : sub?.estado === 3 ? 'Cancelado' : 'Finalizado'
 
     useEffect(() => {
         function handleResize() {
@@ -215,7 +215,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
                         >
                             {isMobile ? 'Intercambiar plan' : 'Intercambiar plan con otra mascota'}
                         </Button>
-                    ) : (
+                    ) : pet?.fallecida === false ? (
                         <Button
                             fullWidth
                             variant="contained"
@@ -237,7 +237,10 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
                         >
                             Añadir plan
                         </Button>
-                    )}
+                    ) : 
+                    <Typography>
+                        Gracias por tu confianza. Este plan ha finalizado.
+                    </Typography>}
                 </Box>
             </Box>
             <Modal
@@ -368,7 +371,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
                                             >
                                                 <MenuItem value="" disabled>Selecciona una mascota</MenuItem>
                                                 {pets
-                                                    .filter(petX => petX.nombre !== pet?.nombre)
+                                                    .filter(petX => petX.nombre !== pet?.nombre && petX.fallecida === false)
                                                     .map((petX, index) => (
                                                         <MenuItem
                                                             key={index}

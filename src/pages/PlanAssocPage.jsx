@@ -551,11 +551,13 @@ function AsignPlanToPet({ pets, plans, setStep, setUpdatedData, updatedData }) {
                                             }}
                                         >
                                             <MenuItem value="">Seleccionar mascota</MenuItem>
-                                            {getAvailablePets(`${planKey}-${i + 1}`).map((pet) => (
-                                                <MenuItem key={pet.id} value={pet.id}>
-                                                    {pet.nombre}
-                                                </MenuItem>
-                                            ))}
+                                            {getAvailablePets(`${planKey}-${i + 1}`)
+                                                .filter((pet) => pet.fallecida === false)
+                                                .map((pet) => (
+                                                    <MenuItem key={pet.id} value={pet.id}>
+                                                        {pet.nombre}
+                                                    </MenuItem>
+                                                ))}
                                         </Select>
 
                                     </Box>
