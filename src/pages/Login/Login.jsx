@@ -43,11 +43,8 @@ export default function InitialState() {
         >
             {currentStep === 1 && <Login setStep={setCurrentStep} />}
             {currentStep === 2 && <ChangePassword setStep={setCurrentStep} currentStep={currentStep} />}
-            {currentStep === 3 && <VerifyCode setStep={setCurrentStep} currentStep={currentStep} />}
-            {currentStep === 4 && <UpdatePasswordForm setStep={setCurrentStep} currentStep={currentStep} />}
-            {currentStep === 5 && <Register setStep={setCurrentStep} setUserData={setUserData} userData={userData} />}
-            {currentStep === 6 && <SuccessPasswordPage setStep={setCurrentStep} />}
-            {currentStep === 7 && <VerifyCode setStep={setCurrentStep} formData={userData} />}
+            {currentStep === 4 && <VerifyCode setStep={setCurrentStep} currentStep={currentStep} formData={userData} />}
+            {currentStep === 3 && <Register setStep={setCurrentStep} setUserData={setUserData} userData={userData} />}
 
         </Box>
     )
@@ -211,7 +208,7 @@ function Login({ setStep }) {
 
                 <Box className="button-section">
                     <Box className='button-box'>
-                        <LightGreenButton text={'Regístrate'} action={() => setStep(5)} />
+                        <LightGreenButton text={'Regístrate'} action={() => setStep(3)} />
                     </Box>
                 </Box>
             </Box>
@@ -316,114 +313,6 @@ function ChangePassword({ setStep, currentStep }) {
     )
 }
 
-function UpdatePasswordForm({ setStep, currentStep }) {
-    const [passwords, setPasswords] = useState({})
-
-    return (
-        <Box
-            className='content-box1'
-        >
-            <Box
-                className='content-box2'
-            >
-                <Box className="title-box">
-                    <Typography className="title">
-                        Actualiza tu contraseña
-                    </Typography>
-                </Box>
-
-                <Box className="update-password-form">
-                    <Box>
-                        <Box className="password-label-tooltip">
-                            <Typography className="password-label">
-                                Nueva contraseña
-                            </Typography>
-                            <Tooltip
-                                title={
-                                    <Box className="tooltip-content">
-                                        La contraseña debe tener al menos:
-                                        <ul>
-                                            <li>8 caracteres</li>
-                                            <li>1 mayúscula</li>
-                                            <li>1 minúscula</li>
-                                            <li>1 número</li>
-                                        </ul>
-                                    </Box>
-                                }
-                                arrow
-                                placement="right"
-                            >
-                                <IconButton size="small" className="info-icon-button">
-                                    <InfoOutlinedIcon fontSize="small" className="info-icon" />
-                                </IconButton>
-                            </Tooltip>
-                        </Box>
-
-                        <TextField
-                            fullWidth
-                            placeholder="Ingresa tu nueva contraseña"
-                            onChange={(e) => {
-                                setPasswords((prev) => ({ ...prev, password: e.target.value }));
-                            }}
-                        />
-                    </Box>
-
-                    <Box>
-                        <Typography className="password-label">
-                            Reescribe la nueva contraseña
-                        </Typography>
-                        <TextField
-                            fullWidth
-                            placeholder="Ingresa tu contraseña"
-                            onChange={(e) => {
-                                setPasswords((prev) => ({ ...prev, repeatedPassword: e.target.value }));
-                            }}
-                        />
-                    </Box>
-                </Box>
-            </Box>
-            <Box className="buttons-container">
-                <PreviousButton action={() => setStep(currentStep - 1)} />
-                <NextButton isSend={false} text={"Cambiar"} action={() => setStep(6)} />
-            </Box>
-        </Box>
-    )
-}
-
-
-function SuccessPasswordPage({ setStep, formData }) {
-
-    return (
-        <Box
-            className='content-box1'
-        >
-            <Box
-                className='content-box2'
-            >
-                <Box className="title-box">
-                    <Typography className="title">
-                        ¡Todo listo!
-                    </Typography>
-                </Box>
-
-                <Box className="update-password-form">
-                    <Box>
-                        <Box className="password-label-tooltip">
-                            <Typography className='success-message'>
-                                ¡Tu contraseña ha sido cambiada con éxito! Serás redirigido al inicio de sesión para ingresar con tus nuevas credenciales.
-                            </Typography>
-                        </Box>
-                    </Box>
-                    <Box className="buttons-container">
-                        <NextButton isSend={false} text={"Cambiar"} action={() => setStep(1)} />
-                    </Box>
-                </Box>
-            </Box>
-        </Box>
-    )
-}
-
-
 function VerifyCode({ setStep, formData }) {
     const [code, setCode] = useState(['', '', '', '', '', '']);
     const inputsRef = useRef([]);
@@ -431,13 +320,44 @@ function VerifyCode({ setStep, formData }) {
     const location = useLocation()
     const plans = location?.state?.plans
     const navigate = useNavigate()
+    const [counter, setCounter] = useState(50);
+    const [canResend, setCanResend] = useState(false);
     const [snackbar, setSnackbar] = useState({
         open: false,
         message: '',
         severity: 'success',
     });
+
+    useEffect(() => {
+        if (counter === 0) {
+            setCanResend(true);
+            return;
+        }
+
+        const timer = setInterval(() => {
+            setCounter(prev => prev - 1);
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [counter]);
+
     const handleResendCode = () => {
-        enqueueSnackbar('Código reenviado correctamente.', { variant: 'success' });
+        if (canResend) {
+            setCounter(50);
+            setCanResend(false);
+            setSnackbar({
+                open: true,
+                message: `Código enviado. Revise la bandeja de entrada de su correo.`,
+                severity: 'success'
+            })
+            resend()
+        } else {
+            setSnackbar({
+                open: true,
+                message: `Espere un momento para reenviar el código. Quedan ${counter} segundos`,
+                severity: 'error'
+            })
+        }
     };
     const [fromCheckout, setFromCheckout] = useState(location?.state?.from === 'checkout' || false)
     const { login } = useAuth()
@@ -448,8 +368,21 @@ function VerifyCode({ setStep, formData }) {
         }
     }, [])
 
+    async function resend() {
+        try {
+            await axios_api.post(endpoints.send_email,
+                {
+                    email: formData.email
+                }
+            )
+        } catch (err) {
+            console.error('Error resend POST', err)
+            return err
+        }
+    }
     async function handleRegister() {
         try {
+            console.log(String(code.join('')))
             const response = await axios_api.post(
                 endpoints.create_user,
                 {
@@ -468,39 +401,43 @@ function VerifyCode({ setStep, formData }) {
                     email: formData.email,
                     celular: formData.phone,
                     direccion_facturacion: formData.address,
-                    verification_code: code.join('')
+                    verification_code: String(code.join(''))
                 },
             );
+            console.log(response)
             if (response.status === 201 || response.status === 200) {
-                if (fromCheckout) {
-                    const request = await loginHelper(formData.email, formData.password);
-                    if (request.response) {
-                        login({
-                            nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
-                            email: request.data.email,
-                            cedula: request.data.cedula
-                        })
-                        navigate('/identify-pet', { state: { plans } })
-                    }
-                } else {
-                    navigate('/welcomePage')
-                }
+                 navigate('/welcomePage')
+                // if (fromCheckout) {
+                //     const request = await loginHelper(formData.email, formData.password);
+                //     if (request.response) {
+                //         login({
+                //             nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
+                //             email: request.data.email,
+                //             cedula: request.data.cedula
+                //         })
+                //         navigate('/identify-pet', { state: { plans } })
+                //     }
+                // } else {
+                //     navigate('/welcomePage')
+                // }
             }
             return true;
         } catch (err) {
+            console.error(err)
             if (err.status === 422) {
                 setSnackbar({
                     open: true,
                     message: `Código incorrecto, por favor verifica e intenta nuevamente.`,
                     severity: 'error'
                 })
-                return;
+            } else {
+                setSnackbar({
+                    open: true,
+                    message: `Hubo un error en su registro, intente más tarde.`,
+                    severity: 'error'
+                })
             }
-            setSnackbar({
-                open: true,
-                message: `Hubo un error en su registro, intente más tarde.`,
-                severity: 'error'
-            })
+
             console.error('API CALL failed, /post register', err)
             return err
         }
@@ -542,7 +479,7 @@ function VerifyCode({ setStep, formData }) {
                 <Box className="verification-content">
                     <Box>
                         <Typography className="code-description">
-                            Ingresa el código que fue enviado a tu correo para poder reestablecer tu contraseña.
+                            Ingresa el código que fue enviado a tu correo para poder verificar tu cuenta.
                         </Typography>
 
                         <Box className="code-inputs">
@@ -569,34 +506,27 @@ function VerifyCode({ setStep, formData }) {
             <Box>
                 <Box className="buttons-container">
                     <PreviousButton action={() => {
-                        setStep(5)
+                        setStep(3)
                     }} />
                     <NextButton action={async () => {
-                        const response = await handleRegister()
-                        if (response === 201 || response === 200) {
-                            if (fromCheckout) {
-                                const request = await loginHelper(formData.email, formData.password);
-                                if (request.response) {
-                                    login({
-                                        nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
-                                        email: request.data.email,
-                                        cedula: request.data.cedula
-                                    })
-                                    navigate('/identify-pet', { state: { plans } })
-                                }
-                            } else {
-                                navigate('/welcomePage')
-                            }
-                        } else {
-                            setSnackbar({
-                                open: true,
-                                message: 'Hubo un error al registrar el usuario. Por favor, inténtalo de nuevo.',
-                                severity: 'error'
-                            })
-                        }
+                        await handleRegister()
                     }} />
                 </Box>
             </Box>
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={() => setSnackbar({ ...snackbar, open: false })}
+                anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+                <Alert
+                    onClose={() => setSnackbar({ ...snackbar, open: false })}
+                    severity={snackbar.severity}
+                    sx={{ width: '100%' }}
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Box>
     )
 }
@@ -979,7 +909,7 @@ function Register({ setStep, setUserData, userData }) {
                     if (isValid) {
                         setUserData(formData)
                         handleSendEmail()
-                        setStep(7)
+                        setStep(4)
                     }
                 }}
                     disabled={isMobile && formStep !== groupedFields.length - 1} />
