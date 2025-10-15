@@ -6,13 +6,11 @@ export async function loginHelper(email, password) {
         const response = await axios_api.post(endpoints.session_token,
             { email: email, password: password }
         )
-//TODO: endpoint account_data
         if (response.status === 200 || response.status === 201) {
-            // const data = await axios_api.get(endpoints.account_data)
-            // if (data.status === 201 || data.status === 200) {
-                // return { response: true, data: data.data }
-                return {response: true}
-            // }
+            const data = await axios_api.get(endpoints.account_data)
+            if (data.status === 201 || data.status === 200) {
+                return { response: true, data: data.data }
+            }
         }
         return { response: false, message: 'Credenciales incorrectas.' }
     } catch (err) {

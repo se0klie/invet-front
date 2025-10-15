@@ -131,7 +131,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
                 }}
             >
                 <img
-                    src="https://hips.hearstapps.com/hmg-prod/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=0.752xw:1.00xh;0.175xw,0&resize=1200:*"
+                    src="./images/emptyicon_pet.jpg"
                     alt={`Foto de ${pet?.nombre || ''}`}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />

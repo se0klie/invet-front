@@ -135,7 +135,6 @@ export default function Settings() {
     }
 
     async function handleEditPassword() {
-        const newErrors = {}
         try {
             setSavePassword(false)
             setLoadingModal(true)
@@ -150,30 +149,26 @@ export default function Settings() {
                 const response = await axios_api.patch(
                     endpoints.update_data,
                     {
-                        cedula: formData.idnumber,
                         new_password: passwords.newpassword,
                         current_password: passwords.oldpassword
                     }
                 );
-                setTimeout(() => {
+                if (response.status === 200 || response.status === 201) {
                     setLoadingModalStep(1)
                     setTimeout(() => {
                         setLoadingModal(false);
                         setLoadingModalStep(0);
                     }, 2500);
-                }, 2000);
+                }
                 setPasswords({
                     newpassword: '',
                     oldpassword: ''
                 })
             } else {
                 setTimeout(() => {
-                    setLoadingModalStep(-1)
-                    setTimeout(() => {
-                        setLoadingModal(false);
-                        setLoadingModalStep(0);
-                    }, 2500);
-                }, 2000);
+                    setLoadingModal(false);
+                    setLoadingModalStep(0);
+                }, 2500);
                 setPasswordErrors((prev) => ({
                     ...prev,
                     oldpassword: 'La contraseña es incorrecta.'
@@ -340,7 +335,7 @@ export default function Settings() {
                                                 padding: "6px 8px",
                                             },
                                         }}
-                                        placeholder={ formData.email}
+                                        placeholder={formData.email}
                                         disabled
                                     />
                                 </Tooltip>
