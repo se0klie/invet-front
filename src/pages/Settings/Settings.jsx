@@ -340,7 +340,7 @@ export default function Settings() {
                                                 padding: "6px 8px",
                                             },
                                         }}
-                                        placeholder={localStorage.getItem('email') || formData.email}
+                                        placeholder={ formData.email}
                                         disabled
                                     />
                                 </Tooltip>
@@ -360,7 +360,7 @@ export default function Settings() {
                                                 padding: "6px 8px",
                                             },
                                         }}
-                                        placeholder={localStorage.getItem('cedula') || formData.cedula}
+                                        placeholder={formData.cedula}
                                         disabled
                                     />
                                 </Tooltip>
