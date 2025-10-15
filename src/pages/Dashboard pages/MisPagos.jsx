@@ -416,7 +416,7 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
                             {!isMobile ?
                                 <FacturasTable rows={filteredInvoices} pets={pets} subs={subscriptions} />
                                 :
-                                <FacturasList rows={filteredInvoices} pets={pets}  subs={subscriptions} />}
+                                <FacturasList rows={filteredInvoices} pets={pets} subs={subscriptions} />}
                         </Box>
                     )}
                 </Box>
@@ -454,75 +454,97 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
                                 Aquí podrás gestionar los métodos de pago utilizados para las suscripciones de tus mascotas.
                             </Typography>
                         </Box>
-                        <Box sx={{ width: '100%' }}>
-                            {cards.map((card, index) => (
-                                <Stack
-                                    direction="row"
-                                    alignItems="center"
-                                    spacing={2}
-                                    sx={{ width: "100%", my: 1 }}
-                                >
-                                    <TextField
-                                        key={index}
-                                        value={`${card.holder.toUpperCase()} ****${card.number.slice(-4)} ${card.provider.toUpperCase()}`}
-                                        disabled
-                                        fullWidth
-                                    />
+                        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                            {cards.length > 0 ? (
+                                cards.map((card, index) => (
+                                    <Stack
+                                        direction="row"
+                                        alignItems="center"
+                                        spacing={2}
+                                        sx={{ width: "100%", my: 1 }}
+                                    >
+                                        <TextField
+                                            key={index}
+                                            value={`${card.holder.toUpperCase()} ****${card.number.slice(-4)} ${card.provider.toUpperCase()}`}
+                                            disabled
+                                            fullWidth
+                                        />
 
-                                    <Stack direction="row" spacing={1}>
-                                        {card.subscriptions.length > 0 ? (
-                                            <Tooltip
-                                                title={
-                                                    <Box className="tooltip-content">
-                                                        Para eliminar esta tarjeta debe cambiar su método de pago para las suscripciones de la(s) siguiente(s) mascota(s):
-                                                        <ul>
-                                                            {card?.subscriptions.map((sub, index) => (
-                                                                <li key={index}>
-                                                                    {sub.pet?.nombre}
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    </Box>
-                                                }
-                                                arrow
-                                                placement="right"
-                                            >
-                                                <span>
-                                                    <IconButton
-                                                        sx={{
-                                                            bgcolor: 'gray',
-                                                            color: 'white',
-                                                            cursor: 'not-allowed',
-                                                            '&:hover': {
+                                        <Stack direction="row" spacing={1}>
+                                            {card.subscriptions.length > 0 ? (
+                                                <Tooltip
+                                                    title={
+                                                        <Box className="tooltip-content">
+                                                            Para eliminar esta tarjeta debe cambiar su método de pago para las suscripciones de la(s) siguiente(s) mascota(s):
+                                                            <ul>
+                                                                {card?.subscriptions.map((sub, index) => (
+                                                                    <li key={index}>
+                                                                        {sub.pet?.nombre}
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </Box>
+                                                    }
+                                                    arrow
+                                                    placement="right"
+                                                >
+                                                    <span>
+                                                        <IconButton
+                                                            sx={{
                                                                 bgcolor: 'gray',
-                                                            }
-                                                        }}
+                                                                color: 'white',
+                                                                cursor: 'not-allowed',
+                                                                '&:hover': {
+                                                                    bgcolor: 'gray',
+                                                                }
+                                                            }}
 
-                                                    >
-                                                        <IoIosRemove />
-                                                    </IconButton>
-                                                </span>
-                                            </Tooltip>
-                                        ) : (
-                                            <IconButton
-                                                sx={{
-                                                    bgcolor: "error.main",
-                                                    color: "white",
-                                                    cursor: 'pointer',
-                                                    "&:hover": { bgcolor: "error.dark" }
-                                                }}
-                                                onClick={() => {
-                                                    setSelectedCard(card)
-                                                    setShowCards(false)
-                                                    setDeletePaymentMethod(true)
-                                                }}
-                                            >
-                                                <IoIosRemove />
-                                            </IconButton>
-                                        )}
+                                                        >
+                                                            <IoIosRemove />
+                                                        </IconButton>
+                                                    </span>
+                                                </Tooltip>
+                                            ) : (
+                                                <IconButton
+                                                    sx={{
+                                                        bgcolor: "error.main",
+                                                        color: "white",
+                                                        cursor: 'pointer',
+                                                        "&:hover": { bgcolor: "error.dark" }
+                                                    }}
+                                                    onClick={() => {
+                                                        setSelectedCard(card)
+                                                        setShowCards(false)
+                                                        setDeletePaymentMethod(true)
+                                                    }}
+                                                >
+                                                    <IoIosRemove />
+                                                </IconButton>
+                                            )}
+                                        </Stack>
                                     </Stack>
-                                </Stack>
-                            ))}
+                                ))
+                            ) : (
+                                <Box sx={{
+                                    borderWidth: 1,
+                                    borderColor: 'var(--gray-color)',
+                                    borderStyle: 'solid',
+                                    borderRadius: 2,
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    py: 1,
+                                    width: 'fit-content'
+                                }}>
+                                    <Typography
+                                        sx={{
+                                            fontWeight: 600,
+                                            px: 3,
+                                            color: 'var(--gray-color)',
+                                        }}>
+                                        No existen métodos de pago registrados.
+                                    </Typography>
+                                </Box>
+                            )}
                         </Box>
 
                     </Box>

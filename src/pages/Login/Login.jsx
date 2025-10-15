@@ -89,11 +89,11 @@ function Login({ setStep }) {
             }
             const request = await loginHelper(data.email, data.password);
             if (request.response === true) {
-                // login({
-                //     nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
-                //     email: data.email,
-                //     cedula: request.data.cedula
-                // })
+                login({
+                    nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
+                    email: data.email,
+                    cedula: request.data.cedula
+                })
                 setShowLoadingModal(false)
                 if (fromCheckout) {
                     navigate('/identify-pet', { state: { plans } })
@@ -373,7 +373,7 @@ function VerifyCode({ setStep, formData }) {
             await axios_api.post(endpoints.send_email,
                 {
                     email: formData.email
-                }
+                }``
             )
         } catch (err) {
             console.error('Error resend POST', err)
@@ -382,7 +382,6 @@ function VerifyCode({ setStep, formData }) {
     }
     async function handleRegister() {
         try {
-            console.log(String(code.join('')))
             const response = await axios_api.post(
                 endpoints.create_user,
                 {
@@ -404,22 +403,21 @@ function VerifyCode({ setStep, formData }) {
                     verification_code: String(code.join(''))
                 },
             );
-            console.log(response)
             if (response.status === 201 || response.status === 200) {
-                 navigate('/welcomePage')
-                // if (fromCheckout) {
-                //     const request = await loginHelper(formData.email, formData.password);
-                //     if (request.response) {
-                //         login({
-                //             nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
-                //             email: request.data.email,
-                //             cedula: request.data.cedula
-                //         })
-                //         navigate('/identify-pet', { state: { plans } })
-                //     }
-                // } else {
-                //     navigate('/welcomePage')
-                // }
+                if (fromCheckout) {
+                    const request = await loginHelper(formData.email, formData.password);
+
+                    if (request.response) {
+                        login({
+                            nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
+                            email: request.data.email,
+                            cedula: request.data.cedula
+                        })
+                        navigate('/identify-pet', { state: { plans } })
+                    }
+                } else {
+                    navigate('/welcomePage')
+                }
             }
             return true;
         } catch (err) {
