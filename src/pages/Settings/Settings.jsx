@@ -116,6 +116,8 @@ export default function Settings() {
             const userData = response.data;
             if (userData) {
                 setFormData({
+                    email: userData.email,
+                    cedula: userData.cedula,
                     firstNames: userData.nombres,
                     lastNames: userData.apellidos,
                     phone: userData.celular,
@@ -338,7 +340,7 @@ export default function Settings() {
                                                 padding: "6px 8px",
                                             },
                                         }}
-                                        placeholder={localStorage.getItem('email')}
+                                        placeholder={localStorage.getItem('email') || formData.email}
                                         disabled
                                     />
                                 </Tooltip>
