@@ -18,7 +18,6 @@ import Cookies from 'js-cookie';
 import { loginHelper } from '../../helpers/login-helper';
 import { ErrorModal } from '../shared components/Modals';
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { openSocket } from '../shared components/socket';
 import { LoadingModal } from '../shared components/Modals';
 export default function InitialState() {
     const location = useLocation()
@@ -93,11 +92,11 @@ function Login({ setStep }) {
             }
             const request = await loginHelper(data.email, data.password);
             if (request.response === true) {
-                login({
-                    nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
-                    email: data.email,
-                    cedula: request.data.cedula
-                })
+                // login({
+                //     nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
+                //     email: data.email,
+                //     cedula: request.data.cedula
+                // })
                 setShowLoadingModal(false)
                 if (fromCheckout) {
                     navigate('/identify-pet', { state: { plans } })

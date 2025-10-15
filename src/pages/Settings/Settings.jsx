@@ -2,20 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { Box, Divider, Button, Typography, Modal, TextField, Tooltip } from '@mui/material';
 import { DataInput, PasswordLabelWithTooltip, DataSelect } from '../shared components/Inputs';
 import { FaPencilAlt, FaRegSave } from "react-icons/fa";
-import { CancelButton, GrayButton, LightGreenButton } from '../shared components/Buttons';
-import { RxCross1 } from "react-icons/rx";
-import axios from 'axios';
+import { GrayButton } from '../shared components/Buttons';
 import { LoadingModal } from '../shared components/Modals'
-import Cookies from 'js-cookie';
 import axios_api from '../axios';
 import { endpoints } from '../endpoints'
 import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+
 export default function Settings() {
     const [formData, setFormData] = useState({})
     const [passwords, setPasswords] = useState({
         newpassword: '',
         oldpassword: ''
     })
+    const navigate = useNavigate()
     const [errors, setErrors] = useState({})
     const [isEditable, setIsEditable] = useState(false)
     const [saveChanges, setSaveChanges] = useState(false)
@@ -25,7 +25,8 @@ export default function Settings() {
     const [passwordErrors, setPasswordErrors] = useState({})
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     const [settingsFields, setSettingsFields] = useState([])
-    const [showPswdErrorModal, setShowPswdErrorModal] = useState(false)
+    const [deleteAccountModal, setDeleteAccountModal] = useState(false)
+    const [openTerms, setOpenTerms] = useState(false)
     const { login } = useAuth()
 
     useEffect(() => {
@@ -225,6 +226,22 @@ export default function Settings() {
         }
     }
 
+    async function handleDeleteAccount() {
+        try {
+
+            const response = await axios_api.delete(endpoints.delete_acc)
+            if (response.status === 200 || response.status === 201) {
+                setLoadingModalStep(1)
+                setTimeout(() => {
+                    setLoadingModal(false)
+                    navigate('/logout')
+                }, 2000);
+            }
+        } catch (err) {
+            console.error(err)
+            return err
+        }
+    }
     function checkPasswords() {
         let hasErrors = false;
         const newErrors = {};
@@ -459,6 +476,70 @@ export default function Settings() {
                             </Button>
                         </Box>
                     </Box>
+                    <Divider />
+                    <Box>
+                        <Typography
+                            variant='h5'
+                            sx={{
+                                color: 'var(--blackinput-color)',
+                                fontWeight: 600,
+                                paddingTop: 1
+                            }}>
+                            Eliminar mi cuenta
+                        </Typography>
+                        <Box
+                            sx={{
+                                display: 'grid',
+                                gridTemplateColumns: isMobile ? '1fr' : '2fr 2fr 1fr',
+                                marginY: '1rem',
+                                borderRadius: '0.3rem',
+                                gap: '1rem',
+                                justifyContent: 'center',
+                                alignItems: 'center'
+                            }}
+                        >
+                            <Button
+                                sx={{
+                                    color: 'var(--darkgreen-color)',
+                                    fontWeight: 600,
+                                    width: '100%',
+                                    borderColor: 'var(--darkgreen-color)',
+                                    borderWidth: 1,
+                                    borderStyle: 'solid',
+                                    py: '0.5rem',
+                                    mt: 'auto',
+                                    '&:hover': {
+                                        borderColor: 'var(--darkgreen-color)',
+                                    },
+                                }}
+                                onClick={() => { setOpenTerms(true) }}>
+                                Ver términos y condiciones
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                sx={{
+                                    color: 'var(--error-color)',
+                                    fontWeight: 600,
+                                    width: '100%',
+                                    borderColor: 'var(--error-color)',
+                                    borderWidth: 1,
+                                    borderStyle: 'solid',
+                                    py: '0.5rem',
+                                    mt: 'auto',
+                                    '&:hover': {
+                                        borderColor: 'var(--error-color)',
+                                    },
+                                }}
+                                onClick={() => {
+                                    setDeleteAccountModal(true)
+                                }}
+                            >
+                                Eliminar
+                            </Button>
+
+                        </Box>
+                    </Box>
+
                 </Box>
             </Box>
 
@@ -611,6 +692,213 @@ export default function Settings() {
                     </Box>
                 </Box>
             </Modal>
+
+            <Modal
+                open={deleteAccountModal}
+                onClose={() => setDeleteAccountModal(false)}
+                disableEnforceFocus={true}
+            >
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        bgcolor: 'background.paper',
+                        boxShadow: 24,
+                        p: 4,
+                        borderRadius: 2,
+                        width: { xs: '80%', md: 400 },
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 1,
+                    }}
+                >
+                    <Box
+                        sx={{
+                            paddingBottom: '1rem'
+                        }}>
+                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'var(--error-fill-hover-color)' }}>
+                            Eliminar tu cuenta
+                        </Typography>
+
+                        <Typography variant="body1" sx={{ color: 'black' }}>
+                            Se eliminará tu cuenta luego de esta acción la cuál es irreversible. Cualquier plan cuya suscripción fue realizada
+                            en los últimos 60 días será cobrada según los términos y condiciones aplicados. ¿Desea continuar?
+                        </Typography>
+
+                    </Box>
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            gap: 1,
+                        }}
+                    >
+                        <Button
+                            variant="outlined"
+                            onClick={() => setDeleteAccountModal(false)}
+                            sx={{
+                                borderColor: 'var(--dark-gray-color)',
+                                color: 'var(--dark-gray-color)',
+                                fontWeight: 600,
+                                borderRadius: '0.5rem',
+                            }}
+                        >
+                            Cancelar
+                        </Button>
+
+                        <Button
+                            variant="contained"
+                            onClick={async () => {
+                                setDeleteAccountModal(false);
+                                setLoadingModal(true);
+                                await handleDeleteAccount()
+                            }}
+                            sx={{
+                                backgroundColor: 'var(--error-fill-hover-color)',
+                                color: 'white',
+                                fontWeight: 600,
+                                borderRadius: '0.5rem',
+                            }}
+                        >
+                            Cambiar contraseña
+                        </Button>
+                    </Box>
+                </Box>
+            </Modal>
+
+            <Modal open={openTerms} onClose={() => setOpenTerms(false)}>
+
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '90%',
+                        maxWidth: 600,
+                        bgcolor: 'background.paper',
+                        borderRadius: 3,
+                        boxShadow: 24,
+                        p: 3,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        maxHeight: '80vh',
+                    }}
+                >
+                    <Typography
+                        variant="h6"
+                        sx={{ fontWeight: 'bold', color: 'black', mb: 2 }}
+                    >
+                        TÉRMINOS Y CONDICIONES – PLANES PREVENTIVOS DE CREMACIÓN DE MASCOTAS
+                    </Typography>
+
+                    <Box
+                        sx={{
+                            flex: 1,
+                            overflowY: 'auto',
+                            pr: 1,
+                            mb: 2,
+                            scrollbarWidth: 'thin',
+                            maxHeight: '60vh',
+                            '&::-webkit-scrollbar': {
+                                width: '8px',
+                            },
+                            '&::-webkit-scrollbar-thumb': {
+                                backgroundColor: 'rgba(0,0,0,0.4)',
+                                borderRadius: '4px',
+                            },
+                        }}
+                    >
+                        {[
+                            {
+                                title: "Cobertura geográfica",
+                                items: [
+                                    "Este servicio está disponibe exclusivamente en Guayaquil, Samborondón, Durán y Chongón.",
+                                    "Si el cliente contrata el plan desde una ciudad o zona no cubierta, la empresa se reserva el derecho de cancelar la suscripción y reembolsar el valor pagado si corresponde.",
+                                    "En caso de futuras expansiones, estas condiciones serán actualizadas oportunamente."
+                                ]
+                            },
+                            {
+                                title: "Activación del plan",
+                                items: [
+                                    "El plan podrá utilizarse únicamente después de haber transcurrido un período mínimo de 60 días desde el primer pago exitoso.",
+                                    "Si la mascota fallece antes de cumplir los 60 días, el cliente deberá abonar el valor del plan inmediato vigente (ver punto siguiente)."
+                                ]
+                            },
+                            {
+                                title: "Valores del servicio inmediato (si fallece antes de 60 días)",
+                                items: ["Plan Básico: $120", "Plan Premium: $230", "Plan Presencial: $300"]
+                            },
+                            {
+                                title: "Diferencias a pagar (si fallece después de 60 días pero sin completar el plan)",
+                                items: ["Si la mascota fallece después de los 60 días, pero el cliente aún no ha completado el pago total del plan, deberá abonar la diferencia pendiente para acceder al servicio."]
+                            },
+                            {
+                                title: "Valor congelado y transferibilidad",
+                                items: [
+                                    "Una vez realizado el primer pago, el valor del plan queda congelado, incluso si el precio del servicio sube posteriormente.",
+                                    "El plan puede ser transferido a otra mascota si así lo desea el cliente."
+                                ]
+                            },
+                            {
+                                title: "Aplicación del precio por especie o peso",
+                                items: ["El precio del plan se mantiene independientemente de la especie, tamaño o peso de la mascota."]
+                            },
+                            {
+                                title: "Cancelación del plan",
+                                items: ["El cliente puede cancelar su plan en cualquier momento. Sin embargo, no se realizarán reembolsos de los pagos ya realizados."]
+                            },
+                            {
+                                title: "Solicitud del servicio",
+                                items: ["En caso de fallecimiento de la mascota, el cliente deberá contactar inmediatamente al WhatsApp oficial de la empresa para coordinar la recolección y activación del servicio."]
+                            },
+                            {
+                                title: "Cobros automáticos",
+                                items: [
+                                    "Al aceptar estos términos, el cliente autoriza expresamente el débito automático mensual del valor correspondiente a su plan, a través del método de pago registrado.",
+                                    "El cobro se realizará cada mes de forma recurrente, hasta completar el total del plan contratado."
+                                ]
+                            },
+                            {
+                                title: "Aceptación digital",
+                                items: [
+                                    "Al marcar la casilla correspondiente y enviar el formulario, el cliente declara que acepta plenamente estos Términos y Condiciones, constituyendo un contrato digital válido conforme a la Ley de Comercio Electrónico, Firmas Electrónicas y Mensajes de Datos del Ecuador."
+                                ]
+                            },
+                            {
+                                title: '⁠Política de cobros y avisos.',
+                                items: [
+                                    "En caso de que el débito automático a la tarjeta registrada por el cliente no pueda efectuarse, se enviarán hasta tres notificaciones de alerta al correo o número de contacto proporcionado.Si, luego de estos intentos, el pago no se realiza, el plan preventivo será suspendido temporalmente por un período de 14 días calendario, durante el cual el cliente podrá regularizar su situación mediante el pago pendiente.Si al finalizar dicho período no se registra el pago correspondiente, el plan será cancelado de manera definitiva, perdiendo el cliente los beneficios asociados."
+                                ]
+                            }
+                        ].map((section, index) => (
+                            <Typography key={index} sx={{ color: 'black', mb: 2 }}>
+                                <strong>{index + 1}. {section.title}</strong>
+                                <ul>
+                                    {section.items.map((item, i) => (
+                                        <li key={i}>{item}</li>
+                                    ))}
+                                </ul>
+                            </Typography>
+                        ))}
+                    </Box>
+
+                    <Button
+                        onClick={() => setOpenTerms(false)}
+                        sx={{
+                            alignSelf: 'flex-end', mt: 1, backgroundColor: 'var(--darkgreen-color)', color: 'white',
+                            '&:hover': {
+                                backgroundColor: 'var(--hoverdarkgreen-color)'
+                            }
+                        }}
+                    >
+                        Cerrar
+                    </Button>
+                </Box>
+            </Modal>
+
             <LoadingModal open={loadingModal} text="Guardando cambios..." setOpen={setLoadingModal} modalStep={loadingModalStep} />
         </Box >
 

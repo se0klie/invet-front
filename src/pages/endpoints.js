@@ -22,4 +22,5 @@ export const endpoints = {
     send_email: urlJoin(API_ROOT,'send-verification-email/'),
     send_password_reset: urlJoin(API_ROOT, 'send-password-reset-email/'),
     get_bills: urlJoin(API_ROOT, 'get-facturas/'),
+    delete_acc: urlJoin(API_ROOT, 'delete-account/')
 };
