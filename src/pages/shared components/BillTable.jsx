@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import {
     Table, TableBody, TableCell, TableContainer,
-    TableHead, TableRow, Paper, Button, IconButton, Typography, Box
+    TableHead, TableRow, Paper, Button, IconButton, Typography, Box, Pagination
 } from '@mui/material';
-import { LoadingModal } from './Modals';
 
 const plans = { 1: 'Basico', 2: 'Premium', 3: 'Presencial' }
 
@@ -24,22 +23,28 @@ function processDescription(description, isMobile, pets, subs) {
 }
 
 export const FacturasTable = ({ rows, pets, subs }) => {
-    const [showLoadingModal, setShowLoadingModal] = useState(false)
-    const [loadingModalStep, setLoadingModalStep] = useState(0)
+    const [page, setPage] = useState(1);
+    const rowsPerPage = 5;
+
+    const startIndex = (page - 1) * rowsPerPage;
+    const currentRows = rows.slice(startIndex, startIndex + rowsPerPage);
 
 
-    useEffect(() => {
-        setTimeout(() => {
-            setLoadingModalStep(1)
-            setTimeout(() => {
-                setShowLoadingModal(false)
-                setLoadingModalStep(0)
-            }, 2000);
-        }, 3000);
-    }, [showLoadingModal])
+    const handlePageChange = (event, value) => {
+        setPage(value);
+    };
+
 
     return (
-        <TableContainer component={Paper} sx={{ borderRadius: '12px', boxShadow: 'none', width: '100%', height: '100%' }}>
+        <TableContainer
+            component={Paper}
+            sx={{
+                borderRadius: "12px",
+                boxShadow: "none",
+                width: "100%",
+                height: "100%",
+            }}
+        >
             <Table>
                 <TableHead>
                     <TableRow>
@@ -50,13 +55,18 @@ export const FacturasTable = ({ rows, pets, subs }) => {
                         <TableCell><strong>Monto</strong></TableCell>
                     </TableRow>
                 </TableHead>
+
                 <TableBody>
-                    {rows.map((row, i) => (
+                    {currentRows.map((row, i) => (
                         <TableRow key={i}>
                             <TableCell>{row.id}</TableCell>
                             <TableCell>{row.fecha_emision}</TableCell>
-                            <TableCell><strong>{processDescription(row.descripcion, false, pets, subs)?.plan || '-'}</strong></TableCell>
-                            <TableCell>{processDescription(row.descripcion, false, pets, subs)?.pet || '-'}</TableCell>
+                            <TableCell>
+                                <strong>{processDescription(row.descripcion, false, pets, subs)?.plan || "-"}</strong>
+                            </TableCell>
+                            <TableCell>
+                                {processDescription(row.descripcion, false, pets, subs)?.pet || "-"}
+                            </TableCell>
                             <TableCell>
                                 <Typography fontWeight="bold">${row.total}</Typography>
                             </TableCell>
@@ -64,51 +74,100 @@ export const FacturasTable = ({ rows, pets, subs }) => {
                     ))}
                 </TableBody>
             </Table>
-            <LoadingModal text="Descargando..." open={showLoadingModal} setOpen={setShowLoadingModal} modalStep={loadingModalStep} />
+
+            {/* Pagination below table */}
+            {rows.length > rowsPerPage && (
+                <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
+                    <Pagination
+                        count={Math.ceil(rows.length / rowsPerPage)}
+                        page={page}
+                        onChange={handlePageChange}
+                        sx={{
+                            "& .MuiPaginationItem-root": {
+                                color: "var(--darkgreen-color)",
+                            },
+                            "& .MuiPaginationItem-root.Mui-selected": {
+                                backgroundColor: "var(--darkgreen-color)",
+                                color: "white",
+                                "&:hover": {
+                                    backgroundColor: "var(--darkgreen-color)",
+                                },
+                            },
+                        }}
+                    />
+                </Box>
+            )}
         </TableContainer>
     );
 };
 
 
 export const FacturasList = ({ rows, pets, subs }) => {
-    const [showLoadingModal, setShowLoadingModal] = useState(false)
-    const [loadingModalStep, setLoadingModalStep] = useState(0)
+    const [page, setPage] = useState(1);
+    const rowsPerPage = 5;
 
-    useEffect(() => {
-        setTimeout(() => {
-            setLoadingModalStep(1)
-            setTimeout(() => {
-                setShowLoadingModal(false)
-                setLoadingModalStep(0)
-            }, 2000);
-        }, 3000);
-    }, [showLoadingModal])
+    const startIndex = (page - 1) * rowsPerPage;
+    const currentRows = rows.slice(startIndex, startIndex + rowsPerPage);
 
+
+    const handlePageChange = (event, value) => {
+        setPage(value);
+    };
 
     return (
-        <Box sx={{ width: '100%' }}>
-            {rows.map((row, i) => (
-                <Box key={i}>
-                    <Box key={i} sx={{ display: 'flex', flexDirection: 'column', padding: '1rem', backgroundColor: 'white', marginY: '1rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                            <   Typography variant="body1" sx={{ fontWeight: 'bold', color: 'var(--darkgreen-color)' }}>
-                                {row.fecha_emision}
-                            </Typography>
-                            <Typography variant="body1" sx={{ color: 'black', fontWeight: 600 }}>
-                                ${row.total}
-                            </Typography>
-                        </Box>
-                        <Box sx={{ display: 'flex', marginTop: '0.5rem', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <Typography variant="body2" sx={{ color: 'gray' }}>
-                                {processDescription(row.descripcion, true, pets, subs)}
-                            </Typography>
-
-                        </Box>
+        <Box sx={{ width: "100%" }}>
+            {currentRows.map((row, i) => (
+                <Box
+                    key={i}
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        padding: "1rem",
+                        backgroundColor: "white",
+                        marginY: "1rem",
+                        borderRadius: "8px",
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                    }}
+                >
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                        <Typography variant="body1" sx={{ fontWeight: "bold", color: "var(--darkgreen-color)" }}>
+                            {row.fecha_emision}
+                        </Typography>
+                        <Typography variant="body1" sx={{ color: "black", fontWeight: 600 }}>
+                            ${row.total}
+                        </Typography>
                     </Box>
 
+                    <Box sx={{ display: "flex", marginTop: "0.5rem", alignItems: "center", justifyContent: "space-between" }}>
+                        <Typography variant="body2" sx={{ color: "gray" }}>
+                            {processDescription(row.descripcion, true, pets, subs)}
+                        </Typography>
+                    </Box>
                 </Box>
             ))}
-            <LoadingModal text="Descargando..." open={showLoadingModal} setOpen={setShowLoadingModal} modalStep={loadingModalStep} />
+
+            {rows.length > rowsPerPage && (
+                <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+                    <Pagination
+                        count={Math.ceil(rows.length / rowsPerPage)}
+                        page={page}
+                        onChange={handlePageChange}
+                        sx={{
+                            "& .MuiPaginationItem-root": {
+                                color: "var(--darkgreen-color)", // text color
+                            },
+                            "& .MuiPaginationItem-root.Mui-selected": {
+                                backgroundColor: "var(--darkgreen-color)",
+                                color: "white",
+                                "&:hover": {
+                                    backgroundColor: "var(--darkgreen-color)",
+                                },
+                            },
+                        }}
+                    />
+                </Box>
+            )}
+
         </Box>
     )
 }
