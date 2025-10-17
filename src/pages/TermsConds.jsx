@@ -64,7 +64,7 @@ export default function TermsAndConds() {
     }
 
     function openSocket(function_name) {
-        const ws = new WebSocket("wss://backendinvet.com/ws/notifications/");
+        const ws = new WebSocket("wss://api.cremacionesinvet.com/ws/notifications/");
         ws.onopen = () => {
             const payload = {
                 function: function_name

@@ -10,7 +10,7 @@ export function openSocket(function_name, options = {}) {
         onOpen,
     } = options;
 
-    const ws = new WebSocket("wss://backendinvet.com/ws/notifications/");
+    const ws = new WebSocket("wss://api.cremacionesinvet.com/ws/notifications/");
     // session token out for email ver
     ws.onopen = () => {
         const payload = {
