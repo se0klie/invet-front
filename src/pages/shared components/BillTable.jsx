@@ -8,17 +8,18 @@ const plans = { 1: 'Basico', 2: 'Premium', 3: 'Presencial' }
 
 function processDescription(description, isMobile, pets, subs) {
     const match = description.match(/ID\s*#(\d+)/i);
-    const planId = match ? parseInt(match[1], 10) : null;
-    const matched = pets.find(item => item.subscripcion_id === planId);
-    const planID = subs[matched?.id]?.subscripcion?.plan_id
+    const subscription_id = match ? parseInt(match[1], 10) : null;
+    if (!subscription_id) return;
 
+    const data = Object.values(subs).find(item => item.subscripcion.id === subscription_id);
+    if (!data || !data.subscripcion) return;
 
-    if (matched) {
-        if (isMobile) {
-            return `Plan: ${plans[planID]} - Mascota: ${matched.nombre}`;
-        } else {
-            return { plan: plans[planID], pet: matched.nombre }
-        }
+    const matched = pets.find(item => item.subscripcion_id === subscription_id);
+    const planID = data.subscripcion.plan_id
+    if (isMobile) {
+        return `Plan: ${plans[planID]} - Mascota: ${matched ? matched.nombre : null}`;
+    } else {
+        return { plan: plans[planID], pet: matched ? matched.nombre : null }
     }
 }
 
