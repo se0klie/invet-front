@@ -444,7 +444,7 @@ function AsignPlanToPet({ pets, plans, setStep, setUpdatedData, updatedData }) {
 
         return pets.filter(
             (pet) =>
-                (pet.subscripcion_id === null || subscriptions[pet.id]?.subscripcion?.estado !== 0) &&
+                (pet.subscripcion_id === null) &&
                 (!chosenPetIds.includes(pet.id) || data[currentKey] === pet.id)
         );
     };
