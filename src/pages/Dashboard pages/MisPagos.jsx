@@ -22,7 +22,7 @@ dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 dayjs.extend(customParseFormat);
 
-export default function MisPagos({ pets, subscriptions, handleRefresh }) {
+export default function MisPagos({ pets, subscriptions, handleRefresh, petSubMatch}) {
     const [invoices, setInvoices] = useState([]);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     const [startDate, setStartDate] = React.useState(null);
@@ -33,7 +33,7 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
         invoices: false
     })
     const navigate = useNavigate()
-    const [validSubs, setValidSubs] = useState(subscriptions)
+    const [validSubs, setValidSubs] = useState(petSubMatch)
     const [showCards, setShowCards] = useState(false)
     const [cards, setCards] = useState([])
     const [deletePaymentMethod, setDeletePaymentMethod] = useState(false)
@@ -41,7 +41,7 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
     const [showLoadingModal, setShowLoadingModal] = useState(false)
     const [loadingStep, setLoadingStep] = useState(0)
     const [filteredInvoices, setFilteredInvoices] = useState(invoices || [])
-
+    
     async function fetchBills() {
         try {
             const response = await axios_api.get(endpoints.get_bills)
@@ -68,9 +68,9 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
                 pets: true
             }))
         }
-        if (subscriptions) {
+        if (petSubMatch) {
             const validData = Object.fromEntries(
-                Object.entries(subscriptions).filter(([_, subObj]) => subObj.subscripcion?.estado === 0)
+                Object.entries(petSubMatch).filter(([_, subObj]) => subObj.subscripcion?.estado === 0)
             );
             setValidSubs(validData)
             setLoadingInfo((prev) => ({
@@ -79,7 +79,7 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
             }))
         }
 
-    }, [pets, subscriptions])
+    }, [pets, petSubMatch])
 
     function handleFilterInvoices() {
         if (!startDate || !endDate) {
@@ -113,7 +113,7 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
         try {
             const cardsInfo = await axios_api.get(endpoints.registered_cards);
             const cards = cardsInfo?.data?.results?.map(card => {
-                const matchedSubs = Object.values(subscriptions || {}).filter(
+                const matchedSubs = Object.values(petSubMatch || {}).filter(
                     s => s.subscripcion.tarjeta_id === card.id
                 );
 
@@ -121,7 +121,7 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
                     ...s.subscripcion,
                     pet: pets.find(p => p.subscripcion_id === s.subscripcion.id) || null,
                 }));
-
+                console.log(card, enrichedSubs)
                 return {
                     ...card,
                     subscriptions: enrichedSubs,
@@ -167,6 +167,7 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
         }
     }
 
+    //TODO: INCLUIR PA ELIMINAR LAS DE SUBS TODAS MENOS
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'flex-start', height: '100%', padding: '1.5em' }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', height: 'min-content', width: '100%' }}>
@@ -454,7 +455,7 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
                                 Aquí podrás gestionar los métodos de pago utilizados para las suscripciones de tus mascotas.
                             </Typography>
                         </Box>
-                        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', flexDirection: 'column'}}>
                             {cards.length > 0 ? (
                                 cards.map((card, index) => (
                                     <Stack
@@ -471,7 +472,7 @@ export default function MisPagos({ pets, subscriptions, handleRefresh }) {
                                         />
 
                                         <Stack direction="row" spacing={1}>
-                                            {card.subscriptions.length > 0 ? (
+                                            {card.subscriptions.length > 0 && card.subscriptions.some(sub => sub.estado === 0)  ? (
                                                 <Tooltip
                                                     title={
                                                         <Box className="tooltip-content">

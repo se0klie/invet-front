@@ -4,37 +4,64 @@ import {
     TableHead, TableRow, Paper, Button, IconButton, Typography, Box, Pagination
 } from '@mui/material';
 
-const plans = { 1: 'Basico', 2: 'Premium', 3: 'Presencial' }
-
+const plans = { 1: 'Básico', 2: 'Premium', 3: 'Presencial' }
 function processDescription(description, isMobile, pets, subs) {
-    const match = description.match(/ID\s*#(\d+)/i);
-    const subscription_id = match ? parseInt(match[1], 10) : null;
+    if (!description) return;
+    const idMatch = description.match(/ID\s*#(\d+)/i);
+    const subscription_id = idMatch ? parseInt(idMatch[1], 10) : null;
     if (!subscription_id) return;
 
-    const data = Object.values(subs).find(item => item.subscripcion.id === subscription_id);
-    if (!data || !data.subscripcion) return;
 
-    const matched = pets.find(item => item.subscripcion_id === subscription_id);
-    const planID = data.subscripcion.plan_id
+    const cuotaMatch = description.match(/cuota\s*(\d+)/i);
+    const cuota = cuotaMatch ? parseInt(cuotaMatch[1], 10) : null;
+
+    const data = Object.values(subs).find(item => item.id === subscription_id);
+
+    if (!data) return;
+
+    const matchedPet = pets.find(item => item.subscripcion_id === subscription_id);
+
+    const planID = data.plan_id;
+
+
     if (isMobile) {
-        return `Plan: ${plans[planID]} - Mascota: ${matched ? matched.nombre : null}`;
+        return `Plan: ${plans[planID] || "-"} - Mascota: ${matchedPet ? matchedPet.nombre : "-"} - Cuota: ${cuota ?? "-"}`;
     } else {
-        return { plan: plans[planID], pet: matched ? matched.nombre : null }
+        return {
+            plan: plans[planID] || "-",
+            pet: matchedPet ? matchedPet.nombre : "-",
+            cuota: cuota ?? "-"
+        };
     }
 }
 
 export const FacturasTable = ({ rows, pets, subs }) => {
     const [page, setPage] = useState(1);
+    const [processedRows, setProcessedRows] = useState([]);
     const rowsPerPage = 5;
 
-    const startIndex = (page - 1) * rowsPerPage;
-    const currentRows = rows.slice(startIndex, startIndex + rowsPerPage);
+    useEffect(() => {
+        console.log(subs)
+        if (rows?.length === 0 || pets?.length === 0 || subs?.length === 0) return;
+        const newData = rows.map(row => {
+            const desc = processDescription(row.descripcion, false, pets, subs);
+            return {
+                ...row,
+                plan: desc?.plan || "-",
+                pet: desc?.pet || "-",
+                cuota: desc?.cuota || '-'
+            };
+        });
 
+        setProcessedRows(newData);
+    }, [rows, pets, subs]);
+
+    const startIndex = (page - 1) * rowsPerPage;
+    const currentRows = processedRows.slice(startIndex, startIndex + rowsPerPage);
 
     const handlePageChange = (event, value) => {
         setPage(value);
     };
-
 
     return (
         <TableContainer
@@ -49,10 +76,10 @@ export const FacturasTable = ({ rows, pets, subs }) => {
             <Table>
                 <TableHead>
                     <TableRow>
-                        <TableCell><strong>ID factura</strong></TableCell>
                         <TableCell><strong>Fecha de pago</strong></TableCell>
                         <TableCell><strong>Plan</strong></TableCell>
                         <TableCell><strong>Mascota</strong></TableCell>
+                        <TableCell><strong>Cuota</strong></TableCell>
                         <TableCell><strong>Monto</strong></TableCell>
                     </TableRow>
                 </TableHead>
@@ -60,14 +87,10 @@ export const FacturasTable = ({ rows, pets, subs }) => {
                 <TableBody>
                     {currentRows.map((row, i) => (
                         <TableRow key={i}>
-                            <TableCell>{row.id}</TableCell>
                             <TableCell>{row.fecha_emision}</TableCell>
-                            <TableCell>
-                                <strong>{processDescription(row.descripcion, false, pets, subs)?.plan || "-"}</strong>
-                            </TableCell>
-                            <TableCell>
-                                {processDescription(row.descripcion, false, pets, subs)?.pet || "-"}
-                            </TableCell>
+                            <TableCell><strong>{row.plan}</strong></TableCell>
+                            <TableCell>{row.pet}</TableCell>
+                            <TableCell>{row.cuota}</TableCell>
                             <TableCell>
                                 <Typography fontWeight="bold">${row.total}</Typography>
                             </TableCell>
@@ -76,11 +99,10 @@ export const FacturasTable = ({ rows, pets, subs }) => {
                 </TableBody>
             </Table>
 
-            {/* Pagination below table */}
-            {rows.length > rowsPerPage && (
+            {processedRows.length > rowsPerPage && (
                 <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
                     <Pagination
-                        count={Math.ceil(rows.length / rowsPerPage)}
+                        count={Math.ceil(processedRows.length / rowsPerPage)}
                         page={page}
                         onChange={handlePageChange}
                         sx={{
@@ -101,7 +123,6 @@ export const FacturasTable = ({ rows, pets, subs }) => {
         </TableContainer>
     );
 };
-
 
 export const FacturasList = ({ rows, pets, subs }) => {
     const [page, setPage] = useState(1);
