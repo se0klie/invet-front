@@ -8,7 +8,7 @@ import { RxCross1 } from "react-icons/rx";
 import { LoadingModal } from "../shared components/Modals";
 import axios_api from '../axios'
 import { endpoints } from "../endpoints.js";
-import Cookies from 'js-cookie';
+
 export default function MisMascotas({ pets, subs, handleRefresh }) {
     const [snackbar, setSnackbar] = useState({
         open: false,

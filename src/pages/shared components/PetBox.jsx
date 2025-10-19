@@ -11,6 +11,9 @@ import axios_api from "../axios";
 import { endpoints } from "../endpoints.js";
 import Cookies from "js-cookie";
 import { FaCircle } from "react-icons/fa";
+import { FaPencilAlt } from "react-icons/fa";
+import { X } from 'lucide-react';
+import { DataInput, DataSelect } from "./Inputs.jsx";
 
 const plans = { 1: 'Básico', 2: 'Premium', 3: 'Presencial' }
 
@@ -25,9 +28,11 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
         message: '',
         severity: 'success',
     });
+    const [showEditPet, setShowEditPet] = useState(false)
     const navigate = useNavigate();
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     const planState = sub?.estado === 0 ? 'Activo' : sub?.estado === 1 ? 'Pagado' : sub?.estado === 2 ? 'Suspendido' : sub?.estado === 3 ? 'Cancelado' : 'Finalizado'
+    const [editedPetData, setEditedPetData] = useState(pet || {})
 
     useEffect(() => {
         function handleResize() {
@@ -83,16 +88,48 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
             )
             if (response.status === 200) {
                 refreshDashboard()
+                setLoadingModalStep(1)
                 setTimeout(() => {
-                    setLoadingModalStep(1)
-                    setTimeout(() => {
-                        setLoadingModal(false)
-                        setLoadingModalStep(0)
-                    }, 2000);
-                }, 3000);
+                    setLoadingModal(false)
+                    setLoadingModalStep(0)
+                }, 2000);
             }
         } catch (err) {
             console.error('Error exchange /POST', err)
+            return err
+        }
+    }
+
+    useEffect(()=> {
+        console.log(sub)
+    }, [sub])
+    async function handleEditPetData() {
+        try {
+            setShowEditPet(false)
+            setLoadingModal(true)
+            const response = await axios_api.patch(endpoints.modify_pet,
+                {
+                    mascota_id: editedPetData.id,
+                    nombre: editedPetData.nombre,
+                    raza: editedPetData.raza,
+                    fecha_nacimiento: editedPetData.fecha_nacimiento
+                }
+            )
+            if (response.status === 200 || response.status === 201) {
+                refreshDashboard()
+                setLoadingModalStep(1)
+                setTimeout(() => {
+                    setLoadingModal(false)
+                    setLoadingModalStep(0)
+                }, 2000);
+            }
+        } catch (err) {
+            console.error(err)
+            setLoadingModalStep(-1)
+            setTimeout(() => {
+                setLoadingModal(false)
+                setLoadingModalStep(0)
+            }, 2000);
             return err
         }
     }
@@ -138,17 +175,46 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
             </Box>
 
             <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <Typography
-                    variant="h6"
+                <Box
                     sx={{
-                        color: 'var(--darkgreen-color)',
-                        fontWeight: 'bold',
-                        textAlign: 'center',
-                        mb: 1,
+                        display: 'flex',
+                        gap: 2,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        transition: 'background 0.3s ease',
+                        cursor: 'pointer',
+                        '&:hover': {
+                            background: 'rgba(231, 242, 220, 0.7)',
+                        },
+                    }}
+                    onClick={() => {
+                        setShowEditPet(true)
+                        setEditedPetData(pet)
                     }}
                 >
-                    {pet?.nombre}
-                </Typography>
+                    <Typography
+                        variant="h6"
+                        sx={{
+                            color: 'var(--darkgreen-color)',
+                            fontWeight: 'bold',
+                        }}
+                    >
+                        {pet?.nombre}
+                    </Typography>
+                    <Box
+                        component={FaPencilAlt}
+
+                        sx={{
+                            color: 'var(--darkgreen-color)',
+                            cursor: 'pointer',
+                            transition: 'color 0.2s',
+                            '&:hover': {
+                                color: 'var(--hoverdarkgreen-color)',
+                            },
+                        }}
+                    />
+                </Box>
+
 
                 <Box sx={{ paddingTop: '1rem', paddingBottom: '1rem' }}>
                     {(!sub || sub?.estado === 3) ? (
@@ -237,10 +303,10 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
                         >
                             Añadir plan
                         </Button>
-                    ) : 
-                    <Typography>
-                        Gracias por tu confianza. Este plan ha finalizado.
-                    </Typography>}
+                    ) :
+                        <Typography>
+                            Gracias por tu confianza. Este plan ha finalizado.
+                        </Typography>}
                 </Box>
             </Box>
             <Modal
@@ -441,6 +507,46 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
                     {snackbar.message}
                 </Alert>
             </Snackbar>
+            <Modal open={showEditPet} onClose={() => setShowEditPet(false)}>
+                <Box
+                    component="form"
+                    onSubmit={handleEditPetData}
+                    sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: isMobile ? '70%' : '40%',
+                        bgcolor: "background.paper",
+                        borderRadius: 3,
+                        boxShadow: 24,
+                        p: 4,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2,
+                    }}
+                >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="h5" sx={{ fontWeight: 600, color: 'var(--darkgreen-color)' }}>{pet.nombre}</Typography>
+                        <X onClick={() => setShowEditPet(false)} style={{ cursor: 'pointer' }} />
+                    </Box>
+
+
+                    <DataInput label='Nombre' isMandatory={false} value={editedPetData.nombre} formLabel='nombre' setData={setEditedPetData} />
+                    <DataInput label='Raza' isMandatory={false} value={editedPetData.raza} formLabel='raza' setData={setEditedPetData} />
+                    <DataInput label='Fecha de nacimiento' type='date' isMandatory={false} value={editedPetData.fecha_nacimiento} formLabel='fecha_nacimiento' setData={setEditedPetData} />
+                    <DataSelect label='Ciudad' isMandatory={false} value={editedPetData.ciudad} formLabel='ciudad' setData={setEditedPetData} />
+
+
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, alignItems: 'center' }}>
+                        <Box sx={{ width: '40%' }}>
+                            <LightGreenButton text="Guardar cambios" action={() => {
+                                handleEditPetData()
+                            }} />
+                        </Box>
+                    </Box>
+                </Box>
+            </Modal>
         </Box>
 
     )

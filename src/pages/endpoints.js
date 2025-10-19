@@ -19,8 +19,9 @@ export const endpoints = {
     edit_pet: urlJoin(API_ROOT, 'modify-mascota/'),
     fetch_card_data: urlJoin(API_ROOT, 'registered-cards/'),
     check_password: urlJoin(API_ROOT, 'verify-password/'),
-    send_email: urlJoin(API_ROOT,'send-verification-email/'),
+    send_email: urlJoin(API_ROOT, 'send-verification-email/'),
     send_password_reset: urlJoin(API_ROOT, 'send-password-reset-email/'),
     get_bills: urlJoin(API_ROOT, 'get-facturas/'),
-    delete_acc: urlJoin(API_ROOT, 'delete-account/')
+    delete_acc: urlJoin(API_ROOT, 'delete-account/'),
+    modify_pet: urlJoin(API_ROOT, 'modify-mascota/')
 };
