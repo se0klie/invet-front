@@ -110,7 +110,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
             formData.append('nombre', editedPetData.nombre);
             formData.append('raza', editedPetData.raza);
             formData.append('fecha_nacimiento', editedPetData.fecha_nacimiento);
-            console.log(editedPetData, editedPetData.foto)
+
             if (editedPetData.foto) {
                 formData.append('image', editedPetData.foto);
             }

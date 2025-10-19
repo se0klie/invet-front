@@ -759,7 +759,7 @@ export default function Settings() {
                                 borderRadius: '0.5rem',
                             }}
                         >
-                            Cambiar contraseña
+                           Sí, eliminar cuenta.
                         </Button>
                     </Box>
                 </Box>
