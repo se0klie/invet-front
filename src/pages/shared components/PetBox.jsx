@@ -14,7 +14,7 @@ import { FaCircle } from "react-icons/fa";
 import { FaPencilAlt } from "react-icons/fa";
 import { X } from 'lucide-react';
 import { DataInput, DataSelect } from "./Inputs.jsx";
-
+import { compressImage } from "../../helpers/pets-helper.js";
 const plans = { 1: 'Básico', 2: 'Premium', 3: 'Presencial' }
 
 export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
@@ -100,20 +100,25 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
         }
     }
 
-    useEffect(()=> {
-        console.log(sub)
-    }, [sub])
     async function handleEditPetData() {
         try {
             setShowEditPet(false)
             setLoadingModal(true)
+
+            const formData = new FormData();
+            formData.append('mascota_id', editedPetData.id);
+            formData.append('nombre', editedPetData.nombre);
+            formData.append('raza', editedPetData.raza);
+            formData.append('fecha_nacimiento', editedPetData.fecha_nacimiento);
+            console.log(editedPetData, editedPetData.foto)
+            if (editedPetData.foto) {
+                formData.append('image', editedPetData.foto);
+            }
+
             const response = await axios_api.patch(endpoints.modify_pet,
-                {
-                    mascota_id: editedPetData.id,
-                    nombre: editedPetData.nombre,
-                    raza: editedPetData.raza,
-                    fecha_nacimiento: editedPetData.fecha_nacimiento
-                }
+                formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            }
             )
             if (response.status === 200 || response.status === 201) {
                 refreshDashboard()
@@ -133,6 +138,25 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
             return err
         }
     }
+
+    const handleFileChange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            alert('Solo se permiten imágenes.');
+            return;
+        }
+        const previewUrl = URL.createObjectURL(file);
+        const compressed = await compressImage(file);
+
+        setEditedPetData((prev) => ({
+            ...prev,
+            preview_url: previewUrl,
+            foto: compressed
+        }));
+    };
+
     return (
         <Box
             sx={{
@@ -168,7 +192,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
                 }}
             >
                 <img
-                    src={pet?.url_foto || "./images/emptyicon_pet.jpg"}
+                    src={pet?.url_foto || "/images/emptyicon_pet.jpg"}
                     alt={`Foto de ${pet?.nombre || ''}`}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
@@ -537,7 +561,53 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
                     <DataInput label='Fecha de nacimiento' type='date' isMandatory={false} value={editedPetData.fecha_nacimiento} formLabel='fecha_nacimiento' setData={setEditedPetData} />
                     <DataSelect label='Ciudad' isMandatory={false} value={editedPetData.ciudad} formLabel='ciudad' setData={setEditedPetData} />
 
-
+                    <Typography variant="p" sx={{ fontWeight: 'bold', color: 'var(--blackinput-color)' }}>
+                        Cambiar foto
+                    </Typography>
+                    <Box
+                        sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '1rem', alignItems: 'center' }}>
+                        <Box>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                style={{ display: 'none' }}
+                                id="pet-image-upload"
+                            />
+                            <label htmlFor="pet-image-upload">
+                                <Box
+                                    component="div"
+                                    sx={{
+                                        width: isMobile ? '70px' : '120px',
+                                        height: isMobile ? '70px' : '120px',
+                                        borderRadius: '50%',
+                                        backgroundColor: 'var(--disabled-color)',
+                                        overflow: 'hidden',
+                                        cursor: 'pointer',
+                                        border: '2px dashed #ccc',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        '&:hover': {
+                                            borderColor: 'var(--secondary-color)',
+                                        },
+                                    }}
+                                >
+                                    {editedPetData.preview_url ? (
+                                        <img
+                                            src={editedPetData.preview_url}
+                                            alt="Vista previa"
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                        />
+                                    ) : (
+                                        <span style={{ color: '#777', fontSize: '0.8rem', textAlign: 'center' }}>
+                                            Subir Foto
+                                        </span>
+                                    )}
+                                </Box>
+                            </label>
+                        </Box>
+                    </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, alignItems: 'center' }}>
                         <Box sx={{ width: '40%' }}>
                             <LightGreenButton text="Guardar cambios" action={() => {

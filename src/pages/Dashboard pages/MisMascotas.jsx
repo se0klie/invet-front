@@ -36,12 +36,10 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
             formData.append('fecha_nacimiento', newPetData.fecha_nacimiento);
             formData.append('ciudad', newPetData.ciudad);
 
-            // Only append the file if it exists
             if (newPetData.image) {
                 formData.append('image', newPetData.image);
             }
 
-            // Send as multipart/form-data
             const response = await axios_api.post(endpoints.add_pet, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
