@@ -168,7 +168,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
                 }}
             >
                 <img
-                    src="./images/emptyicon_pet.jpg"
+                    src={pet?.url_foto || "./images/emptyicon_pet.jpg"}
                     alt={`Foto de ${pet?.nombre || ''}`}
                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />

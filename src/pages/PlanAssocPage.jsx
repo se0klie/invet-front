@@ -7,7 +7,7 @@ import { LuCirclePlus } from "react-icons/lu";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FiPlus } from "react-icons/fi";
 import { LoadingModal } from "./shared components/Modals";
-import { getPets, addPet,compressImage } from "../helpers/pets-helper";
+import { getPets, addPet, compressImage } from "../helpers/pets-helper";
 import axios_api from "./axios";
 import { endpoints } from "./endpoints";
 import Cookies from "js-cookie";
@@ -235,12 +235,20 @@ function AddPet({ pets, plans, setStep, refresh }) {
     }
 
     async function handleFileChange(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const compressed = await compressImage(file);
-    setPetData((prev) => ({ ...prev, image: compressed }));
-}
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+            alert('Solo se permiten imágenes.');
+            return;
+        }
+        const previewUrl = URL.createObjectURL(file);
+        const compressed = await compressImage(file);
+        setPetData((prev) => ({
+            ...prev,
+            preview_url: previewUrl,
+            image: compressed
+        }));
+    }
 
 
     return (
@@ -283,9 +291,9 @@ function AddPet({ pets, plans, setStep, refresh }) {
                             }}
                         >
 
-                            {petData.image ? (
+                            {petData.preview_url ? (
                                 <img
-                                    src={petData.image}
+                                    src={petData.preview_url}
                                     alt="Vista previa"
                                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                 />

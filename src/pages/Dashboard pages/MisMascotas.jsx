@@ -83,10 +83,12 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
             alert('Solo se permiten imágenes.');
             return;
         }
+        const previewUrl = URL.createObjectURL(file);
         const compressed = await compressImage(file);
 
         setNewPetData((prev) => ({
             ...prev,
+            preview_url: previewUrl,
             image: compressed
         }));
     };
@@ -285,9 +287,9 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
                                                 },
                                             }}
                                         >
-                                            {newPetData.image ? (
+                                            {newPetData.preview_url ? (
                                                 <img
-                                                    src={newPetData.image}
+                                                    src={newPetData.preview_url}
                                                     alt="Vista previa"
                                                     style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                                 />
