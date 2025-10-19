@@ -8,7 +8,8 @@ import { RxCross1 } from "react-icons/rx";
 import { LoadingModal } from "../shared components/Modals";
 import axios_api from '../axios'
 import { endpoints } from "../endpoints.js";
-
+import Cookies from 'js-cookie';
+import { compressImage } from "../../helpers/pets-helper";
 export default function MisMascotas({ pets, subs, handleRefresh }) {
     const [snackbar, setSnackbar] = useState({
         open: false,
@@ -29,16 +30,21 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
         setLoadingModalStep(0)
         setLoadingModal(true)
         try {
-            const payload = {
-                subscripcion_id: null,
-                nombre: newPetData.nombre,
-                raza: newPetData.raza,
-                fecha_nacimiento: newPetData.fecha_nacimiento,
-                ciudad: newPetData.ciudad,
-                url_foto: newPetData.image || ''
-            }
-            const response = await axios_api.post(endpoints.add_pet, payload);
+            const formData = new FormData();
+            formData.append('nombre', newPetData.nombre);
+            formData.append('raza', newPetData.raza);
+            formData.append('fecha_nacimiento', newPetData.fecha_nacimiento);
+            formData.append('ciudad', newPetData.ciudad);
 
+            // Only append the file if it exists
+            if (newPetData.image) {
+                formData.append('image', newPetData.image);
+            }
+
+            // Send as multipart/form-data
+            const response = await axios_api.post(endpoints.add_pet, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
             if (response.status === 201) {
                 await handleRefresh()
                 setTimeout(() => {
@@ -69,7 +75,7 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const handleFileChange = (e) => {
+    const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
@@ -77,18 +83,12 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
             alert('Solo se permiten imágenes.');
             return;
         }
+        const compressed = await compressImage(file);
 
-        if (file.size > 2 * 1024 * 1024) { // 2MB
-            alert('La imagen no debe superar 2MB.');
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = () => setNewPetData((prev) => ({
+        setNewPetData((prev) => ({
             ...prev,
-            image: reader.result
+            image: compressed
         }));
-        reader.readAsDataURL(file);
     };
 
     return (
@@ -257,7 +257,7 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
                                 Subir foto (opcional)
                             </Typography>
                             <Box
-                                sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '1rem', alignItems: 'center'}}>
+                                sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '1rem', alignItems: 'center' }}>
                                 <Box>
                                     <input
                                         type="file"

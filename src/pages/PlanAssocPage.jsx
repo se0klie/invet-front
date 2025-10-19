@@ -7,7 +7,7 @@ import { LuCirclePlus } from "react-icons/lu";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FiPlus } from "react-icons/fi";
 import { LoadingModal } from "./shared components/Modals";
-import { getPets, addPet } from "../helpers/pets-helper";
+import { getPets, addPet,compressImage } from "../helpers/pets-helper";
 import axios_api from "./axios";
 import { endpoints } from "./endpoints";
 import Cookies from "js-cookie";
@@ -234,27 +234,14 @@ function AddPet({ pets, plans, setStep, refresh }) {
         return hasErrors;
     }
 
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    async function handleFileChange(e) {
+    const file = e.target.files[0];
+    if (!file) return;
 
-        if (!file.type.startsWith('image/')) {
-            alert('Solo se permiten imágenes.');
-            return;
-        }
+    const compressed = await compressImage(file);
+    setPetData((prev) => ({ ...prev, image: compressed }));
+}
 
-        if (file.size > 2 * 1024 * 1024) { // 2MB
-            alert('La imagen no debe superar 2MB.');
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = () => setPetData((prev) => ({
-            ...prev,
-            image: reader.result
-        }));
-        reader.readAsDataURL(file);
-    };
 
     return (
         <Box sx={{ background: 'white', width: isMobile ? '60%' : '50%', borderRadius: 5, px: 3, py: 4 }}>
@@ -316,20 +303,20 @@ function AddPet({ pets, plans, setStep, refresh }) {
                                 if (!hasErrors) {
                                     if (numMascotasNecesarias <= 1) {
                                         setShowModal(true)
-                                        await addPet(petData.nombre, petData.raza, petData.fecha_nacimiento, petData.ciudad, petData.url)
+                                        await addPet(petData.nombre, petData.raza, petData.fecha_nacimiento, petData.ciudad, petData.image)
                                         await refresh()
                                         setTimeout(() => {
                                             setStep(0)
                                         }, 3000);
                                     } else {
-                                        await addPet(petData.nombre, petData.raza, petData.fecha_nacimiento, petData.ciudad, petData.url)
+                                        await addPet(petData.nombre, petData.raza, petData.fecha_nacimiento, petData.ciudad, petData.image)
                                         setShowModal(true)
                                         setPetData({
                                             nombre: '',
                                             raza: '',
                                             fecha_nacimiento: '',
                                             ciudad: '',
-                                            url: undefined
+                                            image: null,
                                         })
                                         setTimeout(() => {
                                             setShowModal(false)
