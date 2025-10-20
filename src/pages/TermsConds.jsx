@@ -36,16 +36,9 @@ export default function TermsAndConds() {
                     {
                         plan_id: plan_name === "basic" ? 1 : plan_name === "premium" ? 2 : 3,
                         tarjeta_id: tarjeta_id,
+                        mascota_id: pet_id
                     }
                 );
-                if (response.status === 201 || response.status === 200) {
-                    const req_petUpd = await axios_api.patch(endpoints.edit_pet,
-                        {
-                            mascota_id: pet_id,
-                            subscripcion_id: response.data.id
-                        }
-                    )
-                }
             }
 
             setOpenModal(false);
@@ -80,6 +73,7 @@ export default function TermsAndConds() {
                     return;
                 }
                 if (data?.data?.url) {
+                    setPaymentURL(data?.data?.url)
                     window.open(data.data.url, "_blank", "noopener,noreferrer");
                 } else if (data?.id) {
                     const card_data = data.id;

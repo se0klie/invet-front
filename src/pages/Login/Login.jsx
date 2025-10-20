@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { use, useEffect, useRef, useState } from 'react';
 import { useAuth } from "../../context/AuthContext"
 import '../../style.css'
 import './login.css'
@@ -43,8 +43,8 @@ export default function InitialState() {
         >
             {currentStep === 1 && <Login setStep={setCurrentStep} />}
             {currentStep === 2 && <ChangePassword setStep={setCurrentStep} currentStep={currentStep} />}
-            {currentStep === 4 && <VerifyCode setStep={setCurrentStep} currentStep={currentStep} formData={userData} />}
             {currentStep === 3 && <Register setStep={setCurrentStep} setUserData={setUserData} userData={userData} />}
+            {currentStep === 4 && <VerifyCode setStep={setCurrentStep} currentStep={currentStep} formData={userData} />}
 
         </Box>
     )
@@ -316,7 +316,6 @@ function ChangePassword({ setStep, currentStep }) {
 function VerifyCode({ setStep, formData }) {
     const [code, setCode] = useState(['', '', '', '', '', '']);
     const inputsRef = useRef([]);
-    const { enqueueSnackbar } = useSnackbar();
     const location = useLocation()
     const plans = location?.state?.plans
     const navigate = useNavigate()
@@ -413,6 +412,7 @@ function VerifyCode({ setStep, formData }) {
                             email: request.data.email,
                             cedula: request.data.cedula
                         })
+                        console.log(plans)
                         navigate('/identify-pet', { state: { plans } })
                     }
                 } else {
@@ -550,14 +550,12 @@ function Register({ setStep, setUserData, userData }) {
         message: '',
         severity: 'success',
     });
-
+    const location = useLocation()
     const groupedFields = [
         ['idnumber', 'firstNames', 'lastNames', 'email', 'phone'],
         ['city', 'address'],
         ['password', 'repeatedpassword'],
     ]
-
-
     const registerFields = [
         {
             label: 'Nombres',
