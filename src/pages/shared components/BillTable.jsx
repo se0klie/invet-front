@@ -41,7 +41,6 @@ export const FacturasTable = ({ rows, pets, subs }) => {
     const rowsPerPage = 5;
 
     useEffect(() => {
-        console.log(subs)
         if (rows?.length === 0 || pets?.length === 0 || subs?.length === 0) return;
         const newData = rows.map(row => {
             const desc = processDescription(row.descripcion, false, pets, subs);

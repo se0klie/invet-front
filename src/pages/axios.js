@@ -8,4 +8,19 @@ const axios_api = axios.create({
   withCredentials: true
 });
 
+function handleUnauthorized() {
+  localStorage.clear();
+  window.location.href = "/login";
+}
+
+axios_api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      handleUnauthorized();
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default axios_api;

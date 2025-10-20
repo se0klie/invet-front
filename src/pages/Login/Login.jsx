@@ -412,7 +412,6 @@ function VerifyCode({ setStep, formData }) {
                             email: request.data.email,
                             cedula: request.data.cedula
                         })
-                        console.log(plans)
                         navigate('/identify-pet', { state: { plans } })
                     }
                 } else {
