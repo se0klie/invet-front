@@ -375,7 +375,6 @@ function AsignPlanToPet({ pets, plans, setStep, setUpdatedData, updatedData }) {
     }, []);
 
     const handleSelectPet = (planKey, id) => {
-        console.log(id)
         setData((prev) => {
             const newData = { ...prev };
 

@@ -121,7 +121,6 @@ export default function MisPagos({ pets, subscriptions, handleRefresh, petSubMat
                     ...s.subscripcion,
                     pet: pets.find(p => p.subscripcion_id === s.subscripcion.id) || null,
                 }));
-                console.log(card, enrichedSubs)
                 return {
                     ...card,
                     subscriptions: enrichedSubs,

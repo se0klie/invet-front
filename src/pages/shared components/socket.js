@@ -23,7 +23,6 @@ export function openSocket(function_name, options = {}) {
 
     ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        console.log( 'FUNCITON NAME',function_name, onEmailVerification)
         if (function_name === "card_registration") {
             if (data?.function !== "card_registration_callback") {
                 ws.close();
