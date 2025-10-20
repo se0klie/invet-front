@@ -3,14 +3,20 @@ import { FaWhatsapp } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import { IoIosPin } from "react-icons/io";
 import { useState, useEffect } from "react";
+import { LoadingModal } from "../shared components/Modals";
 import { DataInput } from "../shared components/Inputs";
+import axios_api from '../axios'
+import { endpoints } from "../endpoints.js";
 export default function ContactPage() {
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+    const [loadingModal, setLoadingModal] = useState(false)
+    const [loadingModalStep, setLoadingModalStep] = useState(0)
+    const [modalMessage, setModalMessage] = useState('Cargando...')
     const [contactForm, setContactForm] = useState({
-        name: '',
-        lastName: '',
+        firstname: '',
+        lastname: '',
         email: '',
-        about: '',
+        body: '',
         subject: ''
     })
 
@@ -36,12 +42,12 @@ export default function ContactPage() {
         {
             label: 'Nombre',
             size: '1',
-            formData: 'name'
+            formData: 'firstname'
         },
         {
             label: 'Apellido',
             size: 1,
-            formData: 'lastName'
+            formData: 'lastname'
         },
         {
             label: 'Correo electrónico',
@@ -51,13 +57,13 @@ export default function ContactPage() {
         {
             label: 'Estoy interesado/a en...',
             size: 1,
-            formData: 'about'
+            formData: 'subject'
         },
         {
             label: 'Mi consulta es...',
             size: 2,
             type: 'big',
-            formData: 'subject'
+            formData: 'body'
         },
     ]
     useEffect(() => {
@@ -68,8 +74,45 @@ export default function ContactPage() {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+
+    const sendContactEmail = async (data) => {
+        setModalMessage('Enviando correo...')
+        setLoadingModalStep(0)
+        setLoadingModal(true)
+        try {
+            const response = await axios_api.post(endpoints.contact_email, data);
+            if ([200, 201].includes(response.status)) {
+                setTimeout(() => {
+                    setLoadingModalStep(1);
+                    setTimeout(() => {
+                        setLoadingModal(false)
+                        setLoadingModalStep(0)
+                    }, 2000);
+                }, 3000);
+                setContactForm({
+                    firstname: '',
+                    lastname: '',
+                    email: '',
+                    body: '',
+                    subject: ''
+                })
+            }
+        } catch (err) {
+            console.error('Error POST to /contact-email/', err);
+            setTimeout(() => {
+                setLoadingModalStep(-1);
+                setTimeout(() => {
+                    setLoadingModal(false)
+                    setLoadingModalStep(0)
+                }, 2000);
+            }, 3000);
+        }
+    };
+
+
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <LoadingModal text={modalMessage} modalStep={loadingModalStep} open={loadingModal} setOpen={setLoadingModal} />
             <Box
                 component="section"
                 sx={{
@@ -165,7 +208,7 @@ export default function ContactPage() {
             >
                 <Box>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        <Box sx={{ background: 'var(--primary-color)', paddingX: 2, paddingY: 1, borderRadius: 3, borderBottomLeftRadius: 0}}>
+                        <Box sx={{ background: 'var(--primary-color)', paddingX: 2, paddingY: 1, borderRadius: 3, borderBottomLeftRadius: 0 }}>
                             <Typography sx={{ color: 'var(--darkgreen-color)', fontWeight: 600 }}>Envíanos un correo</Typography>
                         </Box>
                         <Typography sx={{ fontWeight: 600 }}>¡Escríbenos tu duda y nos encargaremos de responderte lo antes posible!</Typography>
@@ -190,6 +233,7 @@ export default function ContactPage() {
                             <TextField
                                 fullWidth
                                 placeholder={field.label}
+                                value={contactForm[field.formData]}
                                 multiline={field.type === 'big'}
                                 rows={field.type === 'big' ? 5 : 1}
                                 variant="outlined"
@@ -229,7 +273,7 @@ export default function ContactPage() {
                         </Box>
                     ))}
                     <Button
-                        onClick={() => { console.log(contactForm) }}
+                        onClick={() => sendContactEmail(contactForm)}
                         sx={{
                             width: '100%',
                             gridColumn: 'span 2',
