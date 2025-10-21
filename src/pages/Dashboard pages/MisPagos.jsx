@@ -51,6 +51,7 @@ export default function MisPagos({ pets, subscriptions, handleRefresh, petSubMat
                 ...prev,
                 invoices: true
             }))
+            console.log(response.data.results)
         } catch (err) {
             console.error(err)
             return err

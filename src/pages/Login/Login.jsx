@@ -326,6 +326,7 @@ function VerifyCode({ setStep, formData }) {
         message: '',
         severity: 'success',
     });
+    const [loadingModal, setLoadingModal] = useState(false)
 
     useEffect(() => {
         if (counter === 0) {
@@ -380,6 +381,7 @@ function VerifyCode({ setStep, formData }) {
         }
     }
     async function handleRegister() {
+        setLoadingModal(true)
         try {
             const response = await axios_api.post(
                 endpoints.create_user,
@@ -403,9 +405,10 @@ function VerifyCode({ setStep, formData }) {
                 },
             );
             if (response.status === 201 || response.status === 200) {
+                setLoadingModal(false)
                 if (fromCheckout) {
                     const request = await loginHelper(formData.email, formData.password);
-
+                    
                     if (request.response) {
                         login({
                             nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
@@ -524,6 +527,7 @@ function VerifyCode({ setStep, formData }) {
                     {snackbar.message}
                 </Alert>
             </Snackbar>
+            <LoadingModal text="Validando información..." setOpen={setLoadingModal} open={loadingModal} modalStep={0}/>
         </Box>
     )
 }

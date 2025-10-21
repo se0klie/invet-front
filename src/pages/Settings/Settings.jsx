@@ -41,6 +41,12 @@ export default function Settings() {
     useEffect(() => {
         let settings = [
             {
+                label: 'Cédula',
+                value: formData.idnumber,
+                formData: 'idnumber',
+                type: 'text'
+            },
+            {
                 label: 'Nombres completos',
                 value: formData.firstNames,
                 formData: 'firstNames',
@@ -52,6 +58,7 @@ export default function Settings() {
                 formData: 'lastNames',
                 type: 'text'
             },
+
             {
                 label: 'Celular',
                 value: formData.phone,
@@ -117,6 +124,7 @@ export default function Settings() {
             if (userData) {
                 setFormData({
                     email: userData.email,
+                    idnumber: userData.cedula || '',
                     cedula: userData.cedula,
                     firstNames: userData.nombres,
                     lastNames: userData.apellidos,
@@ -158,7 +166,7 @@ export default function Settings() {
                     setTimeout(() => {
                         setLoadingModal(false);
                         setLoadingModalStep(0);
-                    }, 2500);
+                    }, 1000);
                 }
                 setPasswords({
                     newpassword: '',
@@ -168,7 +176,7 @@ export default function Settings() {
                 setTimeout(() => {
                     setLoadingModal(false);
                     setLoadingModalStep(0);
-                }, 2500);
+                }, 1000);
                 setPasswordErrors((prev) => ({
                     ...prev,
                     oldpassword: 'La contraseña es incorrecta.'
@@ -336,26 +344,6 @@ export default function Settings() {
                                             },
                                         }}
                                         placeholder={formData.email}
-                                        disabled
-                                    />
-                                </Tooltip>
-                            </Box>
-
-                            <Box>
-                                <Typography fontWeight="bold">Cédula</Typography>
-                                <Tooltip title={'No puedes realizar cambios a tu cédula.'} placement="top" arrow>
-                                    <TextField
-                                        fullWidth
-                                        sx={{
-                                            "& .MuiInputBase-root": {
-                                                padding: "4px 8px",
-                                                fontSize: "0.875rem",
-                                            },
-                                            "& input": {
-                                                padding: "6px 8px",
-                                            },
-                                        }}
-                                        placeholder={formData.cedula}
                                         disabled
                                     />
                                 </Tooltip>
@@ -759,7 +747,7 @@ export default function Settings() {
                                 borderRadius: '0.5rem',
                             }}
                         >
-                           Sí, eliminar cuenta.
+                            Sí, eliminar cuenta.
                         </Button>
                     </Box>
                 </Box>
