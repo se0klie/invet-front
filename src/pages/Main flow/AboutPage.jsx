@@ -76,7 +76,7 @@ export default function AboutPage() {
                         bottom: 0,
                         height: { xs: 400, md: 600 },
                         aspectRatio: '4 / 3',
-                        backgroundImage: `url(${import.meta.env.BASE_URL}/images/about/dog-about.png)`,
+                        backgroundImage: `url(${import.meta.env.VITE_BASE_URL}/images/about/dog-about.png)`,
                         backgroundSize: "contain",
                         backgroundRepeat: "no-repeat",
                         backgroundPosition: "right bottom",

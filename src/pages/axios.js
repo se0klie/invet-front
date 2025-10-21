@@ -9,12 +9,9 @@ const axios_api = axios.create({
 });
 
 function handleUnauthorized() {
-  if (window.location.pathname !== "/login") {
-    localStorage.clear();
-    window.location.href = "/login";
-  }
+  localStorage.clear();
+  window.location.href = "/login";
 }
-
 
 axios_api.interceptors.response.use(
   (response) => response,

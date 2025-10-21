@@ -341,7 +341,7 @@ export default function PaymentPage() {
                                 }} />
                                 <Typography>o</Typography>
                                 <DarkGreenButton text="Regístrate" action={() => {
-                                    navigate('/login', { state: { from: 'checkout', plans: quantities, step: 5 } })
+                                    navigate('/login', { state: { from: 'checkout', plans: quantities, step: 3 } })
                                 }} />
                             </Box>
                         )}
