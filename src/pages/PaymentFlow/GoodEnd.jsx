@@ -19,7 +19,7 @@ export default function GoodEnd() {
     useEffect(() => {
         const timeout = setTimeout(() => {
             navigate("/login");
-        }, 10000);
+        }, 5000);
 
         return () => clearTimeout(timeout);
     }, [navigate]);

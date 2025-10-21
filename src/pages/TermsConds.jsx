@@ -50,8 +50,8 @@ export default function TermsAndConds() {
                 setTimeout(() => {
                     setOpenModal(false)
                     setStepModal(0)
-                }, 2500);
-            }, 3000);
+                }, 1000);
+            }, 2000);
             return err;
         }
     }

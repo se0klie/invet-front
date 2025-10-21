@@ -50,8 +50,8 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
                     setTimeout(() => {
                         setLoadingModal(false)
                         setLoadingModalStep(0)
-                    }, 2000);
-                }, 3000);
+                    }, 1000);
+                }, 2000);
             }
         } catch (err) {
             console.error('Error POST to /add-pet', err);
@@ -60,8 +60,8 @@ export default function MisMascotas({ pets, subs, handleRefresh }) {
                 setTimeout(() => {
                     setLoadingModal(false)
                     setLoadingModalStep(0)
-                }, 2000);
-            }, 3000);
+                }, 1000);
+            }, 2000);
         }
     }
 

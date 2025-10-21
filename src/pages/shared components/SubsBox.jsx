@@ -125,23 +125,20 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
             )
             if (response.status === 200) {
                 handleRefresh()
-                setTimeout(() => {
-                    setLoadingModalStep(1)
-                    setTimeout(() => {
-                        setLoadingModal(false)
-                        setLoadingModalStep(0)
-                    }, 2500);
-                }, 3000);
-            }
-        } catch (err) {
-            console.error('Error in PATCH method', err);
-            setTimeout(() => {
-                setLoadingModalStep(-1)
+                setLoadingModalStep(1)
+
                 setTimeout(() => {
                     setLoadingModal(false)
                     setLoadingModalStep(0)
-                }, 2500);
-            }, 3000);
+                }, 1000);
+            }
+        } catch (err) {
+            console.error('Error in PATCH method', err);
+            setLoadingModalStep(-1)
+            setTimeout(() => {
+                setLoadingModal(false)
+                setLoadingModalStep(0)
+            }, 1000);
             return err
         }
     }
@@ -157,24 +154,20 @@ export default function SubsBox({ pet, subData, handleRefresh }) {
             )
             if (response.status === 200) {
                 setIsCanceled(true);
+                setLoadingModalStep(1)
                 handleRefresh()
-                setTimeout(() => {
-                    setLoadingModalStep(1)
-                    setTimeout(() => {
-                        setLoadingModal(false)
-                        setLoadingModalStep(0)
-                    }, 2500);
-                }, 3000);
-            }
-        } catch (err) {
-            console.error('Error in PATCH cancel sub', err)
-            setTimeout(() => {
-                setLoadingModalStep(-1)
                 setTimeout(() => {
                     setLoadingModal(false)
                     setLoadingModalStep(0)
-                }, 2500);
-            }, 3000);
+                }, 1000);
+            }
+        } catch (err) {
+            console.error('Error in PATCH cancel sub', err)
+            setLoadingModalStep(-1)
+            setTimeout(() => {
+                setLoadingModal(false)
+                setLoadingModalStep(0)
+            }, 1000);
             return err
         }
     }

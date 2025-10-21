@@ -99,7 +99,7 @@ export default function PetPlanAssociation() {
             setOpen(true)
             setTimeout(() => {
                 setOpen(false)
-            }, 5000);
+            }, 10000);
         }
     }, [])
 
@@ -208,8 +208,8 @@ function AddPet({ pets, plans, setStep, refresh }) {
             setTimeout(() => {
                 setShowModal(false)
                 setLoadingModalStep(0)
-            }, 2500);
-        }, 3000);
+            }, 1000);
+        }, 2000);
     }, [showModal])
 
     useEffect(() => {
@@ -315,7 +315,7 @@ function AddPet({ pets, plans, setStep, refresh }) {
                                         await refresh()
                                         setTimeout(() => {
                                             setStep(0)
-                                        }, 3000);
+                                        }, 1000);
                                     } else {
                                         await addPet(petData.nombre, petData.raza, petData.fecha_nacimiento, petData.ciudad, petData.image)
                                         setShowModal(true)
@@ -328,7 +328,7 @@ function AddPet({ pets, plans, setStep, refresh }) {
                                         })
                                         setTimeout(() => {
                                             setShowModal(false)
-                                        }, 2000);
+                                        }, 1000);
                                         setNumMascotasNecesarias(numMascotasNecesarias - 1)
                                         setOpen(true)
                                     }

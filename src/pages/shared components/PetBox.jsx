@@ -54,24 +54,21 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
             )
             refreshDashboard()
             if (response.status === 200) {
+                setLoadingModalStep(1)
                 setTimeout(() => {
-                    setLoadingModalStep(1)
-                    setTimeout(() => {
-                        setLoadingModalStep(0)
-                        setLoadingModal(false)
-                    }, 2000);
-                }, 3000);
+                    setLoadingModalStep(0)
+                    setLoadingModal(false)
+                }, 1000);
             }
             return 200
         } catch (err) {
             console.error('/PATCH cancel subs: ', err)
+            setLoadingModalStep(-1)
+
             setTimeout(() => {
-                setLoadingModalStep(-1)
-                setTimeout(() => {
-                    setLoadingModalStep(0)
-                    setLoadingModal(false)
-                }, 2000);
-            }, 3000);
+                setLoadingModalStep(0)
+                setLoadingModal(false)
+            }, 1000);
             return err;
         }
     }

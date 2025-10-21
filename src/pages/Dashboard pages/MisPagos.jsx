@@ -167,7 +167,6 @@ export default function MisPagos({ pets, subscriptions, handleRefresh, petSubMat
         }
     }
 
-    //TODO: INCLUIR PA ELIMINAR LAS DE SUBS TODAS MENOS
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'flex-start', height: '100%', padding: '1.5em' }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', height: 'min-content', width: '100%' }}>

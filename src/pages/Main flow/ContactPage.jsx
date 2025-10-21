@@ -87,8 +87,8 @@ export default function ContactPage() {
                     setTimeout(() => {
                         setLoadingModal(false)
                         setLoadingModalStep(0)
-                    }, 2000);
-                }, 3000);
+                    }, 1000);
+                }, 2000);
                 setContactForm({
                     firstname: '',
                     lastname: '',
@@ -104,8 +104,8 @@ export default function ContactPage() {
                 setTimeout(() => {
                     setLoadingModal(false)
                     setLoadingModalStep(0)
-                }, 2000);
-            }, 3000);
+                }, 1000);
+            }, 2000);
         }
     };
 

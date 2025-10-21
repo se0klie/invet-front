@@ -166,12 +166,13 @@ export default function Settings() {
                     setTimeout(() => {
                         setLoadingModal(false);
                         setLoadingModalStep(0);
-                    }, 1000);
+                    }, 500);
                 }
                 setPasswords({
                     newpassword: '',
                     oldpassword: ''
                 })
+                return true;
             } else {
                 setTimeout(() => {
                     setLoadingModal(false);
@@ -185,13 +186,12 @@ export default function Settings() {
 
         } catch (err) {
             console.error('Error in POST API', err)
+            setLoadingModalStep(-1)
+
             setTimeout(() => {
-                setLoadingModalStep(-1)
-                setTimeout(() => {
-                    setLoadingModal(false);
-                    setLoadingModalStep(0);
-                }, 2500);
-            }, 2000);
+                setLoadingModal(false);
+                setLoadingModalStep(0);
+            }, 1000);
             return
         }
     }
@@ -217,7 +217,7 @@ export default function Settings() {
                 setTimeout(() => {
                     setIsEditable(false);
                     setLoadingModalStep(1);
-                }, 3000);
+                }, 2000);
             }
         } catch (err) {
             console.error("API call failed:", err);
@@ -227,7 +227,7 @@ export default function Settings() {
             setTimeout(() => {
                 setLoadingModal(false);
                 setLoadingModalStep(0);
-            }, 2500);
+            }, 1000);
         }
     }
 
@@ -240,7 +240,7 @@ export default function Settings() {
                 setTimeout(() => {
                     setLoadingModal(false)
                     navigate('/logout')
-                }, 2000);
+                }, 1000);
             }
         } catch (err) {
             console.error(err)
@@ -708,8 +708,7 @@ export default function Settings() {
                         </Typography>
 
                         <Typography variant="body1" sx={{ color: 'black' }}>
-                            Se eliminará tu cuenta luego de esta acción la cuál es irreversible. Cualquier plan cuya suscripción fue realizada
-                            en los últimos 60 días será cobrada según los términos y condiciones aplicados. ¿Desea continuar?
+                            Se eliminará tu cuenta luego de esta acción la cuál es irreversible y toda información ligada a tu cuenta será eliminada, ¿Desea continuar?
                         </Typography>
 
                     </Box>
