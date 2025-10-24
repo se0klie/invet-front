@@ -195,7 +195,7 @@ function AddPet({ pets, plans, setStep, refresh }) {
         raza: '',
         fecha_nacimiento: '',
         ciudad: '',
-        url: undefined
+        image: undefined
     })
     const [showModal, setShowModal] = useState(false)
     const [loadingModalStep, setLoadingModalStep] = useState(0)
@@ -224,11 +224,12 @@ function AddPet({ pets, plans, setStep, refresh }) {
         const newErrors = {};
 
         Object.entries(petData).forEach(([key, value]) => {
-            if (!value && key !== 'image') {
+            if (!value && (key !== 'image')) {
                 newErrors[key] = 'Este campo es necesario.';
                 hasErrors = true;
             }
         })
+        console.log(newErrors)
         setErrors(newErrors);
         return hasErrors;
     }

@@ -313,7 +313,7 @@ export default function PaymentPage() {
                                     text="Continuar"
                                     disabled={Object.values(quantities).reduce((accumulator, currentValue) => accumulator + currentValue, 0) < 1}
                                     action={() => {
-                                        navigate('/login', { state: { from: 'checkout', plans: quantities } })
+                                        navigate('/login', { state: { from: 'checkout', plans: quantities, to: '/identificar-mascota' } })
                                     }} />
                             </Box>
                         ) : (
