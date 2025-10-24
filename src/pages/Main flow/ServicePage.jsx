@@ -195,6 +195,76 @@ export default function ServicePage() {
 
                 </Box>
             </Box>
+
+            <Box
+                component="section"
+                sx={{
+                    position: "relative",
+                    background: '#F5F5F5',
+                    display: "flex",
+                    alignItems: "flex-start",
+                    justifyContent: "center",
+                    paddingX: 3,
+                    paddingY: '2rem',
+                    flexDirection: 'column',
+                    gap: 2
+                }}
+            >
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1 }}>
+                    <FaPaw size={isMobile ? 24 : 28} style={{ color: 'var(--darkgreen-color)' }} />
+                    <Typography variant={isMobile ? 'h6' : 'h6'} sx={{ fontWeight: 600, color: 'var(--darkgreen-color)' }}>
+                        Planes preventivos
+                    </Typography>
+                </Box>
+
+                <Typography
+                    sx={{
+                        color: 'var(--hoverdarkgreen-color)',
+                        fontSize: isMobile ? '0.85rem' : '0.95rem',
+                        lineHeight: 1.4,
+                        mb: 2
+                    }}
+                >
+                    Asegura la despedida digna de tu mascota con pagos mensuales accesibles. Estos planes están disponibles para todas las mascotas, sin importar su estado de salud, edad, peso o tamaño. Si la mascota fallece antes de cumplir 60 días de afiliación, se deberá cubrir la diferencia del plan inmediato correspondiente. Después de ese período, el servicio se brinda sin costos adicionales.
+                </Typography>
+
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: isMobile ? 'column' : 'row',
+                        justifyContent: 'space-between',
+                        flexWrap: 'wrap',
+                        gap: 2,
+                        width: '100%',
+                        alignItems: 'stretch',
+                    }}
+                >
+                    {preventivePlans.map((item, index) => (
+                        <Box
+                            key={index}
+                            sx={{
+                                flex: 1,
+                                display: 'flex',
+                                flexDirection: 'column',
+                            }}
+                        >
+                            <PlanCardServices
+                                name={item.name}
+                                points={item.points}
+                                value={item.value}
+                                isHighlight={item.isHighlight}
+                                img={`services/${item.image}`}
+                                buttonText="Suscribirse"
+                                action={() => {
+                                    navigate('/pago', { state: { from: 'checkout', plan: { name: item.tag, value: item.value } } })
+                                }}
+                            />
+                        </Box>
+                    ))}
+                </Box>
+            </Box>
+
+
             <Box
                 component="section"
                 sx={{
@@ -204,30 +274,43 @@ export default function ServicePage() {
                     alignItems: "flex-start",
                     justifyContent: "center",
                     paddingX: 3,
-                    paddingY: '3rem',
+                    paddingY: '2rem', // reduced from 3rem
                     flexDirection: 'column',
+                    gap: 2
                 }}
             >
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                    <FaPaw size={isMobile ? 28 : 32} style={{ color: 'var(--hoverdarkgreen-color)' }} />
-                    <Typography variant={isMobile ? 'h6' : 'h6'} sx={{ fontWeight: 600, color: 'var(--hoverdarkgreen-color)' }}>Planes inmediatos</Typography>
+                {/* HEADER */}
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 1 }}>
+                    <FaPaw size={isMobile ? 24 : 28} style={{ color: 'var(--hoverdarkgreen-color)' }} />
+                    <Typography variant={isMobile ? 'h6' : 'h6'} sx={{ fontWeight: 600, color: 'var(--hoverdarkgreen-color)' }}>
+                        Planes inmediatos
+                    </Typography>
                 </Box>
-                <Typography sx={{ color: 'var(--hoverdarkgreen-color)' }}>
+
+                {/* DESCRIPTION */}
+                <Typography
+                    sx={{
+                        color: 'var(--hoverdarkgreen-color)',
+                        fontSize: isMobile ? '0.85rem' : '0.95rem',
+                        lineHeight: 1.4,
+                        mb: 2
+                    }}
+                >
                     Solicítalos cuando tu mascota ya ha fallecido. Atención rápida y personalizada los 365 días del año.
                 </Typography>
+
+                {/* CARDS */}
                 <Box
                     sx={{
                         display: 'flex',
                         flexDirection: isMobile ? 'column' : 'row',
-                        paddingY: '1rem',
-                        justifyContent: isMobile ? 'flex-start' : 'space-between',
+                        justifyContent: 'space-between',
                         flexWrap: 'wrap',
-                        width: '100%',
                         gap: 2,
+                        width: '100%',
                         alignItems: 'stretch',
                     }}
                 >
-
                     {inmediatePlans.map((item, index) => (
                         <Box
                             key={index}
@@ -250,62 +333,6 @@ export default function ServicePage() {
                 </Box>
             </Box>
 
-            <Box
-                component="section"
-                sx={{
-                    position: "relative",
-                    background: '#F5F5F5',
-                    display: "flex",
-                    alignItems: "flex-start",
-                    justifyContent: "center",
-                    paddingX: 3,
-                    paddingY: '3rem',
-                    flexDirection: 'column',
-                }}
-            >
-                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                    <FaPaw size={isMobile ? 28 : 32} style={{ color: 'var(--darkgreen-color)' }} />
-                    <Typography variant={isMobile ? 'h6' : 'h6'} sx={{ fontWeight: 600, color: 'var(--darkgreen-color)' }}>Planes preventivos</Typography>
-                </Box>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        flexDirection: isMobile ? 'column' : 'row',
-                        paddingY: '1rem',
-                        justifyContent: isMobile ? 'flex-start' : 'space-between',
-                        flexWrap: 'wrap',
-                        width: '100%',
-                        gap: 2,
-                        alignItems: 'stretch',
-                    }}
-                >
-                    <Typography sx={{ color: 'var(--hoverdarkgreen-color)' }}>Asegura la despedida digna de tu mascota con pagos mensuales accesibles. Estos planes están disponibles para todas las mascotas, sin importar su estado de salud, edad, peso o tamaño. Si la mascota fallece antes de cumplir 60 días de afiliación, se deberá cubrir la diferencia del plan inmediato correspondiente. Después de ese período, el servicio se brinda sin costos adicionales.</Typography>
-                    {preventivePlans.map((item, index) => (
-                        <Box
-                            key={index}
-                            sx={{
-                                flex: 1,
-                                display: 'flex',
-                                flexDirection: 'column',
-                            }}
-                        >
-                            <PlanCardServices
-                                name={item.name}
-                                points={item.points}
-                                value={item.value}
-                                isHighlight={item.isHighlight}
-                                img={`services/${item.image}`}
-                                buttonText="Suscribirse"
-                                action={() => {
-                                    navigate('/payment', { state: { from: 'checkout', plan: {name: item.tag, value: item.value}} })
-                                }}
-                            />
-                        </Box>
-
-                    ))}
-
-                </Box>
-            </Box>
             <Box
                 component="section"
                 sx={{
@@ -386,7 +413,7 @@ export default function ServicePage() {
                                     background: 'var(--darkgreen-color)'
                                 }
                             }}
-                            onClick={() => { navigate('/contact') }}
+                            onClick={() => { navigate('/contacto') }}
                         >
                             Contáctanos
                             <IoIosArrowForward size={20} />

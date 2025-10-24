@@ -94,6 +94,7 @@ export default function MainPage() {
                         sx={{
                             fontWeight: "bold",
                             color: "#104F57",
+                            fontSize: { xs: '1.5rem', md: '2rem' }
                         }}
                     >
                         Cremación de mascotas
@@ -105,7 +106,7 @@ export default function MainPage() {
                             mt: 1,
                             color: "white",
                             fontWeight: 600,
-                            maxWidth: "400px",
+                            fontSize: { xs: "0.6rem", sm: "0.8rem", md: "1.1rem", lg: "1.2rem" },
                         }}
                     >
                         Despedir con amor es también una forma de agradecer.
@@ -120,36 +121,39 @@ export default function MainPage() {
                             fontWeight: "bold",
                             borderRadius: "8px",
                             "&:hover": { backgroundColor: "#256d6d" },
+                            fontSize: { xs: "0.4rem", sm: "0.6rem", md: "0.9rem", lg: "1rem" },
+
                         }}
-                        onClick={() => {navigate('/ourService')}}
+                        onClick={() => { navigate('/servicios') }}
                     >
                         Nuestros servicios
                     </Button>
                 </Container>
             </Box>
-            <Section bgColor='var(--primary-color)'>
-                <Box
-                    sx={{
-                        paddingY: '1rem',
-                    }}>
+            <Section bgColor="var(--primary-color)">
+                {/* Section Title */}
+                <Box sx={{ py: { xs: 1, sm: 1.5, md: 2 } }}>
                     <Divider textAlign="center">
                         <Typography
                             variant="h5"
-                            sx={{ fontWeight: 600, color: "#1F4E43" }}
+                            sx={{
+                                fontWeight: 600,
+                                color: "#1F4E43",
+                                fontSize: { xs: "1rem", sm: "1.1rem", md: "1.2rem", lg: "1.3rem" },
+                            }}
                         >
                             Planes de Cremación
                         </Typography>
                     </Divider>
                 </Box>
+
                 <Box
                     sx={{
-                        display: 'flex',
-                        flexDirection: isMobile ? 'column' : 'row',
-                        paddingY: '1rem',
-                        justifyContent: isMobile ? 'flex-start' : 'space-between',
-                        flexWrap: 'wrap',
-                        minWidth: '500',
-                        gap: isMobile ? 0 : 2,
+                        display: "flex",
+                        flexDirection: { xs: "column", md: "row" },
+                        justifyContent: { xs: "flex-start", md: "space-between" },
+                        flexWrap: "wrap",
+                        gap: { xs: 1, md: 2 },
                     }}
                 >
                     {planes.map((item, index) => (
@@ -157,8 +161,8 @@ export default function MainPage() {
                             key={index}
                             sx={{
                                 flex: 1,
-                                mx: isMobile ? 0 : 1,
-                                height: '100%',
+                                mx: { xs: 0, md: 1 },
+                                minHeight: { xs: "auto", md: 400 }, // adjust desktop card height
                             }}
                         >
                             <PlanCard {...item} />
@@ -166,29 +170,30 @@ export default function MainPage() {
                     ))}
                 </Box>
             </Section>
+
             <Box
                 component="section"
                 sx={{
                     position: "relative",
-                    minHeight: { xs: "300px", md: "400px" },
+                    minHeight: { xs: "300px", sm: "350px", md: "400px" }, // responsive height
                     backgroundImage: `url('${import.meta.env.VITE_BASE_URL}/images/bg-inicio-comentarios.jpg')`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                     display: "flex",
                     alignItems: "flex-start",
                     color: "#fff",
-                    py: { xs: 4, md: 6 },
+                    py: { xs: 4, sm: 5, md: 6 },
                 }}
             >
                 <Container
                     disableGutters
                     maxWidth="lg"
                     sx={{
-                        px: { xs: 2, md: 5 },
+                        px: { xs: 2, sm: 3, md: 5 },
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
-                        gap: 4,
+                        gap: { xs: 3, md: 4 },
                     }}
                 >
                     <Box textAlign="center">
@@ -197,6 +202,7 @@ export default function MainPage() {
                             sx={{
                                 color: "white",
                                 fontWeight: "bold",
+                                fontSize: { xs: "1.2rem", sm: "1.5rem", md: "2rem" },
                             }}
                         >
                             Estás en <strong>buena compañía</strong>
@@ -208,8 +214,9 @@ export default function MainPage() {
                                 mt: 1,
                                 color: "white",
                                 fontWeight: 600,
-                                maxWidth: "400px",
+                                maxWidth: { xs: "90%", sm: "400px" },
                                 mx: "auto",
+                                fontSize: { xs: "0.85rem", sm: "0.95rem", md: "1.1rem" },
                             }}
                         >
                             Testimonios de nuestros clientes
@@ -221,9 +228,10 @@ export default function MainPage() {
                             display: "grid",
                             gridTemplateColumns: {
                                 xs: "1fr",
-                                sm: "repeat(2, 1fr)",
+                                sm: "repeat(2, 1fr)", // optional: show 3 on larger screens
+                                md: "repeat(2, 1fr)", // optional: show 3 on larger screens
                             },
-                            gap: 3,
+                            gap: { xs: 2, sm: 3 },
                         }}
                     >
                         {opinions.map((opinion, index) => (
@@ -234,7 +242,7 @@ export default function MainPage() {
                                     display: "flex",
                                     alignItems: "flex-start",
                                     gap: 2,
-                                    p: 2,
+                                    p: { xs: 1.5, sm: 2 },
                                     borderRadius: 2,
                                     boxShadow: 1,
                                     transition: "transform 0.2s ease, box-shadow 0.2s ease",
@@ -246,11 +254,11 @@ export default function MainPage() {
                             >
                                 <Box
                                     sx={{
-                                        height: 60,
-                                        width: 60,
+                                        height: { xs: 50, sm: 60, md: 70 },
+                                        width: { xs: 50, sm: 60, md: 70 },
                                         borderRadius: "50%",
                                         backgroundImage: `url(${import.meta.env.VITE_BASE_URL}/images/dog${index + 1}-opinion.jpg)`,
-                                        backgroundColor: 'pink',
+                                        backgroundColor: "pink",
                                         backgroundSize: "cover",
                                         backgroundPosition: "center",
                                         flexShrink: 0,
@@ -262,8 +270,8 @@ export default function MainPage() {
                                         {[...Array(5)].map((_, i) => (
                                             <FaStar
                                                 key={i}
-                                                size={20}
-                                                style={{ color: "#FFDD55" }}
+                                                size={18} // optional: can make responsive too
+                                                style={{ color: "#FFDD55", marginRight: 2 }}
                                             />
                                         ))}
                                     </Box>
@@ -271,7 +279,7 @@ export default function MainPage() {
                                     <Typography
                                         sx={{
                                             color: "text.primary",
-                                            fontSize: "0.95rem",
+                                            fontSize: { xs: "0.85rem", sm: "0.95rem", md: "1rem" },
                                             lineHeight: 1.4,
                                         }}
                                     >
@@ -283,29 +291,30 @@ export default function MainPage() {
                     </Box>
                 </Container>
             </Box>
+
             <Box
                 component="section"
                 sx={{
                     position: "relative",
-                    background: 'var(--primary-color)',
+                    background: "var(--primary-color)",
                     width: "100%",
-                    minHeight: { xs: "300px", md: "400px" },
+                    minHeight: { xs: "300px", sm: "350px", md: "400px" },
                     display: "flex",
                     alignItems: "flex-start",
                     color: "#fff",
-                    py: { xs: 4, md: 6 },
+                    py: { xs: 4, sm: 5, md: 6 },
                 }}
             >
                 <Container
                     disableGutters
                     maxWidth="lg"
                     sx={{
-                        px: { xs: 2, md: 5 },
+                        px: { xs: 2, sm: 3, md: 5 },
                         mx: "auto",
                         display: "flex",
                         flexDirection: "column",
                         alignItems: "center",
-                        gap: 4,
+                        gap: { xs: 3, md: 4 },
                     }}
                 >
                     <Box textAlign="center">
@@ -314,6 +323,7 @@ export default function MainPage() {
                             sx={{
                                 color: "var(--darkgreen-color)",
                                 fontWeight: "bold",
+                                fontSize: { xs: "1.2rem", sm: "1.4rem", md: "1.6rem" },
                             }}
                         >
                             Nuestros productos
@@ -325,16 +335,21 @@ export default function MainPage() {
                                 mt: 1,
                                 color: "var(--blackinput-color)",
                                 fontWeight: 600,
-                                fontSize: '1rem'
+                                fontSize: { xs: "0.9rem", sm: "1rem", md: "1.1rem" },
+                                maxWidth: { xs: "90%", sm: "80%", md: "700px" },
+                                mx: "auto",
+                                lineHeight: 1.5,
                             }}
                         >
-                            Un vistazo a los productos que ofrecemos en nuestros distintos planes para darte la mejor compañía posible.                        </Typography>
+                            Un vistazo a los productos que ofrecemos en nuestros distintos planes para darte la mejor compañía posible.
+                        </Typography>
                     </Box>
-                    <Box sx={{ width: '100%' }}>
+                    <Box sx={{ width: "100%", mt: { xs: 2, md: 4 } }}>
                         <ProductCarousel />
                     </Box>
                 </Container>
             </Box>
+
         </Box>
     )
 }

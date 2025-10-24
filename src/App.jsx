@@ -26,7 +26,7 @@ function App() {
   const location = useLocation()
   const isMobile = window.innerWidth <= 1024
 
-  const showInDesktopRoutes = ['/', '/gallery', '/about']
+  const showInDesktopRoutes = ['/', '/galeria', '/nosotros']
   const shouldShowWhatsAppButton =
     isMobile || showInDesktopRoutes.includes(location.pathname)
 
@@ -37,7 +37,7 @@ function App() {
       <Routes>
         <Route element={<PublicRoute />}>
           <Route path="/login" element={<InitialState />} />
-          <Route path='/payment' element={<PaymentPage />} />
+          <Route path='/pago' element={<PaymentPage />} />
         </Route>
 
         <Route element={<ProtectedRoute />}>
@@ -49,20 +49,20 @@ function App() {
         </Route>
 
         <Route element={<ProtectedRoute />}>
-          <Route path='/identify-pet' element={<PetPlanAssociation />} />
+          <Route path='/identificar-mascota' element={<PetPlanAssociation />} />
           <Route path='/terms-conds' element={<TermsAndConds />} />
-          <Route path='/good-end' element={<GoodEnd />} />
+          <Route path='/pago-existoso' element={<GoodEnd />} />
         </Route>
         
-        <Route path="/welcomePage" element={<WelcomePage />} />
+        <Route path="/bienvenido-invet" element={<WelcomePage />} />
         <Route path="/logout" element={<LogoutPage />} />
 
         <Route element={<MainflowLayout />}>
           <Route path='/' element={<MainPage />} />
-          <Route path='/gallery' element={<GalleryPage />} />
-          <Route path='/about' element={<AboutPage />} />
-          <Route path='/contact' element={<ContactPage />} />
-          <Route path='/ourService' element={<ServicePage />} />
+          <Route path='/galeria' element={<GalleryPage />} />
+          <Route path='/nosotros' element={<AboutPage />} />
+          <Route path='/contacto' element={<ContactPage />} />
+          <Route path='/servicios' element={<ServicePage />} />
         </Route>
 
       </Routes>

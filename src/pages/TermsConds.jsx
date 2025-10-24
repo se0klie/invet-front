@@ -42,7 +42,7 @@ export default function TermsAndConds() {
             }
 
             setOpenModal(false);
-            navigate('/good-end')
+            navigate('/pago-existoso')
         } catch (err) {
             console.error("Error, subscription", err);
             setTimeout(() => {
@@ -319,7 +319,7 @@ export default function TermsAndConds() {
                         variant="outlined"
                         sx={{ minWidth: 120, borderColor: 'var(--dark-gray-hover-color)', color: 'var(--dark-gray-hover-color)' }}
                         onClick={() => {
-                            navigate('/identify-pet', { state: { plans: location?.state?.back_info } })
+                            navigate('/identificar-mascota', { state: { plans: location?.state?.back_info } })
                         }}
                     >
                         Regresar

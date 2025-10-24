@@ -142,7 +142,7 @@ export default function PetPlanAssociation() {
                     sx={{ minWidth: 120, borderColor: 'var(--dark-gray-hover-color)', color: 'var(--dark-gray-hover-color)' }}
                     onClick={() => {
                         if (step === 0) {
-                            navigate('/payment', { state: { plan: plans, from: 'plan-assoc' } })
+                            navigate('/pago', { state: { plan: plans, from: 'plan-assoc' } })
                         } else {
                             setStep(step - 1)
                         }
@@ -177,7 +177,7 @@ export default function PetPlanAssociation() {
                     severity="info"
                     sx={{ width: '100%' }}
                 >
-                    Selecciona mascotas o agrega nuevas mascotas.
+                    Selecciona o agrega nuevas mascotas.
                 </Alert>
             </Snackbar>
 

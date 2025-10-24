@@ -205,7 +205,7 @@ export default function MisPagos({ pets, subscriptions, handleRefresh, petSubMat
                                     }}
                                     onMouseOver={(e) => (e.currentTarget.style.color = 'var(--darkgreen-color)')}
                                     onMouseOut={(e) => (e.currentTarget.style.color = 'inherit')}
-                                    onClick={() => { navigate('/ourService') }}
+                                    onClick={() => { navigate('/servicios') }}
                                 >
                                     ¡Activa una!
                                 </span>
