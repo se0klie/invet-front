@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Typography, Menu, MenuItem, IconButton } from "@mui/material"
+import { Box, Button, Divider, FormControlLabel, Checkbox, Typography, Menu, MenuItem, IconButton } from "@mui/material"
 import { useState, useEffect } from "react"
 import React from "react"
 import { useNavigate, useLocation } from "react-router-dom"
@@ -8,26 +8,25 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { DarkGreenButton } from "../shared components/Buttons";
 import { YellowAlert } from "../shared components/Alerts";
 
+
 export default function PaymentPage() {
     const [bill, setBill] = useState({
         number: '0',
         items: { basic: { label: 'básico', subtext: '10 meses', quantity: 0, value: 11 }, premium: { label: 'premium', subtext: '12 meses', quantity: 0, value: 18.3 }, onsite: { label: 'presencial', subtext: '12 meses', quantity: 0, value: 24.15 } }
     })
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
-    const [anchorEl, setAnchorEl] = useState(null);
     const [quantities, setQuantities] = useState({
         basic: 0,
         premium: 0,
         onsite: 0
     });
-
     const [latePrice, setLatePrice] = useState({
         subtotal: 0,
     })
     const location = useLocation()
-    const open = Boolean(anchorEl);
     const navigate = useNavigate()
     const plan = location?.state?.plan;
+
 
     useEffect(() => {
         if (location?.state?.from === 'plan-assoc') {
@@ -71,7 +70,6 @@ export default function PaymentPage() {
         });
     }, [quantities]);
 
-
     useEffect(() => {
         function handleResize() {
             setIsMobile(window.innerWidth <= 1024);
@@ -79,13 +77,6 @@ export default function PaymentPage() {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
-
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
 
     const handleChange = (plan, delta) => {
         setQuantities((prev) => ({
@@ -126,6 +117,7 @@ export default function PaymentPage() {
                         gap: { xs: 1.5, sm: 2 },
                     }}
                 >
+
                     <Button variant="outlined" sx={{ alignSelf: 'flex-start', mb: isMobile ? '' : 'auto', color: 'white', borderColor: 'white', gap: 2 }}
                         onClick={() => { navigate('/servicios') }}>
                         <IoIosArrowBack /> Regresar
@@ -146,6 +138,53 @@ export default function PaymentPage() {
                             mb: isMobile ? '' : 'auto'
                         }}
                     >
+                        <Box sx={{ background: 'var(--disabled-color)', px: 2, py: 1, my: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                <Typography sx={{ fontWeight: 'bold', color: 'gray' }}>Planes seleccionados</Typography>
+                                <Typography sx={{ fontWeight: 'bold', color: 'gray' }}># de mascotas</Typography>
+                            </Box>
+                            {['basic', 'premium', 'onsite'].map((plan) => (
+                                <Box key={plan} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1 }}>
+                                    <FormControlLabel
+                                        control={
+                                            <Checkbox
+                                                checked={quantities[plan]}
+                                                onChange={(e) => {
+                                                    const checked = e.target.checked;
+                                                    setQuantities(prev => ({ ...prev, [plan]: checked ? 1 : 0 }));
+                                                }}
+                                                sx={{ color: 'var(--dark-gray-hover-color)' }}
+                                            />
+                                        }
+                                        label={
+                                            plan === 'basic'
+                                                ? 'Plan básico'
+                                                : plan === 'premium'
+                                                    ? 'Plan premium'
+                                                    : 'Plan presencial'
+                                        }
+                                    />
+                                    {quantities[plan] > 0 && (
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => handleChange(plan, -1)}
+                                            >
+                                                <RemoveIcon fontSize="small" />
+                                            </IconButton>
+                                            <Typography>{quantities[plan]}</Typography>
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => handleChange(plan, 1)}
+                                            >
+                                                <AddIcon fontSize="small" />
+                                            </IconButton>
+                                        </Box>
+                                    )}
+                                </Box>
+                            ))}
+                        </Box>
+
                         <Typography variant="subtitle1" gutterBottom fontWeight="bold">
                             Desglose de productos
                         </Typography>
@@ -176,53 +215,6 @@ export default function PaymentPage() {
                                     </Typography>
                                 </React.Fragment>
                             ))}
-
-                            <Box sx={{ background: 'var(--disabled-color)', px: 1, py: 0.5, my: 2, gridColumn: 'span 3' }}>
-                                <Button
-                                    id="fade-button"
-                                    aria-controls={open ? 'fade-menu' : undefined}
-                                    aria-haspopup="true"
-                                    aria-expanded={open ? 'true' : undefined}
-                                    onClick={handleClick}
-                                    sx={{ color: 'var(--dark-gray-hover-color)' }}
-                                >
-                                    + Añadir items
-                                </Button>
-                                <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-                                    <MenuItem>
-                                        <Box sx={{ flexGrow: 1 }}>Plan básico</Box>
-                                        <IconButton size="small" onClick={() => handleChange('basic', -1)}>
-                                            <RemoveIcon fontSize="small" />
-                                        </IconButton>
-                                        <Typography sx={{ mx: 1 }}>{quantities.basic}</Typography>
-                                        <IconButton size="small" onClick={() => handleChange('basic', 1)}>
-                                            <AddIcon fontSize="small" />
-                                        </IconButton>
-                                    </MenuItem>
-
-                                    <MenuItem>
-                                        <Box sx={{ flexGrow: 1 }}>Plan premium</Box>
-                                        <IconButton size="small" onClick={() => handleChange('premium', -1)}>
-                                            <RemoveIcon fontSize="small" />
-                                        </IconButton>
-                                        <Typography sx={{ mx: 1 }}>{quantities.premium}</Typography>
-                                        <IconButton size="small" onClick={() => handleChange('premium', 1)}>
-                                            <AddIcon fontSize="small" />
-                                        </IconButton>
-                                    </MenuItem>
-
-                                    <MenuItem>
-                                        <Box sx={{ flexGrow: 1 }}>Plan Presencial</Box>
-                                        <IconButton size="small" onClick={() => handleChange('onsite', -1)}>
-                                            <RemoveIcon fontSize="small" />
-                                        </IconButton>
-                                        <Typography sx={{ mx: 1 }}>{quantities.onsite}</Typography>
-                                        <IconButton size="small" onClick={() => handleChange('onsite', 1)}>
-                                            <AddIcon fontSize="small" />
-                                        </IconButton>
-                                    </MenuItem>
-                                </Menu>
-                            </Box>
                             <Divider sx={{ gridColumn: 'span 3' }} />
                             <Typography sx={{ gridColumn: 'span 2', fontWeight: 600 }}>Precio final mensual</Typography>
                             <Typography>  ${latePrice.subtotal} </Typography>
@@ -230,7 +222,7 @@ export default function PaymentPage() {
                     </Box>
 
                     {isMobile &&
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, width: '100%', marginY: 'auto'}}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, width: '100%', marginY: 'auto' }}>
                             <Typography
                                 variant="h5"
                                 sx={{
@@ -317,7 +309,10 @@ export default function PaymentPage() {
                                     width: '40%'
                                 }}
                             >
-                                <DarkGreenButton text="Continuar" action={() => {
+                                <DarkGreenButton 
+                                text="Continuar" 
+                                disabled={Object.values(quantities).reduce((accumulator, currentValue) => accumulator + currentValue, 0) < 1}
+                                action={() => {
                                     navigate('/login', { state: { from: 'checkout', plans: quantities } })
                                 }} />
                             </Box>
