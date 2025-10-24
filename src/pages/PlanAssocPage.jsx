@@ -10,7 +10,6 @@ import { LoadingModal } from "./shared components/Modals";
 import { getPets, addPet, compressImage } from "../helpers/pets-helper";
 import axios_api from "./axios";
 import { endpoints } from "./endpoints";
-import Cookies from "js-cookie";
 
 export default function PetPlanAssociation() {
     const navigate = useNavigate();

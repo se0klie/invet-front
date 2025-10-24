@@ -1,11 +1,15 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLoaderData, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { useEffect } from "react";
+
 const PublicRoute = () => {
     const { user, login } = useAuth();
-    // return !user ? <Outlet /> : <Navigate to="/dashboard" replace />;
-    return <Outlet />
+    const location = useLocation();
+    if(user){
+        const to = location?.state?.to || '/dashboard';
+        return <Navigate to={to} replace state={location.state} />;
+    }
 
+    return <Outlet />
 };
 
 export default PublicRoute;
