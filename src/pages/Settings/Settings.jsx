@@ -288,14 +288,15 @@ export default function Settings() {
             backgroundColor: 'var(--primary-color)',
             display: 'flex',
             justifyContent: 'center',
-            height: '100vh',
-            overflow: 'hidden',
+            height: '100%',
+            minHeight: '100vh',
         }}>
             <Box sx={{
                 width: { xs: '90%', sm: '95%', md: '95%' },
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
+              
             }}>
                 <Box sx={{
                     padding: { xs: '1rem', sm: '1.5rem' },

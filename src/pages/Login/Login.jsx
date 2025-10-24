@@ -70,7 +70,8 @@ function Login({ setStep }) {
         if (location.state?.from === 'checkout') {
             setFromCheckout(true)
         }
-        if (user?.email || (localStorage.getItem('email') && localStorage.getItem('cedula') && Cookies.get('authToken'))) {
+        if (user?.email || (localStorage.getItem('email') && localStorage.getItem('cedula'))) {
+            
             if (fromCheckout) {
                 navigate('/identificar-mascota', { state: { plans } })
             } else {
@@ -96,7 +97,7 @@ function Login({ setStep }) {
                 })
                 setShowLoadingModal(false)
                 if (fromCheckout) {
-                    navigate('/identificar-mascota', { state: { plans } })
+                    navigate('/identificar-mascota', { state: { plans }, })
                 } else {
                     navigate('/dashboard')
                 }
@@ -415,7 +416,7 @@ function VerifyCode({ setStep, formData }) {
                             email: request.data.email,
                             cedula: request.data.cedula
                         })
-                        navigate('/identificar-mascota', { state: { plans } })
+                        navigate('/login', { state: { plans } } )
                     }
                 } else {
                     navigate('/bienvenido-invet')

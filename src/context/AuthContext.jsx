@@ -1,18 +1,15 @@
-// src/context/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from "react";
-import Cookies from 'js-cookie';
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [authToken, setAuthToken] = useState(null);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("email");
     const storedUserID = localStorage.getItem("cedula");
     const storedName = localStorage.getItem("nombre");
-    if (storedUser) {
+    if (storedUser && storedUserID && storedName) {
       setUser({
         email: storedUser,
         cedula: storedUserID,
@@ -31,16 +28,14 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    Cookies.remove("authToken");
     localStorage.removeItem("email");
     localStorage.removeItem("cedula");
     localStorage.removeItem("nombre");
-    setAuthToken(null);
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ authToken, user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

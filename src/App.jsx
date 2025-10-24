@@ -37,8 +37,9 @@ function App() {
       <Routes>
         <Route element={<PublicRoute />}>
           <Route path="/login" element={<InitialState />} />
-          <Route path='/pago' element={<PaymentPage />} />
         </Route>
+        
+        <Route path='/pago' element={<PaymentPage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
@@ -53,7 +54,7 @@ function App() {
           <Route path='/terms-conds' element={<TermsAndConds />} />
           <Route path='/pago-existoso' element={<GoodEnd />} />
         </Route>
-        
+
         <Route path="/bienvenido-invet" element={<WelcomePage />} />
         <Route path="/logout" element={<LogoutPage />} />
 
