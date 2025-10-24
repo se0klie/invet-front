@@ -87,9 +87,17 @@ export default function GalleryPage() {
                     </Box>
 
                 ) : (
-                    <Box sx={{ paddingTop: 3, width: '90%' }}>
+                    <Box
+                        sx={{
+                            paddingTop: 3,
+                            width: { xs: '95%', sm: '90%', md: '85%' }, // responsive width
+                            overflow: 'hidden', // hide any horizontal overflow from carousel
+                            mx: 'auto', // center horizontally
+                        }}
+                    >
                         <ImageCarouselWithArrowsIn images={gallery} />
                     </Box>
+
                 )}
             </Box>
             <Box

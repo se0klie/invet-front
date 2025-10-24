@@ -37,15 +37,15 @@ export default function MainflowNavbar() {
     },
     {
       label: 'Galería',
-      route: '/gallery'
+      route: '/galeria'
     },
     {
       label: 'Nosotros',
-      route: '/about'
+      route: '/nosotros'
     },
     {
       label: 'Contacto',
-      route: '/contact'
+      route: '/contacto'
     },
   ];
 
@@ -53,11 +53,11 @@ export default function MainflowNavbar() {
     const path = location.pathname;
     if (path == '/') {
       setClicked('Inicio')
-    } else if (path == '/gallery') {
+    } else if (path == '/galeria') {
       setClicked('Galería')
-    } else if (path === '/about') {
+    } else if (path === '/nosotros') {
       setClicked('Nosotros')
-    } else if (path == '/contact') {
+    } else if (path == '/contacto') {
       setClicked('Contacto')
     } else {
       setClicked('')
@@ -128,7 +128,7 @@ export default function MainflowNavbar() {
                 fontWeight: "bold",
                 "&:hover": { backgroundColor: "#256d6d" },
               }}
-              onClick={() => { navigate('/ourService') }}
+              onClick={() => { navigate('/servicios') }}
             >
               Nuestros servicios
             </Button>
@@ -179,15 +179,20 @@ export default function MainflowNavbar() {
         <Box sx={{ width: 250, p: 2 }}>
           <List>
             {menuItems.map((item) => (
-              <ListItem key={item.label} disablePadding>
+              <ListItem key={item.label} disablePadding
+                onClick={() => {
+                  navigate(item.route)
+                  setOpen(false)
+                }}
+              >
                 <ListItemButton>
-                  <ListItemText primary={item.label} onClick={() => navigate(item.route)} />
+                  <ListItemText primary={item.label} />
                 </ListItemButton>
               </ListItem>
             ))}
           </List>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
-            <Button variant="contained" sx={{ backgroundColor: "#2C7A7B" }} onClick={() => { navigate('/ourService') }}>
+            <Button variant="contained" sx={{ backgroundColor: "#2C7A7B" }} onClick={() => { navigate('/servicios') }}>
               Nuestros servicios
             </Button>
             {localStorage.getItem('email') ? (

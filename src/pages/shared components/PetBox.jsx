@@ -320,7 +320,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
                                     backgroundColor: 'var(--darkgreen-color)',
                                 },
                             }}
-                            onClick={() => { navigate('/ourService') }}
+                            onClick={() => { navigate('/servicios') }}
                         >
                             Añadir plan
                         </Button>

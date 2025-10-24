@@ -284,26 +284,32 @@ export default function Settings() {
     }
 
     return (
-        <Box sx={{ backgroundColor: 'var(--primary-color)', minHeight: '90vh', display: 'flex', justifyContent: 'center', paddingBottom: '1.5rem' }}>
-            <Box
-                sx={{
-                    width: '85%',
+        <Box sx={{
+            backgroundColor: 'var(--primary-color)',
+            display: 'flex',
+            justifyContent: 'center',
+            height: '100vh',
+            overflow: 'hidden',
+        }}>
+            <Box sx={{
+                width: { xs: '90%', sm: '95%', md: '95%' },
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+            }}>
+                <Box sx={{
+                    padding: { xs: '1rem', sm: '1.5rem' },
+                    marginLeft: { xs: '2rem', md: '5rem' },
+                    width: '100%',
                     display: 'flex',
                     flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}
-            >
-                <Box
-                    sx={{
-                        padding: '1.5rem',
-                        marginLeft: isMobile ? 0 : '3rem',
-                        color: 'var(--blackinput-color)',
-                        fontWeight: 'bold',
-                        width: '100%',
-                    }}
-                >
-                    <Typography variant='h4' sx={{ fontWeight: 600 }}>Ajustes</Typography>
+                }}>
+                    <Typography variant='h4' sx={{
+                        fontWeight: 600,
+                        fontSize: { xs: '1.5rem', sm: '2rem', md: '2rem' }
+                    }}>
+                        Ajustes
+                    </Typography>
                 </Box>
 
                 <Box
@@ -313,6 +319,8 @@ export default function Settings() {
                         borderRadius: '8px',
                         boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                         width: '90%',
+                        display: 'flex',
+                        flexDirection: 'column',
                         height: 'max-content'
                     }}>
                     <Box
@@ -424,7 +432,8 @@ export default function Settings() {
                             sx={{
                                 color: 'var(--blackinput-color)',
                                 fontWeight: 600,
-                                paddingTop: 1
+                                paddingTop: 1,
+                                fontSize: { xs: '1.2rem', md: '1.5rem' }
                             }}>
                             Editar contraseña
                         </Typography>
@@ -468,9 +477,10 @@ export default function Settings() {
                         <Typography
                             variant='h5'
                             sx={{
-                                color: 'var(--blackinput-color)',
+                                color: 'var(--error-color)',
                                 fontWeight: 600,
-                                paddingTop: 1
+                                paddingY: 1,
+                                fontSize: { xs: '1.2rem', md: '1.5rem' }
                             }}>
                             Eliminar mi cuenta
                         </Typography>
@@ -478,9 +488,8 @@ export default function Settings() {
                             sx={{
                                 display: 'grid',
                                 gridTemplateColumns: isMobile ? '1fr' : '2fr 2fr 1fr',
-                                marginY: '1rem',
                                 borderRadius: '0.3rem',
-                                gap: '1rem',
+                                gap: 2,
                                 justifyContent: 'center',
                                 alignItems: 'center'
                             }}
@@ -541,14 +550,14 @@ export default function Settings() {
                         top: '50%',
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
+                        width: '90%',
+                        maxWidth: isMobile ? '80%' : '50%',
                         bgcolor: 'background.paper',
+                        borderRadius: 3,
                         boxShadow: 24,
-                        p: 4,
-                        borderRadius: 2,
-                        width: { xs: '80%', md: 400 },
+                        p: 3,
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: 1,
                     }}
                 >
                     <Box
@@ -616,14 +625,14 @@ export default function Settings() {
                         top: '50%',
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
+                        width: '90%',
+                        maxWidth: isMobile ? '80%' : '50%',
                         bgcolor: 'background.paper',
+                        borderRadius: 3,
                         boxShadow: 24,
-                        p: 4,
-                        borderRadius: 2,
-                        width: { xs: '80%', md: 400 },
+                        p: 3,
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: 1,
                     }}
                 >
                     <Box
@@ -691,14 +700,14 @@ export default function Settings() {
                         top: '50%',
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
+                        width: '90%',
+                        maxWidth: isMobile ? '80%' : '50%',
                         bgcolor: 'background.paper',
+                        borderRadius: 3,
                         boxShadow: 24,
-                        p: 4,
-                        borderRadius: 2,
-                        width: { xs: '80%', md: 400 },
+                        p: 3,
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: 1,
                     }}
                 >
                     <Box
@@ -763,14 +772,13 @@ export default function Settings() {
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
                         width: '90%',
-                        maxWidth: 600,
+                        maxWidth: isMobile ? '80%' : '50%',
                         bgcolor: 'background.paper',
                         borderRadius: 3,
                         boxShadow: 24,
                         p: 3,
                         display: 'flex',
                         flexDirection: 'column',
-                        maxHeight: '80vh',
                     }}
                 >
                     <Typography

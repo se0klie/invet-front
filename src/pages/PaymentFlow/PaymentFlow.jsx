@@ -99,36 +99,35 @@ export default function PaymentPage() {
             sx={{
                 display: 'flex',
                 flexDirection: 'column',
-                height: '100vh',
                 bgcolor: 'background.default',
+                minHeight: '100vh',
+                overflowY: 'hidden',
             }}
         >
             <Box
                 component="section"
                 sx={{
                     display: 'flex',
-                    alignItems: 'center',
-                    boxSizing: 'border-box',
-                    flexWrap: 'wrap',
-                    flexGrow: 1,
+                    flexDirection: { xs: 'column', md: 'row' }, // Stack on mobile, side by side on desktop
+                    minHeight: '100vh',
+                    width: '100%',
                 }}
             >
                 <Box
                     sx={{
                         backgroundColor: 'var(--secondary-color)',
                         flex: '1 1 400px',
-                        p: 3,
+                        p: { xs: 2, sm: 3 },
                         color: 'text.primary',
                         display: 'flex',
                         flexDirection: 'column',
-                        justifyContent: 'center',
+                        justifyContent: 'flex-start',
                         alignItems: 'center',
-                        gap: 2,
-                        height: '100%',
+                        gap: { xs: 1.5, sm: 2 },
                     }}
                 >
                     <Button variant="outlined" sx={{ alignSelf: 'flex-start', mb: isMobile ? '' : 'auto', color: 'white', borderColor: 'white', gap: 2 }}
-                        onClick={() => { navigate('/ourService') }}>
+                        onClick={() => { navigate('/servicios') }}>
                         <IoIosArrowBack /> Regresar
                     </Button>
 
@@ -231,7 +230,7 @@ export default function PaymentPage() {
                     </Box>
 
                     {isMobile &&
-                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, width: '100%' }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, width: '100%', marginY: 'auto'}}>
                             <Typography
                                 variant="h5"
                                 sx={{
@@ -240,7 +239,7 @@ export default function PaymentPage() {
                                     textAlign: 'center',
                                 }}
                             >
-                                 Asigne los planes a sus mascotas
+                                Asigne los planes a sus mascotas
                             </Typography>
 
                             {localStorage.getItem('email') ? (
@@ -289,7 +288,6 @@ export default function PaymentPage() {
                             flex: '1 1 300px',
                             p: 3,
                             minWidth: 280,
-                            height: '100%',
                             display: 'flex',
                             flexDirection: 'column',
                             justifyContent: 'space-between',
@@ -307,7 +305,7 @@ export default function PaymentPage() {
                             Asigne los planes a sus mascotas
                         </Typography>
 
-                        {localStorage.getItem('email')? (
+                        {localStorage.getItem('email') ? (
                             <Box
                                 sx={{
                                     flex: 1,
@@ -320,7 +318,7 @@ export default function PaymentPage() {
                                 }}
                             >
                                 <DarkGreenButton text="Continuar" action={() => {
-                                    navigate('/login', { state: { from: 'checkout', plans: quantities} })
+                                    navigate('/login', { state: { from: 'checkout', plans: quantities } })
                                 }} />
                             </Box>
                         ) : (
@@ -350,8 +348,5 @@ export default function PaymentPage() {
                 }
             </Box>
         </Box >
-
-
-
     )
 }
