@@ -71,7 +71,6 @@ function Login({ setStep }) {
             setFromCheckout(true)
         }
         if (user?.email || (localStorage.getItem('email') && localStorage.getItem('cedula'))) {
-            
             if (fromCheckout) {
                 navigate('/identificar-mascota', { state: { plans } })
             } else {
@@ -97,7 +96,7 @@ function Login({ setStep }) {
                 })
                 setShowLoadingModal(false)
                 if (fromCheckout) {
-                    navigate('/identificar-mascota', { state: { plans }, })
+                    navigate('/identificar-mascota', { state: { plans }, to: '/identificar-mascota' })
                 } else {
                     navigate('/dashboard')
                 }
@@ -416,7 +415,7 @@ function VerifyCode({ setStep, formData }) {
                             email: request.data.email,
                             cedula: request.data.cedula
                         })
-                        navigate('/login', { state: { plans } } )
+                        navigate('/identificar-mascota', { state: { plans }, to: '/identificar-mascota' })
                     }
                 } else {
                     navigate('/bienvenido-invet')
@@ -431,6 +430,7 @@ function VerifyCode({ setStep, formData }) {
                     message: `Código incorrecto, por favor verifica e intenta nuevamente.`,
                     severity: 'error'
                 })
+                setLoadingModal(false)
             } else {
                 setSnackbar({
                     open: true,

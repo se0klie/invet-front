@@ -21,10 +21,10 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = (userData) => {
+    setUser(userData);
     localStorage.setItem("email", userData.email);
     localStorage.setItem("cedula", userData.cedula);
     localStorage.setItem("nombre", userData.nombre);
-    setUser(userData);
   };
 
   const logout = () => {

@@ -245,7 +245,7 @@ export default function PaymentPage() {
                                     }}
                                 >
                                     <DarkGreenButton text="Continuar" action={() => {
-                                        navigate('/login', { state: { from: 'checkout', plans: quantities, to: '/identificar-mascota'} })
+                                        navigate('/login', { state: { from: 'checkout', plans: quantities, to: '/identificar-mascota' } })
                                     }} />
                                 </Box>
                             ) : (
@@ -260,11 +260,11 @@ export default function PaymentPage() {
                                 >
                                     <Typography sx={{ color: 'black', fontWeight: 600 }}>Para continuar</Typography>
                                     <DarkGreenButton text="Inicia sesión" action={() => {
-                                        navigate('/login', { state: { from: 'checkout', plans: quantities, to: '/identificar-mascota'} })
+                                        navigate('/login', { state: { from: 'checkout', plans: quantities, to: '/identificar-mascota' } })
                                     }} />
                                     <Typography>o</Typography>
                                     <DarkGreenButton text="Regístrate" action={() => {
-                                        navigate('/login', { state: { from: 'checkout', plans: quantities, step: 3, to: '/identificar-mascota'} })
+                                        navigate('/login', { state: { from: 'checkout', plans: quantities, step: 3, to: '/identificar-mascota' } })
                                     }} />
                                 </Box>
                             )}
@@ -309,12 +309,12 @@ export default function PaymentPage() {
                                     width: '40%'
                                 }}
                             >
-                                <DarkGreenButton 
-                                text="Continuar" 
-                                disabled={Object.values(quantities).reduce((accumulator, currentValue) => accumulator + currentValue, 0) < 1}
-                                action={() => {
-                                    navigate('/login', { state: { from: 'checkout', plans: quantities } })
-                                }} />
+                                <DarkGreenButton
+                                    text="Continuar"
+                                    disabled={Object.values(quantities).reduce((accumulator, currentValue) => accumulator + currentValue, 0) < 1}
+                                    action={() => {
+                                        navigate('/login', { state: { from: 'checkout', plans: quantities } })
+                                    }} />
                             </Box>
                         ) : (
                             <Box
@@ -330,11 +330,11 @@ export default function PaymentPage() {
                             >
                                 <Typography sx={{ color: 'black', fontWeight: 600 }}>Para continuar</Typography>
                                 <DarkGreenButton text="Inicia sesión" action={() => {
-                                    navigate('/login', { state: { from: 'checkout', plans: quantities } })
+                                    navigate('/login', { state: { from: 'checkout', plans: quantities, to: '/identificar-mascota' } })
                                 }} />
                                 <Typography>o</Typography>
                                 <DarkGreenButton text="Regístrate" action={() => {
-                                    navigate('/login', { state: { from: 'checkout', plans: quantities, step: 3 } })
+                                    navigate('/login', { state: { from: 'checkout', plans: quantities, step: 3, to: '/identificar-mascota' } })
                                 }} />
                             </Box>
                         )}

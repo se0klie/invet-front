@@ -6,6 +6,7 @@ const PublicRoute = () => {
     const location = useLocation();
     if(user){
         const to = location?.state?.to || '/dashboard';
+        console.log(to, location.state)
         return <Navigate to={to} replace state={location.state} />;
     }
 
