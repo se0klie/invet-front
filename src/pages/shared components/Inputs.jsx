@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 
-export function DataInput({ label, placeholder, setData, formLabel, type, value, errorMessage, disabled, isMandatory = true }) {
+export function DataInput({ label, placeholder, setData, formLabel, type = "text", value, errorMessage, disabled, isMandatory = true, allowSigns = false }) {
     return (
         <Box>
             <Typography
@@ -13,7 +13,7 @@ export function DataInput({ label, placeholder, setData, formLabel, type, value,
                     fontSize: '1rem',
                 }}
             >
-                {isMandatory && <span style={{color: 'red', paddingRight: 5}}>*</span>}
+                {isMandatory && <span style={{ color: 'red', paddingRight: 5 }}>*</span>}
                 {label}
             </Typography>
             <Box sx={{ position: 'relative', width: '100%' }}>
@@ -46,11 +46,27 @@ export function DataInput({ label, placeholder, setData, formLabel, type, value,
                     type={type}
                     onChange={(e) => {
                         const value = e.target.value;
-                        setData((prev) => ({
-                            ...prev,
-                            [formLabel]: value
-                        }));
+
+                        if (type === 'text') {
+                            let newValue;
+                            if (allowSigns) {
+                                newValue = value.replace(/[^a-zA-Z0-9\s!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/g, '');
+                            } else {
+                                newValue = value.replace(/[^a-zA-Z\s]/g, '');
+                            }
+
+                            setData((prev) => ({
+                                ...prev,
+                                [formLabel]: newValue
+                            }));
+                        } else {
+                            setData((prev) => ({
+                                ...prev,
+                                [formLabel]: value
+                            }));
+                        }
                     }}
+
                     sx={{
                         '& .MuiInputBase-root': {
                             padding: '4px 8px',

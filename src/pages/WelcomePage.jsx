@@ -8,7 +8,7 @@ export default function WelcomePage() {
     useEffect(() => {
         const timeout = setTimeout(() => {
             navigate("/login"); 
-        }, 3000); 
+        }, 1000); 
 
         return () => clearTimeout(timeout);
     }, [navigate]);

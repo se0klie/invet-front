@@ -225,7 +225,7 @@ function AddPet({ pets, plans, setStep, refresh }) {
         const newErrors = {};
 
         Object.entries(petData).forEach(([key, value]) => {
-            if (!value && key !== 'url') {
+            if (!value && key !== 'image') {
                 newErrors[key] = 'Este campo es necesario.';
                 hasErrors = true;
             }
@@ -317,8 +317,8 @@ function AddPet({ pets, plans, setStep, refresh }) {
                                             setStep(0)
                                         }, 1000);
                                     } else {
-                                        await addPet(petData.nombre, petData.raza, petData.fecha_nacimiento, petData.ciudad, petData.image)
                                         setShowModal(true)
+                                        await addPet(petData.nombre, petData.raza, petData.fecha_nacimiento, petData.ciudad, petData.image)
                                         setPetData({
                                             nombre: '',
                                             raza: '',
@@ -326,6 +326,7 @@ function AddPet({ pets, plans, setStep, refresh }) {
                                             ciudad: '',
                                             image: null,
                                         })
+                                        refresh()
                                         setTimeout(() => {
                                             setShowModal(false)
                                         }, 1000);

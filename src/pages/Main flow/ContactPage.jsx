@@ -42,28 +42,34 @@ export default function ContactPage() {
         {
             label: 'Nombre',
             size: '1',
-            formData: 'firstname'
+            formData: 'firstname',
+            type: 'text'
         },
         {
             label: 'Apellido',
             size: 1,
-            formData: 'lastname'
+            formData: 'lastname',
+            type: 'text'
         },
         {
             label: 'Correo electrónico',
             size: 2,
-            formData: 'email'
+            formData: 'email',
+            type: 'text',
+            allowSigns: true
         },
         {
             label: 'Estoy interesado/a en...',
             size: 1,
-            formData: 'subject'
+            formData: 'subject',
+            allowSigns: true
         },
         {
             label: 'Mi consulta es...',
             size: 2,
             type: 'big',
-            formData: 'body'
+            formData: 'body',
+            allowSigns: true
         },
     ]
     useEffect(() => {
@@ -263,11 +269,18 @@ export default function ContactPage() {
                                 onChange={(e) => {
                                     const value = e.target.value;
 
+                                    let newValue;
+                                    if (field.allowSigns) {
+                                        newValue = value.replace(/[^a-zA-Z0-9\s!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/g, '');
+                                    } else {
+                                        newValue = value.replace(/[^a-zA-Z\s]/g, '');
+                                    }
                                     setContactForm((prev) => ({
                                         ...prev,
-                                        [field.formData]: value,
+                                        [field.formData]: newValue,
                                     }));
-                                }}
+                                }
+                                }
 
                             />
                         </Box>

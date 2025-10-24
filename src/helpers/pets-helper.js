@@ -33,7 +33,6 @@ export async function addPet(nombre, raza, fecha, ciudad, image) {
                 'Content-Type': 'multipart/form-data',
             },
         });
-
         if (response.status === 201) {
             return 201;
         }

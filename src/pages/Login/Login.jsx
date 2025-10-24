@@ -408,7 +408,7 @@ function VerifyCode({ setStep, formData }) {
                 setLoadingModal(false)
                 if (fromCheckout) {
                     const request = await loginHelper(formData.email, formData.password);
-                    
+
                     if (request.response) {
                         login({
                             nombre: request.data.nombres.split(' ')[0] + ' ' + request.data.apellidos.split(' ')[0],
@@ -527,7 +527,7 @@ function VerifyCode({ setStep, formData }) {
                     {snackbar.message}
                 </Alert>
             </Snackbar>
-            <LoadingModal text="Validando información..." setOpen={setLoadingModal} open={loadingModal} modalStep={0}/>
+            <LoadingModal text="Validando información..." setOpen={setLoadingModal} open={loadingModal} modalStep={0} />
         </Box>
     )
 }
@@ -575,7 +575,8 @@ function Register({ setStep, setUserData, userData }) {
             label: 'E-mail',
             placeholder: 'maalejandra@gmail.com',
             formData: 'email',
-            type: 'text'
+            type: 'text',
+            allowsSigns: true
 
         },
         {
@@ -598,7 +599,9 @@ function Register({ setStep, setUserData, userData }) {
         {
             label: 'Dirección',
             placeholder: 'Ej. Ceibos Norte Mz. 5 Villa 2',
-            formData: 'address'
+            formData: 'address',
+            type: 'text',
+            allowsSigns: true
         },
         {
             label: 'Contraseña',
@@ -622,7 +625,6 @@ function Register({ setStep, setUserData, userData }) {
     function verifyFields() {
         let hasErrors = false;
         const newErrors = {};
-
         Object.entries(formData).forEach(([key, value]) => {
             if (!value) {
                 newErrors[key] = 'Este campo es necesario.';
@@ -845,6 +847,7 @@ function Register({ setStep, setUserData, userData }) {
                             InputComponent = (
                                 <Box key={i} sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                                     <DataInput
+                                        allowSigns={field.allowsSigns || false}
                                         label={field.label}
                                         placeholder={field.placeholder}
                                         setData={setFormData}

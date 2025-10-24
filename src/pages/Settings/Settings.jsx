@@ -69,7 +69,8 @@ export default function Settings() {
                 label: 'Dirección',
                 value: formData.address,
                 formData: 'address',
-                type: 'text'
+                type: 'text',
+                allowSigns: true
             },
         ]
         setSettingsFields(settings)
@@ -370,6 +371,7 @@ export default function Settings() {
                                         errorMessage={errors[field.formData] ?? ""}
                                         value={formData[field.formData] ?? ""}
                                         disabled={!isEditable}
+                                        allowSigns={field.allowSigns ?? false}
                                     />
                                 )
                             ))}
