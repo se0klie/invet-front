@@ -24,5 +24,6 @@ export const endpoints = {
     get_bills: urlJoin(API_ROOT, 'get-facturas/'),
     delete_acc: urlJoin(API_ROOT, 'delete-account/'),
     modify_pet: urlJoin(API_ROOT, 'modify-mascota/'),
-    contact_email: urlJoin(API_ROOT, 'contact-email/')
+    contact_email: urlJoin(API_ROOT, 'contact-email/'),
+    delete_pet: urlJoin(API_ROOT, 'delete-mascota/')
 };

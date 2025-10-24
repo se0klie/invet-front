@@ -29,6 +29,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
         severity: 'success',
     });
     const [showEditPet, setShowEditPet] = useState(false)
+    const [showDeletePet, setShowDeletePet] = useState(false)
     const navigate = useNavigate();
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
     const planState = sub?.estado === 0 ? 'Activo' : sub?.estado === 1 ? 'Pagado' : sub?.estado === 2 ? 'Suspendido' : sub?.estado === 3 ? 'Cancelado' : 'Finalizado'
@@ -136,6 +137,35 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
         }
     }
 
+    async function handleDeletePet() {
+        try {
+            setShowDeletePet(false)
+            setLoadingModal(true)
+
+            const payload = {
+                "mascota_id": pet.id
+            }
+
+            const response = await axios_api.delete(endpoints.delete_pet, { data: payload })
+            if ([200, 201, 202, 203, 204].includes(response.status)) {
+                refreshDashboard()
+                setLoadingModalStep(1)
+                setTimeout(() => {
+                    setLoadingModal(false)
+                    setLoadingModalStep(0)
+                }, 2000);
+            }
+        } catch (err) {
+            console.error(err)
+            setLoadingModalStep(-1)
+            setTimeout(() => {
+                setLoadingModal(false)
+                setLoadingModalStep(0)
+            }, 2000);
+            return err
+        }
+    }
+
     const handleFileChange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -157,6 +187,7 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
     return (
         <Box
             sx={{
+                position: 'relative',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
@@ -175,6 +206,29 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
                 height: '90%',
             }}
         >
+            <Box
+                sx={{
+                    position: 'absolute',
+                    top: 8,
+                    right: 8,
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    backgroundColor: 'var(--error-color)', // material darker red
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    zIndex: 2,
+                    '&:hover': {
+                        backgroundColor: '#B71C1C', // slightly darker on hover
+                    },
+                }}
+                onClick={() => setShowDeletePet(true)}
+            >
+                <RxCross1 style={{ color: 'white', fontSize: '1.2rem' }} /> {/* white X */}
+            </Box>
+
             <Box
                 sx={{
                     height: '200px',
@@ -614,6 +668,54 @@ export default function PetBox({ pets, pet, refreshDashboard, sub, subs }) {
                     </Box>
                 </Box>
             </Modal>
+
+            <Modal open={showDeletePet} onClose={() => setShowDeletePet(false)}>
+                <Box
+                    sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        width: isMobile ? '70%' : '40%',
+                        bgcolor: "background.paper",
+                        borderRadius: 3,
+                        boxShadow: 24,
+                        p: 4,
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: 2,
+                    }}
+                >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="h5" sx={{ fontWeight: 600, color: 'var(--darkgreen-color)' }}>
+                            Eliminar mascota
+                        </Typography>
+                        <X onClick={() => setShowDeletePet(false)} style={{ cursor: 'pointer' }} />
+                    </Box>
+
+                    {sub?.estado !== 0 ?
+                        (<>
+                            <Typography variant="body1" sx={{ color: 'black' }}>
+                                Vas a eliminar a <strong>{pet?.nombre}</strong>, ¿deseas continuar?
+                            </Typography>
+                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, alignItems: 'center' }}>
+                                <Box sx={{ width: '40%' }}>
+                                    <LightGreenButton
+                                        text="Eliminar mascota"
+                                        action={() => handleDeletePet()}
+                                    />
+                                </Box>
+                            </Box>
+                        </>)
+                        : (<>
+                            <Typography variant="body1" sx={{ color: 'black' }}>
+                                No puedes eliminar a <strong>{pet?.nombre}</strong> mientras tenga una subscripción activa asociada.
+                            </Typography>
+                        </>)
+                    }
+                </Box>
+            </Modal>
+
         </Box>
 
     )
